@@ -13,6 +13,7 @@ with open("config.json") as config_file:
 class Owner:
     def __init__(self, bot):
         self.bot = bot
+        self._last_result = None
 
     def developer(self, user_id):
         if user_id in config["developers"]:
@@ -33,97 +34,63 @@ class Owner:
                 self.bot.load_extension("cogs.{}".format(cog))
                 await ctx.message.add_reaction("✅")
             except Exception:
-                t = await ctx.send("Error, Cog not found.")
-                await t.add_reaction("❌")
+                await ctx.send("```py\n{}```".format(traceback.format_exc()))
 
     def clean_code(self, code):
         if code.startswith("```") and code.endswith("```"):
             return "\n".join(code.split("\n")[1:-1])
         return code.strip("` \n")
 
-    # Thanks Free TNT
-    @commands.command()
-    async def eval(self, ctx, *, code=None):
+    # Taken from https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/admin.py
+    # I am in no way affiliated with them at all.
+    @commands.command(name="eval")
+    async def _eval(self, ctx, *, code):
         """Evaluates python code."""
         if not self.developer(ctx.author.id):
             return await ctx.send("Hmm, It appears you are not one of my developers.")
         else:
-            if code is None:
-                return await ctx.send("Bruh how tf do I eval nothing. Kthx.")
             env = {
-               "bot": self.bot,
-               "music": self.bot.music_manager,
-               "guild": ctx.guild, 
-               "channel": ctx.channel,
-               "message": ctx.message,
-               "author": ctx.author,
-               "ctx": ctx
+                "bot": self.bot,
+                "ctx": ctx,
+                "guild": ctx.guild,
+                "author": ctx.author,
+                "channel": ctx.channel,
+                "music": self.bot.music_manager,
+                "_": self._last_result,
             }
+
             env.update(globals())
 
             code = self.clean_code(code)
-            out = io.StringIO()
-            err = out = None
+            stdout = io.StringIO()
 
-            to_compile = f'async def func():\n{textwrap.indent(code, "  ")}'
-
-            def paginate(text: str):
-                '''Simple generator that paginates text.'''
-                last = 0
-                pages = []
-                for curr in range(0, len(text)):
-                    if curr % 1980 == 0:
-                        pages.append(text[last:curr])
-                        last = curr
-                        appd_index = curr
-                if appd_index != len(text) - 1:
-                    pages.append(text[last:curr])
-                return list(filter(lambda a: a != '', pages))
-
-        try:
-            exec(to_compile, env)
-        except Exception as e:
-            err = await ctx.send(f'```py\n{e.__class__.__name__}: {e}\n```')
-            return await ctx.message.add_reaction('\u2049')
-
-        func = env['func']
-        try:
-            with redirect_stdout(out):
-                ret = await func()
-        except Exception as e:
-            value = out.getvalue()
-            err = await ctx.send(f'```py\n{value}{traceback.format_exc()}\n```')
-        else:
-            value = out.getvalue()
-            if ret is None:
-                if value:
-                    try:
-                        out = await ctx.send(f'```py\n{value}\n```')
-                    except:
-                        paginated_text = paginate(value)
-                        for page in paginated_text:
-                            if page == paginated_text[-1]:
-                                out = await ctx.send(f'```py\n{page}\n```')
-                                break
-                            await ctx.send(f'```py\n{page}\n```')
+            try:
+                exec("async def func():{}\n".format(textwrap.indent(code, "  ")), env)
+            except Exception as e:
+                val = stdout.getvalue()
+                return await ctx.send("```py\n{}: {}```".format(e.__class__.__name__, e))
+            
+            func = env["func"]
+            try:
+                with redirect_stdout(stdout):
+                    ret = await func()
+            except Exception as e:
+                val = stdout.getvalue()
+                return await ctx.send("```py\n{}{}```".format(val, traceback.format_exc()))
             else:
-                self._last_result = ret
+                val = stdout.getvalue()
                 try:
-                    out = await ctx.send(f'```py\n{value}{ret}\n```')
+                    await ctx.message.add_reaction("✅")
                 except:
-                    paginated_text = paginate(f"{value}{ret}")
-                    for page in paginated_text:
-                        if page == paginated_text[-1]:
-                            out = await ctx.send(f'```py\n{page}\n```')
-                            break
-                        await ctx.send(f'```py\n{page}\n```')
+                    pass
 
-        if out:
-            await ctx.message.add_reaction('\u2705')  # tick
-        elif err:
-            await ctx.message.add_reaction('\u2049')  # x
-        else:
-            await ctx.message.add_reaction('\u2705')
+                if ret is None:
+                    if val:
+                        await ctx.send("```py\n{}\n```".format(val))
+                else:
+                    self._last_result = ret
+                    await ctx.send("```py\n{}\n```".format(ret))
+
 
 def setup(bot):
     bot.add_cog(Owner(bot))
