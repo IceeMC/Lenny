@@ -27,7 +27,7 @@ class Owner:
             return await ctx.send("Hmm, It appears you are not one of my developers.")
         else: 
             if cog is None:
-                return await ctx.send("Bruh how tf can I reload nothing.")
+                return await ctx.send("Bruh how tf can I reload nothing. Kthx.")
             try:
                 self.bot.unload_extension("cogs.{}".format(cog))
                 self.bot.load_extension("cogs.{}".format(cog))
@@ -48,6 +48,8 @@ class Owner:
         if not self.developer(ctx.author.id):
             return await ctx.send("Hmm, It appears you are not one of my developers.")
         else:
+            if code is None:
+                return await ctx.send("Bruh how tf do I eval nothing. Kthx.")
             env = {
                "bot": self.bot,
                "music": self.bot.music_manager,
