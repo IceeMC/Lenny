@@ -2,27 +2,26 @@ import asyncio
 from discord.ext import commands
 import json
 import discord
-from music.Events import TrackStart
 
 class Music:
     def __init__(self, bot):
         self.bot = bot
-        self.manager = self.bot.manager
+        self.music = self.bot.music_manager
     
     @commands.command()
     async def play(self, ctx, *, query=None):
         """Plays music in your voice channel."""
-        player = self.manager.get_player(ctx, "localhost")
+        player = self.music.get_player(ctx, "localhost")
 
         if query is None:
             return await ctx.send("Umm, How do you expect me to play anything without a search query?")
         if ctx.author.voice is None:
             return await ctx.send(":thinking: How do I join a voice channel with no one in it?")
         if ctx.author.voice.channel:
-            await self.manager.connect(ctx, "localhost")
+            await self.music.connect(ctx, "localhost")
 
-        tracks = await self.manager.get_tracks(player, query)
-        
+        tracks = await self.music.get_tracks(player, query)
+
         if not tracks:
             return await ctx.send("Aw man, No songs found.")
 
@@ -39,7 +38,7 @@ class Music:
     @commands.command()
     async def queue(self, ctx):
         """Displays the music queue."""
-        player = self.manager.get_player(ctx, "localhost")
+        player = self.music.get_player(ctx, "localhost")
 
         if len(player.queue) == 0:
             return await ctx.send("There are no songs in the queue. Kthx.")
@@ -55,7 +54,7 @@ class Music:
     @commands.command()
     async def loop(self, ctx):
         """Loops the current song forever."""
-        player = self.manager.get_player(ctx, "localhost")
+        player = self.music.get_player(ctx, "localhost")
 
         if player.playing is False:
             return await ctx.send(":thinking: How do you expect me to repeat thin air?")
@@ -70,7 +69,7 @@ class Music:
     @commands.command()
     async def pause(self, ctx):
         """Pauses the current song."""
-        player = self.manager.get_player(ctx, "localhost")
+        player = self.music.get_player(ctx, "localhost")
 
         if player.playing is False:
             return await ctx.send(":thinking: How do you expect me to pause thin air?")
@@ -89,7 +88,7 @@ class Music:
     @commands.command()
     async def resume(self, ctx):
         """Resumes the current song"""
-        player = self.manager.get_player(ctx, "localhost")
+        player = self.music.get_player(ctx, "localhost")
 
         if player.playing is False:
             return await ctx.send(":thinking: How do you expect me to resume thin air?")
@@ -108,7 +107,7 @@ class Music:
     @commands.command()
     async def stop(self, ctx):
         """Completely destroys the player."""
-        player = self.manager.get_player(ctx, "localhost")
+        player = self.music.get_player(ctx, "localhost")
 
         if player.playing is False:
             return await ctx.send(":thinking: How do you expect me to stop thin air?")

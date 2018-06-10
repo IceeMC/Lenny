@@ -21,6 +21,7 @@ class AudioPlayer:
         self.repeating = False
         self.current = None
         self.queue = []
+        self.m = None
 
     def enqueue(self, track: dict, requester: User):
         self.queue.append(AudioTrack().make(track, requester))
