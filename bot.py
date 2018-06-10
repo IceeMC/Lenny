@@ -1,10 +1,11 @@
-import discord
+import aiohttp
 from music.AudioManager import AudioManager
 from discord.ext import commands
 import json
 import os
 with open("config.json") as config_file:
     config = json.load(config_file)
+
 
 def load_cogs():
     cogs = [x.strip(".py") for x in os.listdir("cogs")]
@@ -17,8 +18,11 @@ def load_cogs():
         except Exception as e:
             print("Failed to load the cog {} because {}:{}".format(cog, type(e).__name__, e))
 
+
 bot = commands.Bot(command_prefix=commands.when_mentioned_or("^"))
 bot.music_manager = AudioManager(bot, config["nodes"], shards=1)
+bot.session = aiohttp.ClientSession()
+
 
 @bot.event
 async def on_message(msg):
@@ -33,9 +37,13 @@ async def on_ready():
     load_cogs()
     bot.loop.create_task(bot.music_manager.create())
 
+
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
         pass
+    else:
+        print(error)
+
 
 bot.run(config["token"])

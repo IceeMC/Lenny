@@ -5,18 +5,6 @@ import json
 from pyee import EventEmitter
 from .Events import TrackEnd
 
-class AudioNodeException(Exception):
-    """
-    An exception raised for when a error occurres.
-    """
-    pass
-
-class TrackNotFound(Exception):
-    """
-    An exception raised for when a track was not found.
-    """
-    pass
-
 class AudioNode:
     def __init__(self, manager, shards, host=None, password=None, port=None):
         if host is None or port is None or password is None:
@@ -34,7 +22,6 @@ class AudioNode:
 
     def __str__(self):
         return f"""
-<AudioNode class>
 A lavalink node class for the lavalink manager.
 Shards: {self.shards}
 Host: {self.host}
@@ -68,11 +55,14 @@ Port: {self.port}"""
         }
 
     async def _launch(self):
-        self.ws = await websockets.connect("ws://{}:{}".format(self.host, self.port), extra_headers=self._headers())
-        if self.ws.open:
-            print("An AudioNode has connected with host: {} and port: {}.".format(self.host, self.port))
-            self._manager.bot.loop.create_task(self._wait_for_ws_message())
-            self.ready = True
+        try:
+            self.ws = await websockets.connect("ws://{}:{}".format(self.host, self.port), extra_headers=self._headers())
+            if self.ws.open:
+                print("An AudioNode has connected with host: {} and port: {}.".format(self.host, self.port))
+                self._manager.bot.loop.create_task(self._wait_for_ws_message())
+                self.ready = True
+        except Exception:
+            pass
 
     async def _send(self, **data):
         if self.ws.open:

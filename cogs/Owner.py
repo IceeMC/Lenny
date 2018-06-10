@@ -1,14 +1,12 @@
-import discord
 import json
 import io
-import os
-import sys
 import textwrap
 import traceback
 from contextlib import redirect_stdout
 from discord.ext import commands
 with open("config.json") as config_file:
     config = json.load(config_file)
+
 
 class Owner:
     def __init__(self, bot):
@@ -36,9 +34,10 @@ class Owner:
             except Exception:
                 await ctx.send("```py\n{}```".format(traceback.format_exc()))
 
-    def clean_code(self, code):
+    @staticmethod
+    def clean_code(code):
         if code.startswith("```") and code.endswith("```"):
-            return "\n".join(code.split("\n")[1:-1])
+            return "\n ".join(code.split("\n")[1:-1])
         return code.strip("` \n")
 
     # Taken from https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/admin.py
@@ -65,7 +64,7 @@ class Owner:
             stdout = io.StringIO()
 
             try:
-                exec("async def func():{}\n".format(textwrap.indent(code, "  ")), env)
+                exec("async def func():\n{}".format(textwrap.indent(code, "  ")), env)
             except Exception as e:
                 val = stdout.getvalue()
                 return await ctx.send("```py\n{}: {}```".format(e.__class__.__name__, e))
@@ -79,9 +78,11 @@ class Owner:
                 return await ctx.send("```py\n{}{}```".format(val, traceback.format_exc()))
             else:
                 val = stdout.getvalue()
+                if self.bot.ws.token in val:
+                    val = val.replace(self.bot.ws.token, "BISH THIS IS MY TOKEN")
                 try:
                     await ctx.message.add_reaction("✅")
-                except:
+                except Exception:
                     pass
 
                 if ret is None:

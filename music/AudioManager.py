@@ -120,7 +120,10 @@ class AudioManager:
 
             @node.ee.on("track_end")
             async def on_track_end(event):
-                await event.player.m.delete()
+                try:
+                    await event.player.m.delete()
+                except discord.NotFound:
+                    pass
                 await event.player.play()
 
             @node.ee.on("queue_concluded")
