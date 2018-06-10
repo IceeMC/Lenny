@@ -24,7 +24,7 @@ bot.music_manager = AudioManager(bot, config["nodes"], shards=1)
 async def on_ready():
     print("Bot is online.")
     load_cogs()
-    bot.loop.create_task(bot.manager.create())
+    bot.loop.create_task(bot.music_manager.create())
 
 @bot.event
 async def on_command_error(ctx, error):
