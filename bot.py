@@ -18,7 +18,7 @@ def load_cogs():
             print("Failed to load the cog {} because {}:{}".format(cog, type(e).__name__, e))
 
 bot = commands.Bot(command_prefix=commands.when_mentioned_or("^"))
-bot.manager = AudioManager(bot, config["nodes"], shards=1)
+bot.music_manager = AudioManager(bot, config["nodes"], shards=1)
 
 @bot.event
 async def on_ready():
