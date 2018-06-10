@@ -123,10 +123,6 @@ class AudioManager:
                 await event.player.m.delete()
                 await event.player.play()
 
-            @node.ee.on("track_skipped")
-            async def on_track_skipped(event):
-                await event.player.play()
-
             @node.ee.on("queue_concluded")
             async def on_queue_concluded(event):
                 await self.leave(event.player.ctx)
