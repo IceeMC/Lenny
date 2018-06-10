@@ -1,3 +1,4 @@
+import discord
 import asyncio
 import aiohttp
 import json
@@ -82,10 +83,47 @@ class AudioManager:
         for node in self.nodes.values():
             @node.ee.on("track_start")
             async def on_track_start(event):
-                await event.player.ctx.send(":musical_note: Now playing: **{0.title}** requested by `{1.name}#{1.discriminator}`".format(event.track, event.track.requester))
+                m = await event.player.ctx.send(":musical_note: Now playing: **{0.title}** requested by `{1.name}#{1.discriminator}`".format(event.track, event.track.requester))
+                try:
+                    await m.add_reaction("⏸") # Pause
+                    await m.add_reaction("⏹") # Stop
+                    await m.add_reaction("⏯") # Resume
+                    await m.add_reaction("🔁") # Repeat
+                    await m.add_reaction("➖") # Volume decrease
+                    await m.add_reaction("➕") # Volume increase
+                except discord.Forbidden:
+                    return
+                try:
+                    while event.player.playing:
+                        reaction, user = await self.bot.wait_for("reaction_add", check=lambda reaction, user: user == event.player.current.requester)
+                        if reaction.emoji == "⏸":
+                            await event.player.set_paused(True)
+                            await m.remove_reaction(reaction.emoji, user)
+                        if reaction.emoji == "⏹":
+                            event.player.queue.clear()
+                            await event.player.stop()
+                            await m.clear_reactions()
+                        if reaction.emoji == "⏯":
+                            await event.player.set_paused(False)
+                            await m.remove_reaction(reaction.emoji, user)
+                        if reaction.emoji == "🔁":
+                            event.player.repeating = not event.player.repeating
+                            await m.remove_reaction(reaction.emoji, user)
+                        if reaction.emoji == "➖":
+                            await event.player.set_volume(event.player.volume - 10)
+                            await m.remove_reaction(reaction.emoji, user)
+                        if reaction.emoji == "➕":
+                            await event.player.set_volume(event.player.volume + 10)
+                            await m.remove_reaction(reaction.emoji, user)
+                except discord.Forbidden:
+                    pass
 
             @node.ee.on("track_end")
             async def on_track_end(event):
+                await event.player.play()
+
+            @node.ee.on("track_skipped")
+            async def on_track_skipped(event):
                 await event.player.play()
 
             @node.ee.on("queue_concluded")

@@ -70,7 +70,7 @@ Port: {self.port}"""
     async def _launch(self):
         self.ws = await websockets.connect("ws://{}:{}".format(self.host, self.port), extra_headers=self._headers())
         if self.ws.open:
-            print("[AudioNode] An AudioNode has connected with host: {} and port: {}.".format(self.host, self.port))
+            print("An AudioNode has connected with host: {} and port: {}.".format(self.host, self.port))
             self._manager.bot.loop.create_task(self._wait_for_ws_message())
             self.ready = True
 

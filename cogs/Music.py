@@ -1,16 +1,13 @@
-from music.AudioManager import AudioManager
 import asyncio
 from discord.ext import commands
 import json
 import discord
+from music.Events import TrackStart
 
 class Music:
     def __init__(self, bot):
         self.bot = bot
-        with open("config.json") as file:
-            config = json.load(file)
-        self.manager = AudioManager(bot, config["nodes"], shards=1)
-        self.bot.loop.create_task(self.manager.create())
+        self.manager = self.bot.manager
     
     @commands.command()
     async def play(self, ctx, *, query=None):
@@ -41,7 +38,7 @@ class Music:
 
     @commands.command()
     async def queue(self, ctx):
-        """Displays the music queue in a readable format."""
+        """Displays the music queue."""
         player = self.manager.get_player(ctx, "localhost")
 
         if len(player.queue) == 0:
@@ -51,7 +48,7 @@ class Music:
         count = 0
         for track in player.queue:
             count += 1
-            queueStr += "{}: **{}** requested by `{}#{}`".format(str(count), track.title, track.requester.name, track.requester.name)
+            queueStr += "{}: **{}** requested by `{}#{}`".format(str(count), track.title, track.requester.name, track.requester.discriminator)
 
         return await ctx.send("Showing the music queue for: `{}`\n{}".format(ctx.guild.name, queueStr))
 
@@ -106,7 +103,21 @@ class Music:
             player.paused = False
 
             await player.set_paused(False)
-            return await ctx.send("m8 thanks for doing tis? Anyway the player is now resumed.")
+            return await ctx.send("The player is now resumed.")
+
+    @commands.command()
+    async def stop(self, ctx):
+        """Completely destroys the player."""
+        player = self.manager.get_player(ctx, "localhost")
+
+        if player.playing is False:
+            return await ctx.send(":thinking: How do you expect me to stop thin air?")
+    
+        if player.current.requester.id != ctx.author.id:
+            return await ctx.send("Hmm, It seems like you didn't request this song.")
+        else:
+            player.queue.clear()
+            await player.stop()
 
 def setup(bot):
     bot.add_cog(Music(bot))

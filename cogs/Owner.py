@@ -23,10 +23,12 @@ class Owner:
             if cog is None:
                 return await ctx.send("Bruh how tf can I reload nothing.")
             try:
-                self.bot.unload_extention("cogs.{}".format(cog))
-                self.bot.load_extention("cogs.{}".format(cog))
+                self.bot.unload_extension("cogs.{}".format(cog))
+                self.bot.load_extension("cogs.{}".format(cog))
+                await ctx.message.add_reaction("✅")
             except Exception:
-                await ctx.send("Error, Cog not found.")
+                t = await ctx.send("Error, Cog not found.")
+                await t.add_reaction("❌")
 
 def setup(bot):
     bot.add_cog(Owner(bot))
