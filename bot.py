@@ -21,6 +21,13 @@ bot = commands.Bot(command_prefix=commands.when_mentioned_or("^"))
 bot.music_manager = AudioManager(bot, config["nodes"], shards=1)
 
 @bot.event
+async def on_message(msg):
+    """Ignores the message of bots."""
+    if not msg.author.bot:
+        await bot.process_commands(msg)
+
+
+@bot.event
 async def on_ready():
     print("Bot is online.")
     load_cogs()
