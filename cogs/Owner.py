@@ -19,9 +19,9 @@ class Owner:
         """Reloads a cog."""
         if not self.developer(ctx.author.id):
             return await ctx.send("Hmm, This command is for developers only.")
-        else:
+        else: 
             if cog is None:
-                await ctx.send("Bruh how tf can I reload nothing.")
+                return await ctx.send("Bruh how tf can I reload nothing.")
             try:
                 self.bot.unload_extention("cogs.{}".format(cog))
                 self.bot.load_extention("cogs.{}".format(cog))
