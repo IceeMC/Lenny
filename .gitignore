@@ -2,4 +2,4 @@ config.json
 cogs/__pycache__
 music/__pycache__
 utils/__pycache__
-.idea
+.idea/*
