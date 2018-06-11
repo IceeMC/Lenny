@@ -1,10 +1,7 @@
-import discord
-import asyncio
-import aiohttp
 import json
 from .AudioNode import AudioNode
 from .AudioPlayer import AudioPlayer
-from .AudioTrack import AudioTrack
+
 
 class AudioManager:
     """
@@ -18,7 +15,7 @@ class AudioManager:
         self.players = {}
         self._nodes = nodes
         self.shards = shards
-        self.session = aiohttp.ClientSession()
+        self.session = self.bot.session
 
     def get_player(self, ctx, node_host):
         if not self.nodes.get(node_host):
@@ -30,8 +27,8 @@ class AudioManager:
 
         return player
 
-    async def get_tracks(self, player, search):
-        async with self.session.get("http://{}:2333/loadtracks?identifier=ytsearch:{}".format(player._node.host, search), headers={ "Authorization": player._node.password }) as resp:
+    async def get_tracks(self, player, search: str):
+        async with self.session.get(f"http://{player.node.host}:2333/loadtracks?identifier={search}", headers={"Authorization": player.node.password}) as resp:
             tracks = await resp.json()
             return tracks
     
@@ -43,7 +40,7 @@ class AudioManager:
                 "sessionId": self.bot.get_guild(int(data["d"]["guild_id"])).me.voice.session_id,
                 "event": data["d"]
             }
-            await self.nodes.get("localhost")._send(**payload)
+            await self.nodes.get("localhost").send(**payload)
 
     async def connect(self, ctx, host: str):
         await self.bot.ws.send(json.dumps({
@@ -72,10 +69,10 @@ class AudioManager:
         }))
         del self.players[ctx.guild.id]
         
-    async def create(self):
+    async def start_bg_task(self):
         for i in range(len(self._nodes)):
             node = AudioNode(self, self.shards, self._nodes[i]["host"], self._nodes[i]["password"], self._nodes[i]["port"])
-            await node._launch()
+            await node.launch()
             self.nodes[node.host] = node
         await self.lavalink_event_task()
 
@@ -83,19 +80,19 @@ class AudioManager:
         for node in self.nodes.values():
             @node.ee.on("track_start")
             async def on_track_start(event):
-                event.player.m = await event.player.ctx.send(":musical_note: Now playing: **{0.title}** requested by `{1.name}#{1.discriminator}`".format(event.track, event.track.requester))
+                event.player.m = await event.player.ctx.send(f":musical_note: Now playing: **{event.track.title}** requested by `{event.track.requester.name}#{event.track.requester.discriminator}`")
                 try:
                     await event.player.m.add_reaction("⏸") # Pause
-                    await event.player.m.add_reaction("⏹") # Stop
                     await event.player.m.add_reaction("⏯") # Resume
+                    await event.player.m.add_reaction("⏹") # Stop
                     await event.player.m.add_reaction("🔁") # Repeat
                     await event.player.m.add_reaction("➖") # Volume decrease
                     await event.player.m.add_reaction("➕") # Volume increase
-                except discord.Forbidden:
+                except Exception:
                     return
                 try:
                     while event.player.playing:
-                        reaction, user = await self.bot.wait_for("reaction_add", check=lambda reaction, user: user == event.player.current.requester)
+                        reaction, user = await self.bot.wait_for("reaction_add", check=lambda r, u: u.id == event.player.current.requester.id and r.message.id == event.player.m.id)
                         if reaction.emoji == "⏸":
                             await event.player.set_paused(True)
                             await event.player.m.remove_reaction(reaction.emoji, user)
@@ -115,14 +112,14 @@ class AudioManager:
                         if reaction.emoji == "➕":
                             await event.player.set_volume(event.player.volume + 10)
                             await event.player.m.remove_reaction(reaction.emoji, user)
-                except discord.Forbidden:
-                    pass
+                except Exception as e:
+                    print(e)
 
             @node.ee.on("track_end")
             async def on_track_end(event):
                 try:
                     await event.player.m.delete()
-                except discord.NotFound:
+                except Exception:
                     pass
                 await event.player.play()
 

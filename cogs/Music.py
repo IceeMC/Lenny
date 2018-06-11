@@ -2,21 +2,24 @@ from discord.ext import commands
 
 
 class Music:
+    """Play those sick tunes."""
     def __init__(self, bot):
         self.bot = bot
         self.music = self.bot.music_manager
     
     @commands.command()
-    async def play(self, ctx, *, query=None):
+    async def play(self, ctx, *, query: str):
         """Plays music in your voice channel."""
         player = self.music.get_player(ctx, "localhost")
 
-        if query is None:
-            return await ctx.send("Umm, How do you expect me to play anything without a search query?")
         if ctx.author.voice is None:
             return await ctx.send(":thinking: How do I join a voice channel with no one in it?")
         if ctx.author.voice.channel:
             await self.music.connect(ctx, "localhost")
+
+        query = query.strip("<>")
+        if not query.startswith("http"):
+            query = f"ytsearch:{query}"
 
         tracks = await self.music.get_tracks(player, query)
 
@@ -29,7 +32,7 @@ class Music:
         player.enqueue(track=tracks[0], requester=ctx.author)
         
         if player.playing:
-            await ctx.send(":ok_hand: Enqueued song: **{}** in position: **{}**".format(tracks[0]["info"]["title"], len(player.queue)))
+            await ctx.send(f":ok_hand: Enqueued song: **{tracks[0]['info']['title']}** in position: **{len(player.queue)}**")
         else:
             await player.play()
 
@@ -41,13 +44,13 @@ class Music:
         if len(player.queue) == 0:
             return await ctx.send("There are no songs in the queue. Kthx.")
 
-        queueStr = ""
+        queue_str = ""
         count = 0
         for track in player.queue:
             count += 1
-            queueStr += "{}: **{}** requested by `{}#{}`".format(str(count), track.title, track.requester.name, track.requester.discriminator)
+            queue_str += f"{str(count)}: **{track.title}** requested by `{tracl.requester.name}#{track.requester.discriminator}`"
 
-        return await ctx.send("Showing the music queue for: `{}`\n{}".format(ctx.guild.name, queueStr))
+        return await ctx.send(f"Showing the music queue for: `{ctx.guild.name}`\n{queue_str}")
 
     @commands.command()
     async def loop(self, ctx):
@@ -62,7 +65,7 @@ class Music:
         else:
             player.repeating = not player.repeating
 
-            return await ctx.send(":repeat: has been **{}**".format("switched on" if player.repeating else "switched off"))
+            return await ctx.send(f":repeat: has been **{'enabled' if player.repeating else 'disabled'}**")
 
     @commands.command()
     async def pause(self, ctx):

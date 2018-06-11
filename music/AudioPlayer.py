@@ -13,8 +13,8 @@ class AudioPlayer:
     def __init__(self, ctx, manager, node):
         self.ctx = ctx
         self.state = {}
-        self._manager = manager
-        self._node = node
+        self.manager = manager
+        self.node = node
         self.volume = 50
         self.playing = False
         self.paused = False
@@ -28,33 +28,35 @@ class AudioPlayer:
 
     async def play(self):
         if not self.queue:
-            self._node.ee.emit("queue_concluded", QueueConcluded(self._manager.get_player(self.ctx, self._node.host)))
+            self.node.ee.emit("queue_concluded", QueueConcluded(self.manager.get_player(self.ctx, self.node.host)))
         else:
             if self.repeating:
                 await self.set_volume(self.volume)
-                await self._node._send(op="play", guildId=str(self.ctx.guild.id), track=self.current.track)
-                return self._node.ee.emit("track_start", TrackStart(self._manager.get_player(self.ctx, self._node.host), self.current))
+                await self.node.send(op="play", guildId=str(self.ctx.guild.id), track=self.current.track)
+                self.node.ee.emit("track_start", TrackStart(self.manager.get_player(self.ctx, self.node.host), self.current))
+                return
             self.playing = True
             track = self.queue.pop(0)
             self.current = track
             await self.set_volume(self.volume)
-            await self._node._send(op="play", guildId=str(self.ctx.guild.id), track=track.track)
-            return self._node.ee.emit("track_start", TrackStart(self._manager.get_player(self.ctx, self._node.host), track))
+            await self.node.send(op="play", guildId=str(self.ctx.guild.id), track=track.track)
+            return self.node.ee.emit("track_start", TrackStart(self.manager.get_player(self.ctx, self.node.host), track))
 
     async def stop(self):
-        await self._node._send(op="destroy", guildId=str(self.ctx.guild.id))
+        await self.node.send(op="destroy", guildId=str(self.ctx.guild.id))
 
     async def set_paused(self, paused):
         self.paused = paused
-        await self._node._send(op="pause", guildId=str(self.ctx.guild.id), pause=self.paused)
+        await self.node.send(op="pause", guildId=str(self.ctx.guild.id), pause=self.paused)
 
-    def valid_volume(self, volume):
-        return volume >= 10 and volume <= 150
+    @staticmethod
+    def valid_volume(volume):
+        return 10 >= volume <= 150
 
     async def set_volume(self, volume):
         if not self.valid_volume(volume):
             return
         self.volume = volume
-        await self._node._send(op="volume", guildId=str(self.ctx.guild.id), volume=volume)
+        await self.node.send(op="volume", guildId=str(self.ctx.guild.id), volume=volume)
 
 

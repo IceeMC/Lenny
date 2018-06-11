@@ -51,12 +51,12 @@ class Paginator:
         if self.enabled:
             to_switch_to = self.pages[page]
             to_switch_to.color = self.color
-            to_switch_to.set_footer(text="Showing page {} out of {}".format(page + 1, len(self.pages)))
+            to_switch_to.set_footer(text=f"Showing page {page + 1} out of {len(self.pages)}")
             await self.message.edit(embed=to_switch_to)
         else:
             self.enabled = True
             self.pages[0].color = self.color
-            self.pages[0].set_footer(text="Showing page {} out of {}".format(page + 1, len(self.pages)))
+            self.pages[0].set_footer(text=f"Showing page {page + 1} out of {len(self.pages)}")
             self.message = await self.ctx.send(embed=self.pages[0])
             await self.react()
 

@@ -1,7 +1,10 @@
+import asyncio
 import json
 import io
 import textwrap
 import traceback
+import os
+import sys
 from contextlib import redirect_stdout
 from discord.ext import commands
 with open("config.json") as config_file:
@@ -9,30 +12,17 @@ with open("config.json") as config_file:
 
 
 class Owner:
+    """OwO owner commands."""
     def __init__(self, bot):
         self.bot = bot
         self._last_result = None
 
-    def developer(self, user_id):
+    @staticmethod
+    def developer(user_id):
         if user_id in config["developers"]:
             return True
 
         return False
-
-    @commands.command()
-    async def reload(self, ctx, *, cog=None):
-        """Reloads a cog."""
-        if not self.developer(ctx.author.id):
-            return await ctx.send("Hmm, It appears you are not one of my developers.")
-        else: 
-            if cog is None:
-                return await ctx.send("Bruh how tf can I reload nothing. Kthx.")
-            try:
-                self.bot.unload_extension("cogs.{}".format(cog))
-                self.bot.load_extension("cogs.{}".format(cog))
-                await ctx.message.add_reaction("✅")
-            except Exception:
-                await ctx.send("```py\n{}```".format(traceback.format_exc()))
 
     @staticmethod
     def clean_code(code):
@@ -40,10 +30,34 @@ class Owner:
             return "\n ".join(code.split("\n")[1:-1])
         return code.strip("` \n")
 
+    @commands.command()
+    async def reload(self, ctx, *, cog: str):
+        """Reloads a cog."""
+        if not self.developer(ctx.author.id):
+            return await ctx.send("Hmm, It appears you are not one of my developers.")
+        else:
+            try:
+                self.bot.unload_extension("cogs.{}".format(cog))
+                self.bot.load_extension("cogs.{}".format(cog))
+                await ctx.message.add_reaction("✅")
+            except Exception:
+                await ctx.send("```py\n{}```".format(traceback.format_exc()))
+
+    @commands.command()
+    async def reboot(self, ctx, *, delay: int = None):
+        """Reboots the bot."""
+        if delay is None:
+            delay = 1
+        reboot_time = f"{delay} seconds." if delay > 1 else f"{delay} second."
+        await ctx.send(f"Rebooting in {reboot_time}")
+        await asyncio.sleep(delay)
+        await self.bot.logout()
+        os.execv(sys.executable, ["python3"] + ["bot.py"])
+
     # Taken from https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/admin.py
     # I am in no way affiliated with them at all.
     @commands.command(name="eval")
-    async def _eval(self, ctx, *, code):
+    async def _eval(self, ctx, *, code: str):
         """Evaluates python code."""
         if not self.developer(ctx.author.id):
             return await ctx.send("Hmm, It appears you are not one of my developers.")
