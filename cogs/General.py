@@ -37,6 +37,10 @@ class General:
         embed = discord.Embed(color=0xffffff)
         embed.description = f"they see me ponging.\nPing is: {self.bot.latency * 1000:.0f}ms"
         await ctx.send(embed=embed)
+        
+    @commands.command()
+     async def invite(self, ctx):
+         await ctx.send("https://discord.gg/ftsNNMM")
 
 
 def setup(bot):
