@@ -39,8 +39,8 @@ class General:
         await ctx.send(embed=embed)
         
     @commands.command()
-     async def support(self, ctx):
-         await ctx.send("https://discord.gg/ftsNNMM")
+    async def support(self, ctx):
+        await ctx.send("https://discord.gg/ftsNNMM")
 
 
 def setup(bot):
