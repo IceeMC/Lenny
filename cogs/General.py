@@ -36,7 +36,7 @@ class General:
     async def ping(self, ctx):
         """Ping pong? Anyone?"""
         embed = discord.Embed(color=0xffffff)
-        embed.description = f"Pong my d00d.\nPing is: {self.bot.latency * 1000:.0f}ms"
+        embed.description = f"they see me ponging.\nPing is: {self.bot.latency * 1000:.0f}ms"
         await ctx.send(embed=embed)
 
 
