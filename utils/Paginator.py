@@ -86,6 +86,9 @@ class Paginator:
                     await self.first_page()
                 if reaction.emoji == "⏩":
                     await self.last_page()
+                if reaction.emoij == "❔":
+                    await self.show_help()
+
 
     async def first_page(self):
         await self.switch_page(0)
@@ -98,6 +101,9 @@ class Paginator:
 
     async def backward(self):
         await self.switch_page(self.current - 1)
+
+    async def show_help(self):
+        help = discord.Embed()
 
     async def end(self):
         self.enabled = False

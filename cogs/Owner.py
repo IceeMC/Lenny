@@ -46,13 +46,16 @@ class Owner:
     @commands.command()
     async def reboot(self, ctx, *, delay: int = None):
         """Reboots the bot."""
-        if delay is None:
-            delay = 1
-        reboot_time = f"{delay} seconds." if delay > 1 else f"{delay} second."
-        await ctx.send(f"Rebooting in {reboot_time}")
-        await asyncio.sleep(delay)
-        await self.bot.logout()
-        os.execv(sys.executable, ["python3"] + ["bot.py"])
+        if not self.developer(ctx.author.id):
+            return await ctx.send("Hmm, It appears you are not one of my developers.")
+        else:
+            if delay is None:
+                delay = 1
+            reboot_time = f"{delay} seconds." if delay > 1 else f"{delay} second."
+            await ctx.send(f"Rebooting in {reboot_time}")
+            await asyncio.sleep(delay)
+            await self.bot.logout()
+            os.execv(sys.executable, ["python3"] + ["bot.py"])
 
     # Taken from https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/admin.py
     # I am in no way affiliated with them at all.
