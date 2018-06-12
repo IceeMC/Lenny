@@ -74,7 +74,7 @@ class AudioManager:
             node = AudioNode(self, self.shards, self._nodes[i]["host"], self._nodes[i]["password"], self._nodes[i]["port"])
             await node.launch()
             self.nodes[node.host] = node
-        await self.lavalink_event_task()
+        self.bot.loop.create_task(self.lavalink_event_task())
 
     async def lavalink_event_task(self):
         for node in self.nodes.values():
@@ -92,13 +92,14 @@ class AudioManager:
                     return
                 try:
                     while event.player.playing:
-                        reaction, user = await self.bot.wait_for("reaction_add", check=lambda r, u: u.id == event.player.current.requester.id and r.message.id == event.player.m.id)
+                        reaction, user = await self.bot.wait_for("reaction_add", check=lambda r, u: u.id == event.player.current.requester.id and r.message.id == event.player.m.id and r.emoji in "⏸⏯⏹🔁➖➕")
                         if reaction.emoji == "⏸":
                             await event.player.set_paused(True)
                             await event.player.m.remove_reaction(reaction.emoji, user)
                         if reaction.emoji == "⏹":
                             event.player.queue.clear()
                             await event.player.stop()
+                            await self.leave(event.player.ctx)
                             await event.player.m.clear_reactions()
                         if reaction.emoji == "⏯":
                             await event.player.set_paused(False)
@@ -118,10 +119,13 @@ class AudioManager:
             @node.ee.on("track_end")
             async def on_track_end(event):
                 try:
-                    await event.player.m.delete()
+                    await event.player.m.clear_reactions()
                 except Exception:
                     pass
-                await event.player.play()
+                if event.reason == "REPLACED":
+                    return # Return because if we play then the queue will be fucked.
+                elif event.reason == "FINISHED":
+                    await event.player.play()
 
             @node.ee.on("queue_concluded")
             async def on_queue_concluded(event):

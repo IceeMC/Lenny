@@ -4,9 +4,16 @@ from discord.ext import commands
 
 
 class Utility:
-    """Utility command m8"""
+    """Useful commands for any occasion."""
     def __init__(self, bot):
         self.bot = bot
+
+    # @commands.command()
+    # async def userinfo(self, ctx, *, user: discord.Member):
+    #     em = discord.Embed()
+    #
+    #     if user.activity:
+    #         em.add_field("Playing", user.activity.name)
 
     @commands.command()
     async def urban(self, ctx, *, term: str):
@@ -19,6 +26,7 @@ class Utility:
             else:
                 for item in resp["list"]:
                     em = discord.Embed()
+                    em.title = f"Word: {item['word']}"
                     em.description = f"{item['definition']}\n\n{item['example']}\n\n:thumbsup: {item['thumbs_up']} :thumbsdown: {item['thumbs_down']}"
                     pages.append(em)
                 page_session = Paginator(ctx, pages=pages)

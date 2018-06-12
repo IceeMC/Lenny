@@ -21,8 +21,8 @@ bot.music_manager = AudioManager(bot, config["nodes"], shards=1)
 
 bot.load_extension("cogs.General")
 bot.load_extension("cogs.Music")
-bot.load_extension("cogs.Owner")
 bot.load_extension("cogs.Utility")
+bot.load_extension("cogs.Owner")
 
 
 def capitalize(text: str):
@@ -65,7 +65,7 @@ async def on_ready():
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
         pass
-    if isinstance(error, commands.BotMissingPermissions):
+    if isinstance(error, discord.Forbidden):
         pass
     if isinstance(error, (commands.BadArgument, commands.MissingRequiredArgument, commands.BadArgument, commands.TooManyArguments)):
         return await ctx.send(f"Invalid command usage the proper usage is `{ctx.prefix}{ctx.command.signature}`.")
@@ -77,6 +77,7 @@ async def on_command_error(ctx, error):
         return await ctx.send(f"Psst, You lack the permissions:\n{permissions}")
     if isinstance(error, commands.DisabledCommand):
         return await ctx.send("Hmm, This command is currently disabled.")
-
+    else:
+        await ctx.send(f"Hmm, There was a unknown error:\n```py\n{e}```")
 
 bot.run(config["token"])

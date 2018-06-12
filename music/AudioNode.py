@@ -45,7 +45,7 @@ Port: {self.port}"""
                 player = self._manager.players.get(int(data["guildId"]))
                 if data["type"] == "TrackEndEvent":
                     if player:
-                        self.ee.emit("track_end", TrackEnd(player, data["track"]))
+                        self.ee.emit("track_end", TrackEnd(player, data["track"], data["reason"]))
             else:
                 return print(f"[AudioNode] Received message with no op code {str(data)}")
 

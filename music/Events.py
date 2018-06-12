@@ -5,9 +5,10 @@ class TrackStart:
 
 
 class TrackEnd:
-    def __init__(self, player, track):
+    def __init__(self, player, track, reason):
         self.player = player
         self.track = track
+        self.reason = reason
 
 
 class QueueConcluded:
