@@ -51,7 +51,7 @@ class AudioPlayer:
 
     @staticmethod
     def valid_volume(volume):
-        return 10 >= volume <= 150
+        return 10 <= volume <= 150
 
     async def set_volume(self, volume):
         if not self.valid_volume(volume):

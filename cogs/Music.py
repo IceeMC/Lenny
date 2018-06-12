@@ -139,6 +139,8 @@ class Music:
         if player.current.requester.id != ctx.author.id:
             return await ctx.send("Hmm, It seems like you didn't request this song.")
         else:
+            if len(player.queue) == 0:
+                return await ctx.send("Hmm, The queue appears to be empty.")
             await ctx.send("Alright, That song has been skipped.")
             await player.play()
 
@@ -153,6 +155,8 @@ class Music:
         if player.current.requester.id != ctx.author.id:
             return await ctx.send("Hmm, It seems like you didn't request this song.")
         else:
+            if len(player.queue) == 0:
+                return await ctx.send("Hmm, The queue appears to be empty.")
             await ctx.send("Alright, That song has been skipped.")
             last_song = player.queue[len(player.queue) - 1]
             player.queue = [last_song]
