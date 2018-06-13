@@ -43,5 +43,10 @@ class General:
         await ctx.send("https://discord.gg/ftsNNMM")
 
 
+    @command.commands()
+    async def invite(self.ctx):
+        await ctx.send("aye! get me up in there! https://discordapp.com/api/oauth2/authorize?client_id=454683946966581268&permissions=8&scope=bot")    
+        
+        
 def setup(bot):
     bot.add_cog(General(bot))
