@@ -23,7 +23,7 @@ class Paginator:
         self.ctx = ctx
         self.bot = ctx.bot
         self.pages = pages
-        self.reactions = ["⏪", "◀", "⏹", "▶", "⏩"]
+        self.reactions = ["⏪", "◀", "⏹", "▶", "⏩", "❔"]
         self.message = None
         self.enabled = False
         self.current = 0
@@ -31,7 +31,7 @@ class Paginator:
 
     async def react(self):
         for reaction in self.reactions:
-            if len(self.pages) < 4 and reaction in "⏪⏩":
+            if len(self.pages) < 2 and reaction in "⏪⏩":
                 continue
             try:
                 await self.message.add_reaction(reaction)
@@ -44,9 +44,10 @@ class Paginator:
         return True
 
     async def switch_page(self, page: int):
-        if not self.is_valid_page(page):
-            return  # Wait for a valid page
-        self.current = page
+        print(self.is_valid_page(page))
+        # if not self.is_valid_page(page):
+        #     return  # Wait for a valid page
+        # self.current = page
 
         if self.enabled:
             to_switch_to = self.pages[page]
@@ -61,34 +62,31 @@ class Paginator:
             await self.react()
 
     def check(self, reaction, user):
-        return reaction.message.id == self.message.id and user.id == self.ctx.author.id and reaction.emoji in self.reactions
+        return reaction.message.id == self.message.id and user.id == self.ctx.author.id and reaction in self.reactions
 
     async def start(self):
-        if self.enabled is False:
+        if not self.enabled:
             await self.switch_page(0)
         while self.enabled:
+            reaction, user = await self.bot.wait_for("reaction_add", check=self.check)
+            print(f"Reaction: {reaction}")
             try:
-                reaction, user = await self.bot.wait_for("reaction_add", check=self.check, timeout=30)
-            except asyncio.TimeoutError:
-                await self.end()
+                await self.message.remove_reaction(reaction, user)
+            except Exception as e:
+                print(f"The paginator encountered an error:\n{e}")
             else:
-                try:
-                    await self.message.remove_reaction(reaction, user)
-                except discord.Forbidden:
-                    pass
-                if reaction.emoji == "◀":
-                    await self.backward()
-                if reaction.emoji == "▶":
-                    await self.forward()
-                if reaction.emoji == "⏹":
-                    await self.end()
                 if reaction.emoji == "⏪":
                     await self.first_page()
+                if reaction.emoji == "◀":
+                    await self.backward()
+                if reaction.emoji == "⏹":
+                    await self.end()
+                if reaction.emoji == "▶":
+                    await self.forward()
                 if reaction.emoji == "⏩":
                     await self.last_page()
                 if reaction.emoij == "❔":
                     await self.show_help()
-
 
     async def first_page(self):
         await self.switch_page(0)
@@ -103,7 +101,22 @@ class Paginator:
         await self.switch_page(self.current - 1)
 
     async def show_help(self):
-        help = discord.Embed()
+        help_list = [
+            "What do these buttons do?\n",
+            "⏪ - Takes you to the first page.",
+            "◀ - Takes you back a page.",
+            "⏹ - Stops the paginator.",
+            "▶ - Takes you forward a page.",
+            "⏩ - Takes you to the last page.",
+            "❔ - Shows this page."
+        ]
+        help_embed = discord.Embed()
+        help_embed.color = self.color
+        help_embed.add_field(name="Paginator Help", value="\n".join(help_list))
+        help_embed.set_footer(text=f"Reverting back to the last page in 15 seconds.")
+        await self.message.edit(embed=help_embed)
+        await asyncio.sleep(15)
+        await self.switch_page(self.current)
 
     async def end(self):
         self.enabled = False

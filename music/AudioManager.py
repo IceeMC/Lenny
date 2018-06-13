@@ -1,6 +1,8 @@
 import json
+import discord
 from .AudioNode import AudioNode
 from .AudioPlayer import AudioPlayer
+from .Events import TrackStart
 
 
 class AudioManager:
@@ -82,12 +84,12 @@ class AudioManager:
             async def on_track_start(event):
                 event.player.m = await event.player.ctx.send(f":musical_note: Now playing: **{event.track.title}** requested by `{event.track.requester.name}#{event.track.requester.discriminator}`")
                 try:
-                    await event.player.m.add_reaction("⏸") # Pause
-                    await event.player.m.add_reaction("⏯") # Resume
-                    await event.player.m.add_reaction("⏹") # Stop
-                    await event.player.m.add_reaction("🔁") # Repeat
-                    await event.player.m.add_reaction("➖") # Volume decrease
-                    await event.player.m.add_reaction("➕") # Volume increase
+                    await event.player.m.add_reaction("⏸")  # Pause
+                    await event.player.m.add_reaction("⏯")  # Resume
+                    await event.player.m.add_reaction("⏹")  # Stop
+                    await event.player.m.add_reaction("🔁")  # Repeat
+                    await event.player.m.add_reaction("➖")  # Volume decrease
+                    await event.player.m.add_reaction("➕")  # Volume increase
                 except Exception:
                     return
                 try:
@@ -113,8 +115,8 @@ class AudioManager:
                         if reaction.emoji == "➕":
                             await event.player.set_volume(event.player.volume + 10)
                             await event.player.m.remove_reaction(reaction.emoji, user)
-                except Exception as e:
-                    print(e)
+                except discord.Forbidden:
+                    pass
 
             @node.ee.on("track_end")
             async def on_track_end(event):
@@ -123,8 +125,12 @@ class AudioManager:
                 except Exception:
                     pass
                 if event.reason == "REPLACED":
-                    return # Return because if we play then the queue will be fucked.
+                    return  # Return because if we play then the queue will be fucked.
                 elif event.reason == "FINISHED":
+                    if event.player.repeating:
+                        await event.player.set_volume(event.player.volume)
+                        await event.player.node.send(op="play", guildId=str(event.player.ctx.guild.id), track=event.player.current.track)
+                        return event.player.node.ee.emit("track_start", TrackStart(event.player, event.player.current))
                     await event.player.play()
 
             @node.ee.on("queue_concluded")

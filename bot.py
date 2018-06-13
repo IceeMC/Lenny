@@ -78,6 +78,6 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.DisabledCommand):
         return await ctx.send("Hmm, This command is currently disabled.")
     else:
-        await ctx.send(f"Hmm, There was a unknown error:\n```py\n{e}```")
+        print(error)
 
 bot.run(config["token"])

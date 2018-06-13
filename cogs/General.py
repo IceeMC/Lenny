@@ -42,10 +42,14 @@ class General:
     async def support(self, ctx):
         await ctx.send("https://discord.gg/ftsNNMM")
 
-
-    @command.commands()
-    async def invite(self.ctx):
-        await ctx.send("aye! get me up in there! https://discordapp.com/api/oauth2/authorize?client_id=454683946966581268&permissions=8&scope=bot")    
+    @commands.command()
+    async def invite(self, ctx):
+        invite = [
+            "aye!",
+            "get me up in there!",
+            "https://discordapp.com/api/oauth2/authorize?client_id=454683946966581268&permissions=8&scope=bot"
+        ]
+        await ctx.send(" ".join(invite))
         
         
 def setup(bot):

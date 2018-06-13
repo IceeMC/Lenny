@@ -30,17 +30,12 @@ class AudioPlayer:
         if not self.queue:
             self.node.ee.emit("queue_concluded", QueueConcluded(self.manager.get_player(self.ctx, self.node.host)))
         else:
-            if self.repeating:
-                await self.set_volume(self.volume)
-                await self.node.send(op="play", guildId=str(self.ctx.guild.id), track=self.current.track)
-                self.node.ee.emit("track_start", TrackStart(self.manager.get_player(self.ctx, self.node.host), self.current))
-            else:
-                self.playing = True
-                track = self.queue.pop(0)
-                self.current = track
-                await self.set_volume(self.volume)
-                await self.node.send(op="play", guildId=str(self.ctx.guild.id), track=track.track)
-                self.node.ee.emit("track_start", TrackStart(self.manager.get_player(self.ctx, self.node.host), track))
+            self.playing = True
+            track = self.queue.pop(0)
+            self.current = track
+            await self.set_volume(self.volume)
+            await self.node.send(op="play", guildId=str(self.ctx.guild.id), track=track.track)
+            self.node.ee.emit("track_start", TrackStart(self.manager.get_player(self.ctx, self.node.host), track))
 
     async def stop(self):
         await self.node.send(op="stop", guildId=str(self.ctx.guild.id))

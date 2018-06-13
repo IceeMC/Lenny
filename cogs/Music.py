@@ -141,6 +141,8 @@ class Music:
         else:
             if len(player.queue) == 0:
                 return await ctx.send("Hmm, The queue appears to be empty.")
+            if player.repeating:
+                return await ctx.send("Oof, You cannot skip a repeated song.")
             await ctx.send("Alright, That song has been skipped.")
             await player.play()
 
@@ -157,6 +159,8 @@ class Music:
         else:
             if len(player.queue) == 0:
                 return await ctx.send("Hmm, The queue appears to be empty.")
+            if player.repeating:
+                return await ctx.send("Oof, You cannot skip a repeated song.")
             await ctx.send("Alright, That song has been skipped.")
             last_song = player.queue[len(player.queue) - 1]
             player.queue = [last_song]
