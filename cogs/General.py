@@ -8,10 +8,10 @@ class General:
     def __init__(self, bot):
         self.bot = bot
 
-    def new_cog_page(self, cog: str):
+    def new_cog_embed(self, cog: str):
         command_string = ""
         gotten_cog = self.bot.get_cog(cog)
-        embed = discord.Embed()
+        embed = discord.Embed(color=0xffffff)
         for command in self.bot.commands:
             if command.cog_name == cog and not command.hidden:
                 command_string += f"`{command.signature}: {command.short_doc if command.short_doc else 'No help available.'}`\n"
@@ -21,15 +21,37 @@ class General:
         embed.add_field(name="Command list", value=command_string)
         return embed
 
-    @commands.command()
-    async def help(self, ctx):
-        """Displays the help for the bot."""
-        pages = []
-        for cog in self.bot.cogs:
-            pages.append(self.new_cog_page(cog))
+    def new_command_embed(self, command: str):
+        embed = discord.Embed(color=0xffffff)
+        embed.title = f"Help for command: {command}"
+        gotten_command = self.bot.get_command(command)
+        embed.add_field(name="Signature help", value="Understanding the signature for the bot is pretty simple:\n\n[arg] means that arg is __not required__.\n<arg> means the arg is __required__.")
+        embed.add_field(name="Usage", value=gotten_command.signature)
+        embed.add_field(name="Description", value=gotten_command.short_doc if gotten_command.short_doc else "")
+        if gotten_command.aliases:
+            embed.add_field(name="Aliases", value=", ".join([alias for alias in gotten_command.aliases]))
+        return embed
 
-        page_session = Paginator(ctx, pages=pages)
-        await page_session.start()
+    @commands.command()
+    async def help(self, ctx, *, cmd: str = None):
+        """Displays the help for the bot."""
+        if not cmd:
+            pages = []
+            for cog in self.bot.cogs:
+                pages.append(self.new_cog_embed(cog))
+
+            page_session = Paginator(ctx, pages=pages)
+            await page_session.start()
+        else:
+            thing = self.bot.get_cog(cmd) or self.bot.get_command(cmd)
+            if thing is None:
+                cmd = cmd.replace('@', '@\u200b')
+                return await ctx.send(f"Category or command: {cmd} was not found.")
+
+            if isinstance(thing, commands.Command):
+                await ctx.send(embed=self.new_command_embed(thing.name))
+            else:
+                await ctx.send(embed=self.new_cog_embed(type(thing).__name__))
 
     @commands.command()
     async def ping(self, ctx):

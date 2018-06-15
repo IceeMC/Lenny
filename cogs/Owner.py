@@ -7,8 +7,6 @@ import os
 import sys
 from contextlib import redirect_stdout
 from discord.ext import commands
-with open("config.json") as config_file:
-    config = json.load(config_file)
 
 
 class Owner:
@@ -17,17 +15,16 @@ class Owner:
         self.bot = bot
         self._last_result = None
 
-    @staticmethod
-    def developer(user_id):
-        if user_id in config["developers"]:
+    def developer(self, user_id):
+        if user_id in self.bot.config["developers"]:
             return True
 
         return False
 
     @staticmethod
-    def clean_code(code):
+    def clean_code(code: str):
         if code.startswith("```") and code.endswith("```"):
-            return "\n ".join(code.split("\n")[1:-1])
+            return "\n".join(code.split("\n")[1:-1])
         return code.strip("` \n")
 
     @commands.command()
@@ -41,7 +38,7 @@ class Owner:
                 self.bot.load_extension("cogs.{}".format(cog))
                 await ctx.message.add_reaction("✅")
             except Exception:
-                await ctx.send("```py\n{}```".format(traceback.format_exc()))
+                pass
 
     @commands.command()
     async def reboot(self, ctx, *, delay: int = None):
@@ -59,8 +56,8 @@ class Owner:
 
     # Taken from https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/admin.py
     # I am in no way affiliated with them at all.
-    @commands.command(name="eval")
-    async def _eval(self, ctx, *, code: str):
+    @commands.command()
+    async def eval(self, ctx, *, code: str):
         """Evaluates python code."""
         if not self.developer(ctx.author.id):
             return await ctx.send("Hmm, It appears you are not one of my developers.")
@@ -97,10 +94,8 @@ class Owner:
                 val = stdout.getvalue()
                 if self.bot.ws.token in val:
                     val = val.replace(self.bot.ws.token, "BISH THIS IS MY TOKEN")
-                try:
-                    await ctx.message.add_reaction("✅")
-                except Exception:
-                    pass
+
+                await ctx.message.add_reaction("✅")
 
                 if ret is None:
                     if val:

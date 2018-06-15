@@ -3,3 +3,4 @@ cogs/__pycache__
 music/__pycache__
 utils/__pycache__
 .idea/*
+test_ws.py
