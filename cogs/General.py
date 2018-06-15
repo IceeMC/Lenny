@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+
 from utils.Paginator import Paginator
 
 
@@ -66,12 +67,8 @@ class General:
 
     @commands.command()
     async def invite(self, ctx):
-        invite = [
-            "aye!",
-            "get me up in there!",
-            "https://discordapp.com/api/oauth2/authorize?client_id=454683946966581268&permissions=8&scope=bot"
-        ]
-        await ctx.send(" ".join(invite))
+        link = 'https://discordapp.com/api/oauth2/authorize?client_id=454683946966581268&permissions=8&scope=bot'
+        await ctx.send('aye! get me up in there!' + link)
         
         
 def setup(bot):

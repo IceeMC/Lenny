@@ -13,7 +13,7 @@ class Music:
         """Plays music in your voice channel."""
         player = self.music.get_player(ctx, "localhost")
 
-        if ctx.author.voice is None:
+        if not ctx.author.voice:
             return await ctx.send(":thinking: How do I join a voice channel with no one in it?")
         if ctx.author.voice.channel:
             await self.music.connect(ctx, "localhost")
@@ -24,16 +24,16 @@ class Music:
         track = None
         playlist = False
 
-        if re.match("https:\/\/?(www\.)?youtube\.com\/watch\?v=(.*)", query):
+        if re.match(r"https:\/\/?(www\.)?youtube\.com\/watch\?v=(.*)", query):
             tracks = await self.music.get_tracks(player, query)
             if not tracks:
                 return await ctx.send("Aw man, No songs found.")
-        elif re.match("https:\/\/?(www\.)?youtu\.be\/(.*)", query):
+        elif re.match(r"https:\/\/?(www\.)?youtu\.be\/(.*)", query):
             tracks = await self.music.get_tracks(player, query)
             if not tracks:
                 return await ctx.send("Aw man, No songs found.")
             track = tracks[0]
-        elif re.match(".*list=(.*)", query):
+        elif re.match(r".*list=(.*)", query):
             tracks = await self.music.get_tracks(player, query)
             if not tracks:
                 return await ctx.send("Aw man, No songs found.")
@@ -62,7 +62,7 @@ class Music:
         """Displays the music queue."""
         player = self.music.get_player(ctx, "localhost")
 
-        if len(player.queue) == 0:
+        if not player.queue:
             return await ctx.send("There are no songs in the queue. Kthx.")
 
         queue_str = ""
@@ -72,30 +72,30 @@ class Music:
             queue_str += f"{str(count)}: **{track.title}** requested by `{track.requester.name}#{track.requester.discriminator}`"
 
         if len(queue_str) > 2040:
-            return await ctx.send("Oof, The queue is too long to fit in a message.")
-        return await ctx.send(f"Showing the music queue for: `{ctx.guild.name}`\n{queue_str}")
+            await ctx.send("Oof, The queue is too long to fit in a message.")
+        else:
+            await ctx.send(f"Showing the music queue for: `{ctx.guild.name}`\n{queue_str}")
 
     @commands.command()
     async def loop(self, ctx):
         """Loops the current song forever."""
         player = self.music.get_player(ctx, "localhost")
 
-        if player.playing is False:
+        if not player.playing:
             return await ctx.send(":thinking: How do you expect me to repeat thin air?")
 
         if player.current.requester.id != ctx.author.id:
             return await ctx.send("Hmm, It seems like you didn't request this song.")
-        else:
-            player.repeating = not player.repeating
 
-            return await ctx.send(f":repeat: has been **{'enabled' if player.repeating else 'disabled'}**")
+        player.repeating = not player.repeating
+        await ctx.send(f":repeat: has been **{'enabled' if player.repeating else 'disabled'}**")
 
     @commands.command()
     async def pause(self, ctx):
         """Pauses the current song."""
         player = self.music.get_player(ctx, "localhost")
 
-        if player.playing is False:
+        if not player.playing:
             return await ctx.send(":thinking: How do you expect me to pause thin air?")
 
         if player.paused:
@@ -103,82 +103,82 @@ class Music:
 
         if player.current.requester.id != ctx.author.id:
             return await ctx.send("Hmm, It seems like you didn't request this song.")
-        else:
-            player.paused = True
 
-            await player.set_paused(True)
-            return await ctx.send("The player is now paused.")
+        player.paused = True
+        await player.set_paused(True)
+        await ctx.send("The player is now paused.")
 
     @commands.command()
     async def resume(self, ctx):
         """Resumes the current song"""
         player = self.music.get_player(ctx, "localhost")
 
-        if player.playing is False:
+        if not player.playing:
             return await ctx.send(":thinking: How do you expect me to resume thin air?")
 
-        if player.paused is False:
+        if not player.paused:
             return await ctx.send("Hmm, It seem's like I am not already paused. Kthx.")
     
         if player.current.requester.id != ctx.author.id:
             return await ctx.send("Hmm, It seems like you didn't request this song.")
-        else:
-            player.paused = False
 
-            await player.set_paused(False)
-            return await ctx.send("The player is now resumed.")
+        player.paused = False
+        await player.set_paused(False)
+        await ctx.send("The player is now resumed.")
 
     @commands.command()
     async def skip(self, ctx):
         """Skips the current song."""
         player = self.music.get_player(ctx, "localhost")
 
-        if player.playing is False:
+        if not player.playing:
             return await ctx.send(":thinking: How do you expect me to stop thin air?")
 
         if player.current.requester.id != ctx.author.id:
             return await ctx.send("Hmm, It seems like you didn't request this song.")
-        else:
-            if len(player.queue) == 0:
-                return await ctx.send("Hmm, The queue appears to be empty.")
-            if player.repeating:
-                return await ctx.send("Oof, You cannot skip a repeated song.")
-            await ctx.send("Alright, That song has been skipped.")
-            await player.play()
+
+        if not player.queue:
+            return await ctx.send("Hmm, The queue appears to be empty.")
+        if player.repeating:
+            return await ctx.send("Oof, You cannot skip a repeated song.")
+
+        await ctx.send("Alright, That song has been skipped.")
+        await player.play()
 
     @commands.command()
     async def lastskip(self, ctx):
         """Plays the last song in the queue."""
         player = self.music.get_player(ctx, "localhost")
 
-        if player.playing is False:
+        if not player.playing:
             return await ctx.send(":thinking: How do you expect me to stop thin air?")
 
         if player.current.requester.id != ctx.author.id:
             return await ctx.send("Hmm, It seems like you didn't request this song.")
-        else:
-            if len(player.queue) == 0:
-                return await ctx.send("Hmm, The queue appears to be empty.")
-            if player.repeating:
-                return await ctx.send("Oof, You cannot skip a repeated song.")
-            await ctx.send("Alright, That song has been skipped.")
-            last_song = player.queue[len(player.queue) - 1]
-            player.queue = [last_song]
-            await player.play()
+
+        if len(player.queue) == 0:
+            return await ctx.send("Hmm, The queue appears to be empty.")
+        if player.repeating:
+            return await ctx.send("Oof, You cannot skip a repeated song.")
+
+        await ctx.send("Alright, That song has been skipped.")
+        last_song = player.queue[len(player.queue) - 1]
+        player.queue = [last_song]
+        await player.play()
 
     @commands.command()
     async def stop(self, ctx):
         """Stops the current song and leave your voice channel."""
         player = self.music.get_player(ctx, "localhost")
 
-        if player.playing is False:
+        if not player.playing:
             return await ctx.send(":thinking: How do you expect me to stop thin air?")
     
         if player.current.requester.id != ctx.author.id:
             return await ctx.send("Hmm, It seems like you didn't request this song.")
-        else:
-            player.queue.clear()
-            await self.music.leave(ctx)
+
+        player.queue.clear()
+        await self.music.leave(ctx)
 
 
 def setup(bot):
