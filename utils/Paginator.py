@@ -39,9 +39,7 @@ class Paginator:
                 pass
 
     def is_valid_page(self, page: int):
-        if page == -1:
-            return False
-        if page == len(self.pages):
+        if page == -1 or page == len(self.pages):
             return False
         return True
 
@@ -110,8 +108,7 @@ class Paginator:
             "⏩ - Takes you to the last page.",
             "❔ - Shows this page."
         ]
-        help_embed = discord.Embed()
-        help_embed.color = self.color
+        help_embed = discord.Embed(color=self.color)
         help_embed.add_field(name="Paginator Help", value="\n".join(help_list))
         help_embed.set_footer(text=f"Reverting back to the last page in 10 seconds.")
         await self.message.edit(embed=help_embed)

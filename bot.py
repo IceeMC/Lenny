@@ -1,23 +1,24 @@
-import aiohttp
-from music.AudioManager import AudioManager
-from discord.ext import commands
-import time
+import asyncio
 import json
 import random
-import asyncio
-import discord
 import re
+import time
 import traceback
 
+import aiohttp
+import discord
+from discord.ext import commands
+
+from music.AudioManager import AudioManager
 
 bot = commands.Bot(command_prefix=commands.when_mentioned_or("="))
 bot.remove_command("help")
 
 with open("config.json") as config_file:
     bot.config = json.load(config_file)
-bot.session = aiohttp.ClientSession()
+
+bot.session = aiohttp.ClientSession(loop=bot.loop)
 bot.music_manager = AudioManager(bot, bot.config["nodes"], shards=1)
-bot.started_at = time.time()
 bot.version = 1
 
 
@@ -64,32 +65,17 @@ async def on_message_edit(old_msg, new_msg):
 @bot.event
 async def on_ready():
     print("Bot is online.")
-    bot.loop.create_task(bot.music_manager.start_bg_task())
-    games = [
-        f"=help | with {len(bot.guilds)} servers!",
-        f"=help | with {len(bot.users)} users!",
-        "=help | Python > NodeJS",
-        "=help | ACK",
-        "=help | I pet my dog",
-        "=help | 00F",
-        "=help | ...",
-        "=help | Google > Bing",
-        "=help | Mine diamonds",
-        "=help | I'm always 🤔",
-        "=help | My name jif."
-    ]
-    while True:
-        await bot.change_presence(activity=discord.Game(name=f"{random.choice(games)} | v{bot.version}"))
-        await asyncio.sleep(10)
-
+    bot.started_at = time.time()
 
 @bot.event
 async def on_command_error(ctx, error):
-    if isinstance(error, commands.CommandNotFound):
-        pass
-    elif isinstance(error, commands.NoPrivateMessage):
-        pass
-    elif isinstance(error, discord.Forbidden):
+    ignored = (
+        commands.CommandNotFound,
+        commands.NoPrivateMessage,
+        discord.Forbidden,
+        commands.CheckFailure
+    )
+    if isinstance(error, ignored):
         pass
     elif isinstance(error, commands.BadArgument):
         member_not_found = re.match('Member "(.*)" not found', error.args[0])
@@ -111,4 +97,25 @@ async def on_command_error(ctx, error):
         except discord.Forbidden:
             pass
 
+games = [
+    f"=help | with {len(bot.guilds)} servers!",
+    f"=help | with {len(bot.users)} users!",
+    "=help | Python > NodeJS",
+    "=help | ACK",
+    "=help | I pet my dog",
+    "=help | 00F",
+    "=help | ...",
+    "=help | Google > Bing",
+    "=help | Mine diamonds",
+    "=help | I'm always 🤔",
+    "=help | My name jif."
+]
+
+async def status_change():
+    while not bot.is_closed():
+        await bot.change_presence(activity=discord.Game(name=f"{random.choice(games)} | v{bot.version}"))
+        await asyncio.sleep(10)
+
+bot.loop.create_task_task(status_change())
+bot.loop.create_task(bot.music_manager.start_bg_task())
 bot.run(bot.config["token"])
