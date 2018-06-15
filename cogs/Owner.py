@@ -16,7 +16,7 @@ class Owner:
         self._last_result = None
 
     async def __local_check(self, ctx):
-        if ctx.author.id in self.bot.config["developers"]:
+        if ctx.author.id not in self.bot.config["developers"]:
             await ctx.send("Hmm, It appears you are not one of my developers.")
             return False
         return True
