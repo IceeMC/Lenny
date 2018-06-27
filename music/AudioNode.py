@@ -1,9 +1,8 @@
 import websockets
-import asyncio
-import logging
 import json
 from pyee import EventEmitter
 from .Events import TrackEnd
+from utils.Logger import Logger
 
 
 class AudioNode:
@@ -18,6 +17,7 @@ class AudioNode:
         self.password = password
         self.port = port
         self.stats = None
+        self.reconnect_tries = 0
 
     def __str__(self):
         return f"""
@@ -47,7 +47,7 @@ Port: {self.port}"""
                     if player:
                         self.ee.emit("track_end", TrackEnd(player, data["track"], data["reason"]))
             else:
-                return print(f"[AudioNode] Received message with no op code {str(data)}")
+                Logger.error(f"Received message with no op code: {str(data)}")
 
     def _headers(self):
         return {
@@ -60,11 +60,11 @@ Port: {self.port}"""
         try:
             self.ws = await websockets.connect(f"ws://{self.host}:{self.port}", extra_headers=self._headers())
             if self.ws.open:
-                print(f"An AudioNode has connected with host: {self.host} and port: {self.port}.")
+                Logger.info(f"Node connected with host: {self.host} and port: {self.port}.")
                 self._manager.bot.loop.create_task(self._wait_for_ws_message())
                 self.ready = True
-        except Exception:
-            pass
+        except OSError as error:
+            Logger.error(f"Failed to connect to LavaLink with host: {self.host} reason: {error}")
 
     async def send(self, **data):
         if self.ws.open:

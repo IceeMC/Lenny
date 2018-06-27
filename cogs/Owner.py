@@ -1,16 +1,17 @@
 import asyncio
-import json
+import discord
 import io
 import textwrap
 import traceback
 import os
 import sys
+import subprocess
 from contextlib import redirect_stdout
 from discord.ext import commands
 
 
 class Owner:
-    """OwO owner commands."""
+    """No."""
     def __init__(self, bot):
         self.bot = bot
         self._last_result = None
@@ -30,12 +31,15 @@ class Owner:
     @commands.command()
     async def reload(self, ctx, *, cog: str):
         """Reloads a cog."""
-        try:
-            self.bot.unload_extension("cogs.{}".format(cog))
-            self.bot.load_extension("cogs.{}".format(cog))
-            await ctx.message.add_reaction("✅")
-        except discord.Forbidden:
-            pass
+        if cog == "all":
+            temp = self.bot.cogs_list
+        else:
+            try:
+                self.bot.unload_extension("cogs.{}".format(cog))
+                self.bot.load_extension("cogs.{}".format(cog))
+                await ctx.message.add_reaction("✅")
+            except discord.Forbidden:
+                pass
 
     @commands.command()
     async def reboot(self, ctx, *, delay: int = None):
@@ -47,6 +51,40 @@ class Owner:
         await asyncio.sleep(delay)
         await self.bot.logout()
         os.execv(sys.executable, ["python3"] + ["bot.py"])
+
+    @commands.command()
+    async def exec(self, ctx, *, cmd: str):
+        """Rums code on the shell."""
+        temp = await ctx.send(f"Executing: `{cmd}` please wait...")
+        result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        await temp.delete()
+
+        if result.stderr.decode("utf-8"):
+            return await ctx.send(f"Error:\n\n```xl\n{result.stderr.decode('utf-8')}```")
+
+        def paginate(text: str):
+            """Simple generator that paginates text."""
+            last = 0
+            pages = []
+            for curr in range(0, len(text)):
+                if curr % 1980 == 0:
+                    pages.append(text[last:curr])
+                    last = curr
+                    appd_index = curr
+            if appd_index != len(text) - 1:
+                pages.append(text[last:curr])
+            return list(filter(lambda a: a != '', pages))
+
+        try:
+            await ctx.send(f"Success:\n\n```xl\n{result.stdout.decode('utf-8')}```")
+        except discord.HTTPException:
+            paginated_text = paginate(result.stdout.decode("utf-8"))
+            for page in paginated_text:
+                if page == paginated_text[-1]:
+                    await ctx.send(f'```xl\n{page}\n```')
+                    break
+                await ctx.send(f'```xl\n{page}\n```')
 
     # Taken from https://github.com/Rapptz/RoboDanny/blob/rewrite/cogs/admin.py
     # I am in no way affiliated with them at all.
@@ -73,7 +111,20 @@ class Owner:
         except Exception as e:
             val = stdout.getvalue()
             return await ctx.send("```py\n{}: {}```".format(e.__class__.__name__, e))
-        
+
+        def paginate(text: str):
+            """Simple generator that paginates text."""
+            last = 0
+            pages = []
+            for curr in range(0, len(text)):
+                if curr % 1980 == 0:
+                    pages.append(text[last:curr])
+                    last = curr
+                    appd_index = curr
+            if appd_index != len(text) - 1:
+                pages.append(text[last:curr])
+            return list(filter(lambda a: a != '', pages))
+
         func = env["func"]
         try:
             with redirect_stdout(stdout):
@@ -90,10 +141,27 @@ class Owner:
 
             if ret is None:
                 if val:
-                    await ctx.send("```py\n{}\n```".format(val))
+                    try:
+                        await ctx.send("```py\n{}\n```".format(val))
+                    except discord.HTTPException:
+                        paginated_text = paginate(val)
+                        for page in paginated_text:
+                            if page == paginated_text[-1]:
+                                await ctx.send(f'```py\n{page}\n```')
+                                break
+                            await ctx.send(f'```py\n{page}\n```')
+
             else:
                 self._last_result = ret
-                await ctx.send("```py\n{}\n```".format(ret))
+                try:
+                    await ctx.send("```py\n{}\n```".format(ret))
+                except discord.HTTPException:
+                    paginated_text = paginate(f"{value}{ret}")
+                    for page in paginated_text:
+                        if page == paginated_text[-1]:
+                            await ctx.send(f'```py\n{page}\n```')
+                            break
+                        await ctx.send(f'```py\n{page}\n```')
 
 
 def setup(bot):

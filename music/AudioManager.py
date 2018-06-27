@@ -3,6 +3,7 @@ import discord
 from .AudioNode import AudioNode
 from .AudioPlayer import AudioPlayer
 from .Events import TrackStart
+from utils.Logger import Logger
 
 
 class AudioManager:
@@ -69,16 +70,20 @@ class AudioManager:
                 "self_deaf": False
             }
         }))
-        del self.players[ctx.guild.id]
+        try:
+            del self.players[ctx.guild.id]
+        except KeyError:
+            pass
         
-    async def start_bg_task(self):
+    async def audio_task(self):
         for i in range(len(self._nodes)):
             node = AudioNode(self, self.shards, self._nodes[i]["host"], self._nodes[i]["password"], self._nodes[i]["port"])
             await node.launch()
             self.nodes[node.host] = node
-        self.bot.loop.create_task(self.lavalink_event_task())
+        self.bot.loop.create_task(self.audio_event_task())
+        Logger.task("Audio event task has started.")
 
-    async def lavalink_event_task(self):
+    async def audio_event_task(self):
         for node in self.nodes.values():
             @node.ee.on("track_start")
             async def on_track_start(event):
@@ -90,7 +95,7 @@ class AudioManager:
                     await event.player.m.add_reaction("🔁")  # Repeat
                     await event.player.m.add_reaction("➖")  # Volume decrease
                     await event.player.m.add_reaction("➕")  # Volume increase
-                except Exception:
+                except discord.Forbidden:
                     return
                 try:
                     while event.player.playing:
@@ -122,7 +127,7 @@ class AudioManager:
             async def on_track_end(event):
                 try:
                     await event.player.m.clear_reactions()
-                except Exception:
+                except discord.Forbidden:
                     pass
                 if event.reason == "REPLACED":
                     return  # Return because if we play then the queue will be fucked.

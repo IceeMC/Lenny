@@ -71,7 +71,7 @@ class Paginator:
             try:
                 await self.message.remove_reaction(reaction.emoji, user)
             except discord.Forbidden:
-                pass
+                continue
             else:
                 if reaction.emoji == "⏪":
                     await self.first_page()

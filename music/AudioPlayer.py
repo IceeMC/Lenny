@@ -1,8 +1,7 @@
-import asyncio
 from .Events import TrackStart, QueueConcluded
 from .AudioTrack import AudioTrack
-from collections import deque
 from discord import User
+
 
 class AudioPlayer:
     """

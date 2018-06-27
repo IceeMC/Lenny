@@ -1,5 +1,7 @@
 from discord.ext import commands
+from utils.Paginator import Paginator
 import re
+import discord
 
 
 class Music:
@@ -47,9 +49,9 @@ class Music:
 
         if playlist:
             async with ctx.typing():
-                for x in track:
-                    player.enqueue(x, ctx.author)
-                await ctx.send(f"Alright, The playlist has been enqueued with **{len(track)}** tracks.")
+                for x in range(50):
+                    player.enqueue(track[x], ctx.author)
+                await ctx.send(f"Alright, The playlist has been enqueued with **50** tracks.")
         else:
             player.enqueue(track, ctx.author)
             await ctx.send(f"Alright, **{track['info']['title']}** has been enqueued. In position `{len(player.queue)}`")
@@ -65,16 +67,18 @@ class Music:
         if not player.queue:
             return await ctx.send("There are no songs in the queue. Kthx.")
 
-        queue_str = ""
-        count = 0
-        for track in player.queue:
-            count += 1
-            queue_str += f"{str(count)}: **{track.title}** requested by `{track.requester.name}#{track.requester.discriminator}`"
+        i = 0
+        pages = []
+        while i < len(player.queue):
+            sliced = player.queue[i:i+6]
+            embed = discord.Embed(color=0xffffff)
+            embed.title = f"Showing songs from {i+1} to {i+6}"
+            embed.description = "\n".join([f"`•` **[{track.title}]({track.url})** requester: `{track.requester}`" for track in sliced])
+            pages.append(embed)
+            i += 6
 
-        if len(queue_str) > 2040:
-            await ctx.send("Oof, The queue is too long to fit in a message.")
-        else:
-            await ctx.send(f"Showing the music queue for: `{ctx.guild.name}`\n{queue_str}")
+        paginator = Paginator(ctx, pages=pages)
+        await paginator.start()
 
     @commands.command()
     async def loop(self, ctx):
@@ -142,7 +146,7 @@ class Music:
         if player.repeating:
             return await ctx.send("Oof, You cannot skip a repeated song.")
 
-        await ctx.send("Alright, That song has been skipped.")
+        await ctx.send("Alright, I have skipped that song. Enjoy!")
         await player.play()
 
     @commands.command()
@@ -161,7 +165,7 @@ class Music:
         if player.repeating:
             return await ctx.send("Oof, You cannot skip a repeated song.")
 
-        await ctx.send("Alright, That song has been skipped.")
+        await ctx.send("Alright, I skipped to the last song in the queue. Enjoy!")
         last_song = player.queue[len(player.queue) - 1]
         player.queue = [last_song]
         await player.play()
