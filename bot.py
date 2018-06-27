@@ -44,7 +44,28 @@ async def on_message(msg):
     if not msg.author.bot and msg.guild:
         await bot.process_commands(msg)
 
+        
+@bot.event
+async def on_guild_join(guild):
+    lol = bot.get_channel(put a channel id here)
+    em = discord.Embed(color=discord.Color(value=0x00ff00))
+    em.title = "I have joined new server!"
+    em.description = f"Server: {guild}"
+    em.set_footer(text=f"ID: {guild.id}")
+    em.set_thumbnail(url=guild.icon_url)
+    await lol.send(embed=em)
 
+      
+@bot.event
+async def on_guild_remove(guild):
+    lol = bot.get_channel(put a channel id here)
+    em = discord.Embed(color=discord.Color(value=0xf44242))
+    em.title = "I have left a server."
+    em.description = f"Server: {guild}"
+    em.set_footer(text=f"ID: {guild.id}")
+    await lol.send(embed=em)   
+
+    
 @bot.event
 async def on_message_edit(old_msg, new_msg):
     """Runs a command if someone mistypes a command.
