@@ -66,7 +66,6 @@ class Owner:
         """Fetches the latest changes from the GitHub repo. Then restarts the bot."""
         temp = await ctx.send("Give me a sec...")
         res = subprocess.run("git pull", shell=True, stdout=subprocess.PIPE)
-        await temp.delete()
         stdout = res.stdout.decode("utf-8")
         if "Already" in stdout:
             return await temp.edit(content="<:thonk:422506173606920193> No new changes.")
