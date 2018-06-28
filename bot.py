@@ -88,10 +88,9 @@ async def on_message_edit(old_msg, new_msg):
     If the old message equals the new message the bot will ignore it same thing if the author is a bot.
     Else the bot will process the command.
     """
-    if old_msg.author.bot and new_msg.author.bot or old_msg.content == new_msg.content:
+    if old_msg.author.bot or old_msg.content == new_msg.content:
         return
     else:
-        # Run the command
         await bot.process_commands(new_msg)
 
 
@@ -126,7 +125,7 @@ async def on_member_join(member):
         return
     try:
         await chan.send(msg)
-        if not auto_role:
+        if not discord.utils.get(member.guild.roles, id=auto_role):
             return
         await member.add_roles(discord.utils.get(member.guild.roles, id=auto_role))
     except discord.Forbidden or discord.NotFound:
@@ -148,7 +147,7 @@ async def on_member_remove(member):
         return
     try:
         await chan.send(msg)
-    except discord.Forbidden or discord.NotFound or discord.HTTPException:
+    except discord.Forbidden or discord.NotFound:
         pass
 
 
@@ -186,7 +185,10 @@ async def on_command_error(ctx, error):
         embed.timestamp = datetime.datetime.utcnow()
         embed.set_footer(text=f"Author: {str(ctx.author)} | Guild: {ctx.guild.name}")
         await error_logs.send(embed=embed)
-        await ctx.send("Sorry an unexpected error occurred, Please try again later.")
+        try:
+            await ctx.send("Sorry an unexpected error occurred, Please try again later.")
+        except discord.Forbidden:
+            pass
 
 
 @bot.event

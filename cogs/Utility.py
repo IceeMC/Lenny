@@ -48,7 +48,7 @@ class Utility:
             await ctx.send("I couldn't find that guild...")
             return
         
-        server_embed = discord.Embed(color=ctx.author.color)
+        server_embed = discord.Embed(color=0xffffff)
         server_embed.title = guild.name
         server_embed.description = "Server Stats"
         online_members = 0
