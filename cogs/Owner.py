@@ -61,14 +61,17 @@ class Owner:
         await ctx.channel.send("<:nou:433731752855470081>")
         await self.bot.logout()
 
-    @commands.command(alises=["update", "gitpull"])
+    @commands.command(aliases=["update", "gitpull"])
     async def pull(self, ctx):
         """Fetches the latest changes from the GitHub repo. Then restarts the bot."""
         temp = await ctx.send("Give me a sec...")
         res = subprocess.run("git pull", shell=True, stdout=subprocess.PIPE)
         await temp.delete()
         stdout = res.stdout.decode("utf-8")
-        await ctx.send(f"Here are the latest changes:\n```xl\n{stdout}```")
+        if "Already" in stdout:
+            return await temp.edit(content="<:thonk:422506173606920193> No new changes.")
+
+        await temp.edit(content=f"Here are the latest changes:\n```xl\n{stdout}```")
         os.execv(sys.executable, ["clear"])
         os.execv(sys.executable, ["python3", "bot.py"])
 
