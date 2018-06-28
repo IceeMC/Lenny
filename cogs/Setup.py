@@ -3,9 +3,10 @@ from discord.ext import commands
 
 
 class Setup:
-    """
-    Setup/Configure the bot for your server.
+    """Setup/Configure the bot for your server.
     You need the Manager Server permission to use any of these commands.
+    NOTE: I am not responsible if someone with the manage server permission uses one of these command to mess up your configuration.
+    You have been warned.
     """
     def __init__(self, bot):
         self.bot = bot

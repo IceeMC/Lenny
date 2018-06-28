@@ -19,15 +19,16 @@ class Paginator:
         This defaults to white (0xffffff)
     """
 
-    def __init__(self, ctx, pages=[], color=0xffffff):
+    def __init__(self, ctx, pages=[], color=0xffffff, footer=True):
         self.ctx = ctx
         self.bot = ctx.bot
         self.pages = pages
+        self.color = color
+        self.footer = footer
         self.reactions = ["⏪", "◀", "⏹", "▶", "⏩", "❔"]
         self.message = None
         self.enabled = False
         self.current = 0
-        self.color = color
 
     async def react(self):
         for reaction in self.reactions:
@@ -51,12 +52,14 @@ class Paginator:
         if self.enabled:
             to_switch_to = self.pages[page]
             to_switch_to.color = self.color
-            to_switch_to.set_footer(text=f"Showing page {page + 1} out of {len(self.pages)}")
+            if self.footer:
+                to_switch_to.set_footer(text=f"Showing page {page + 1} out of {len(self.pages)}")
             await self.message.edit(embed=to_switch_to)
         else:
             self.enabled = True
             self.pages[0].color = self.color
-            self.pages[0].set_footer(text=f"Showing page {page + 1} out of {len(self.pages)}")
+            if self.footer:
+                self.pages[0].set_footer(text=f"Showing page {page + 1} out of {len(self.pages)}")
             self.message = await self.ctx.send(embed=self.pages[0])
             await self.react()
 

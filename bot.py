@@ -6,14 +6,16 @@ import time
 import os
 import aiohttp
 import discord
+import datetime
+import traceback
 from discord.ext import commands
 from music.AudioManager import AudioManager
 from utils.Logger import Logger
 from utils.DBHelper import DBHelper
 
-async def prefix(bot, message):
-    prefix = await bot.db.get_prefix(message.guild.id)
-    return commands.when_mentioned_or(prefix)(bot, message)
+
+async def prefix(cli, message):
+    return commands.when_mentioned_or(await cli.db.get_prefix(message.guild.id))(cli, message)
 
 bot = commands.Bot(command_prefix=prefix)
 
@@ -28,6 +30,16 @@ bot.session = aiohttp.ClientSession(loop=bot.loop)
 bot.music_manager = AudioManager(bot, bot.config["nodes"], shards=1)
 bot.version = "1.1"
 bot.commands_ran = {}
+
+
+def update_counter(ctx):
+    counter = bot.commands_ran.get(ctx.command.name)
+    if counter is None:
+        counter = 1
+        bot.commands_ran[ctx.command.name] = counter
+    else:
+        counter += 1
+        bot.commands_ran[ctx.command.name] = counter
 
 
 def caps(perm: str):
@@ -94,10 +106,9 @@ async def on_member_join(member):
     try:
         await chan.send(msg)
         if not auto_role:
-            pass
-        else:
-            await member.add_roles(auto_role)
-    except Exception:
+            return
+        await member.add_roles(discord.utils.get(member.guild.roles, id=auto_role))
+    except discord.Forbidden or discord.NotFound:
         pass
 
 
@@ -126,6 +137,8 @@ async def on_command_error(ctx, error):
         pass
     elif isinstance(error, commands.CommandNotFound):
         pass
+    elif isinstance(error, commands.CheckFailure):
+        pass
     elif isinstance(error, commands.BadArgument):
         member_not_found = re.match('Member "(.*)" not found', error.args[0])
         if member_not_found:
@@ -145,17 +158,27 @@ async def on_command_error(ctx, error):
             return await ctx.reinvoke()
         await ctx.send("Hmm, This command is currently disabled.")
     else:
-        Logger.error(error)
+        error_logs = bot.get_channel(461375438074282013)
+        tb = " ".join(traceback.format_exception(type(error).__name__, error, error.__traceback__))
+        embed = discord.Embed(color=0xff0000, title=f"An error occurred with command {ctx.command.name}.")
+        embed.description = f"```py\n{tb}```"
+        embed.timestamp = datetime.datetime.utcnow()
+        embed.set_footer(text=f"Author: {str(ctx.author)} | Guild: {ctx.guild.name}")
+        await error_logs.send(embed=embed)
+        await ctx.send("Sorry an unexpected error occurred, Please try again later.")
 
 
 @bot.event
 async def on_command(ctx):
-    if bot.commands_ran.get(ctx.command.name) is None:
-        bot.commands_ran[ctx.command.name] = 1
-    else:
-        counter = bot.commands_ran.get(ctx.command.name)
-        counter += 1
-        print(counter)
+    update_counter(ctx)
+    logs = bot.get_channel(458413294571749379)
+    embed = discord.Embed(color=0xffffff, title="Command invoked", description=ctx.message.content)
+    embed.add_field(name="Author", value=str(ctx.author))
+    embed.add_field(name="Guild", value=ctx.guild.name)
+    embed.set_thumbnail(url=ctx.guild.icon_url)
+    embed.timestamp = datetime.datetime.utcnow()
+    embed.set_footer(text="Command executed successfully.", icon_url=ctx.author.avatar_url)
+    await logs.send(embed=embed)
 
 
 async def status_change():

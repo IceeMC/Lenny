@@ -3,6 +3,7 @@ import json
 from discord.ext import commands
 import psutil
 from utils.Paginator import Paginator
+from functools import reduce
 
 
 class General:
@@ -76,26 +77,33 @@ class General:
     async def ping(self, ctx):
         """Ping pong? Anyone?"""
         embed = discord.Embed(color=0xffffff)
-        embed.description = f"they see me ponging. They waiting for about {self.bot.latency * 1000:.0f}ms."
+        embed.description = f"they see me ponging. They waiting for **{self.bot.latency * 1000:.0f}**ms."
         await ctx.send(embed=embed)
         
     @commands.command()
     async def support(self, ctx):
         """Join the dank place."""
-        await ctx.send("Your turn to join the dank place: https://discord.gg/ftsNNMM")
+        await ctx.send("Your turn to join the dank place: <https://discord.gg/ftsNNMM>")
 
     @commands.command()
     async def invite(self, ctx):
         """Add me to that dank place."""
         link = 'https://discordapp.com/api/oauth2/authorize?client_id=459153545917235200&permissions=8&scope=bot'
-        await ctx.send(f"Invite me to your dank place: {link}")
+        await ctx.send(f"Invite me to your dank place: <{link}>")
 
     @commands.command(aliases=["botinfo", "binfo", "statistics"])
     async def stats(self, ctx):
         """Bot stats. Go for it!"""
-        embed = discord.Embed(color=0xffffff)
-        embed.add_field(name="General", value=f"Servers: {len(self.bot.guilds)}\nUsers: {len(self.bot.users)}")
-        embed.add_field(name="Ram", value=f"Free: {self.free_ram()}\nTotal: {self.total_ram()}\nUsed: {self.used_ram()} ({psutil.virtual_memory().percent})")
+        embed = discord.Embed(color=0xffffff, title="Bot statistics", description="Here are some statistics about the bot.")
+        embed.add_field(name="Total Servers", value=str(len(self.bot.guilds)))
+        embed.add_field(name="Total Users", value=str(len(self.bot.users)))
+        embed.add_field(name="Total RAM", value=self.total_ram())
+        embed.add_field(name="RAM Usage", value=f"{self.used_ram()} ({psutil.virtual_memory().percent}%)")
+        embed.add_field(name="GitHub", value="[Click This](https://github.com/IceeMC/Lenny)")
+        embed.add_field(name="Support server", value="[Click This](https://discord.gg/ftsNNMM)")
+        embed.add_field(name="Library/Language", value="[discord.py 1.0.0a](https://github.com/Rapptz/discord.py/tree/rewrite)/[python](https://www.python.org/)")
+        embed.add_field(name="Command ran", value=reduce((lambda prev, val: prev + val), list(self.bot.commands_ran.values())))
+        embed.set_thumbnail(url=self.bot.user.avatar_url)
         await ctx.send(embed=embed)
 
     @commands.command()

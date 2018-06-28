@@ -32,11 +32,14 @@ class Owner:
     async def reload(self, ctx, *, cog: str):
         """Reloads a cog."""
         if cog == "all":
-            temp = self.bot.cogs_list
+            for cog in self.bot.cog_files:
+                self.bot.unload_extension(f"cogs.{cog}")
+                self.bot.load_extension(f"cogs.{cog}")
+            await ctx.message.add_reaction("✅")
         else:
             try:
-                self.bot.unload_extension("cogs.{}".format(cog))
-                self.bot.load_extension("cogs.{}".format(cog))
+                self.bot.unload_extension(f"cogs.{cog}")
+                self.bot.load_extension(f"cogs.{cog}")
                 await ctx.message.add_reaction("✅")
             except discord.Forbidden:
                 pass

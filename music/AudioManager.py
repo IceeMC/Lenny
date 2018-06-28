@@ -57,8 +57,6 @@ class AudioManager:
         }))
         if not self.nodes.get(host):
             raise Exception("No node with host: {} found.".format(host))
-        p = self.get_player(ctx, host)
-        p.connected = True
 
     async def leave(self, ctx):
         await self.bot.ws.send(json.dumps({
