@@ -84,7 +84,7 @@ class Utility:
             1: "**Low** Light Security measures have been taken. (Verified Email)",
             2: "**Moderate** Moderate Security measures have been taken. (Registered on Discord for longer than 5 minutes)",
             3: "**High** High Security measures have been taken. (Member of server for longer than 10 minutes)",
-            4: "**Fort Knox** Almost inpenetrable Security measures have been taken. (Verified Phone)"
+            4: "**Fort Knox** Almost impenetrable Security measures have been taken. (Verified Phone)"
         }
         content_filter = {
             0: "**None** No Scanning enabled. (Don't scan any messages.)",
@@ -95,7 +95,6 @@ class Utility:
             0: "Does not require 2FA for members with Admin permission.",
             1: "Requires 2FA for members with Admin permission."
         }
-        server_embed.add_field(name="Members", value="{:,}/{:,} online ({:.2f}%)\n{:,} {} ({}%)".format(online_members, len(guild.members), bot_percent), inline=True)
         server_embed.add_field(name="Members ({:,} total)".format(len(guild.members)), value=user_string, inline=True)
         server_embed.add_field(name="Roles", value=str(len(guild.roles)), inline=True)
         chandesc = "{:,} text, {:,} voice".format(len(guild.text_channels), len(guild.voice_channels))
@@ -113,12 +112,12 @@ class Utility:
         joined_list = []
         pop_list = []
         for g in self.bot.guilds:
-            joined_list.append({ 'ID' : g.id, 'Joined' : g.me.joined_at })
-            pop_list.append({ 'ID' : g.id, 'Population' : len(g.members) })
+            joined_list.append({'ID': g.id, 'Joined': g.me.joined_at})
+            pop_list.append({'ID': g.id, 'Population': len(g.members)})
         
         # sort the guilds by join date
-        t_joined_list = sorted(joined_list, key=lambda x:x['Joined'])
-        t_pop_list = sorted(pop_list, key=lambda x:x['Population'], reverse=True)
+        t_joined_list = sorted(joined_list, key=lambda x :x['Joined'])
+        t_pop_list = sorted(pop_list, key=lambda x: x['Population'], reverse=True)
         
         check_item = {"ID" : guild.id, "Joined": guild.me.joined_at}
         total = len(t_joined_list)
