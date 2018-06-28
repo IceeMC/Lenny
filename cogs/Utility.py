@@ -48,7 +48,7 @@ class Utility:
         await ctx.send(embed=embed)
         
         
-    @commands.command(pass_context=True, aliases=['si', 'sinfo'])
+    @commands.command(aliases=['si', 'sinfo'])
     async def serverinfo(self, ctx, *, guild_name = None):
         """Lists some info about the current or passed server."""
         
@@ -103,7 +103,7 @@ class Utility:
         try:
             ban_count = len(await guild.bans())
         except discord.Forbidden:
-            ban_count = "Kala Lacks the `ban members` permission. (In order to retrieve bans)"
+            ban_count = "Lenny Lacks the `ban members` permission. (In order to retrieve bans)"
         verification_levels = {
             0: "**None** No Security measures have been taken.",
             1: "**Low** Light Security measures have been taken. (Verified Email)",
@@ -190,7 +190,7 @@ class Utility:
             # No Icon
             server_embed.set_thumbnail(url=ctx.author.default_avatar_url)
         server_embed.set_footer(text="Server ID: {}".format(guild.id))
-        await ctx.channel.send(embed=server_embed)
+        await ctx.send(embed=server_embed)
 
 
 def setup(bot):
