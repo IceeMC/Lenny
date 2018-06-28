@@ -72,8 +72,6 @@ class Owner:
             return await temp.edit(content="<:thonk:422506173606920193> No new changes.")
 
         await temp.edit(content=f"Here are the latest changes:\n```xl\n{stdout}```")
-        os.execv(sys.executable, ["clear"])
-        os.execv(sys.executable, ["python3", "bot.py"])
 
     @commands.command()
     async def exec(self, ctx, *, cmd: str):
