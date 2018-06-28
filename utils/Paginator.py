@@ -17,6 +17,9 @@ class Paginator:
     color: int
         The color of the embed.
         This defaults to white (0xffffff)
+    footer: bool
+        A bool determining whether the embed should have a footer displaying what page
+        the user is currently on.
     """
 
     def __init__(self, ctx, pages=[], color=0xffffff, footer=True):
@@ -121,6 +124,6 @@ class Paginator:
     async def end(self):
         self.enabled = False
         try:
-            await self.message.delete()
-        except discord.NotFound:
+            await self.message.clear_reactions()
+        except discord.Forbidden:
             pass

@@ -52,15 +52,31 @@ class Owner:
         reboot_time = f"{delay} seconds." if delay > 1 else f"{delay} second."
         await ctx.send(f"Rebooting in {reboot_time}")
         await asyncio.sleep(delay)
+        os.execv(sys.executable, ["clear"])
+        os.execv(sys.executable, ["python3", "bot.py"])
+
+    @commands.command()
+    async def logout(self, ctx):
+        """Logs the bot out."""
+        await ctx.channel.send("<:nou:433731752855470081>")
         await self.bot.logout()
-        os.execv(sys.executable, ["python3"] + ["bot.py"])
+
+    @commands.command(alises=["update", "gitpull"])
+    async def pull(self, ctx):
+        """Fetches the latest changes from the GitHub repo. Then restarts the bot."""
+        temp = await ctx.send("Give me a sec...")
+        res = subprocess.run("git pull", shell=True, stdout=subprocess.PIPE)
+        await temp.delete()
+        stdout = res.stdout.decode("utf-8")
+        await ctx.send(f"Here are the latest changes:\n```xl\n{stdout}```")
+        os.execv(sys.executable, ["clear"])
+        os.execv(sys.executable, ["python3 bot.py"])
 
     @commands.command()
     async def exec(self, ctx, *, cmd: str):
         """Rums code on the shell."""
         temp = await ctx.send(f"Executing: `{cmd}` please wait...")
         result = subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
         await temp.delete()
 
         if result.stderr.decode("utf-8"):
