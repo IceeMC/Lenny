@@ -70,7 +70,7 @@ class Owner:
         stdout = res.stdout.decode("utf-8")
         await ctx.send(f"Here are the latest changes:\n```xl\n{stdout}```")
         os.execv(sys.executable, ["clear"])
-        os.execv(sys.executable, ["python3 bot.py"])
+        os.execv(sys.executable, ["python3", "bot.py"])
 
     @commands.command()
     async def exec(self, ctx, *, cmd: str):
