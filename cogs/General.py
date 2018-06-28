@@ -78,6 +78,7 @@ class General:
         """Ping pong? Anyone?"""
         embed = discord.Embed(color=0xffffff)
         embed.description = f"they see me ponging. They waiting for **{self.bot.latency * 1000:.0f}**ms."
+        embed.description = f"they see me ponging. They waiting for about **{self.bot.latency * 1000:.0f}ms.**"
         await ctx.send(embed=embed)
         
     @commands.command()
@@ -111,6 +112,6 @@ class General:
         """Sends a list of all commands users have used."""
         await ctx.send(f"```json\n{json.dumps(self.bot.commands_ran, indent=4)}```")
 
-        
+
 def setup(bot):
     bot.add_cog(General(bot))
