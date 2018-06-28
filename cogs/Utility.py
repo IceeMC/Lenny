@@ -26,15 +26,14 @@ class Utility:
         if member.activity:
             embed.add_field(name="Game", value=f"Currently playing **{member.activity.name}** in {member.status} mode.")
         await ctx.send(embed=embed)
-        
-        
+
     @commands.command(aliases=['si', 'sinfo'])
-    async def serverinfo(self, ctx, *, guild_name = None):
+    async def serverinfo(self, ctx, *, guild_name: str = None):
         """Lists some info about the current or passed server."""
         
         # Check if we passed another guild
         guild = None
-        if guild_name == None:
+        if guild_name is None:
             guild = ctx.guild
         else:
             for g in self.bot.guilds:
@@ -44,21 +43,17 @@ class Utility:
                 if str(g.id) == str(guild_name):
                     guild = g
                     break
-        if guild == None:
+        if guild is None:
             # We didn't find it
             await ctx.send("I couldn't find that guild...")
             return
         
         server_embed = discord.Embed(color=ctx.author.color)
         server_embed.title = guild.name
-        
-        
-        
-        
         server_embed.description = "Server Stats"
         online_members = 0
-        bot_member     = 0
-        bot_online     = 0
+        bot_member = 0
+        bot_online = 0
         for member in guild.members:
             if member.bot:
                 bot_member += 1
@@ -67,7 +62,7 @@ class Utility:
                 continue
             if not member.status == discord.Status.offline:
                 online_members += 1
-        # bot_percent = "{:,g}%".format((bot_member/len(guild.members))*100)
+        bot_percent = "{:,g}%".format((bot_member/len(guild.members))*100)
         user_string = "{:,}/{:,} online ({:,g}%)".format(
                 online_members,
                 len(guild.members) - bot_member,
@@ -100,7 +95,7 @@ class Utility:
             0: "Does not require 2FA for members with Admin permission.",
             1: "Requires 2FA for members with Admin permission."
         }
-        #server_embed.add_field(name="Members", value="{:,}/{:,} online ({:.2f}%)\n{:,} {} ({}%)".format(online_members, len(guild.members), bot_percent), inline=True)
+        server_embed.add_field(name="Members", value="{:,}/{:,} online ({:.2f}%)\n{:,} {} ({}%)".format(online_members, len(guild.members), bot_percent), inline=True)
         server_embed.add_field(name="Members ({:,} total)".format(len(guild.members)), value=user_string, inline=True)
         server_embed.add_field(name="Roles", value=str(len(guild.roles)), inline=True)
         chandesc = "{:,} text, {:,} voice".format(len(guild.text_channels), len(guild.voice_channels))
@@ -114,36 +109,36 @@ class Utility:
         server_embed.add_field(name="Ban Count", value=ban_count)
         server_embed.add_field(name="Voice Region", value=guild.region, inline=True)
         server_embed.add_field(name="Considered Large", value=guild.large, inline=True)
-	# Find out where in our join position this server is
-        joinedList = []
-        popList    = []
+        # Find out where in our join position this server is
+        joined_list = []
+        pop_list = []
         for g in self.bot.guilds:
-            joinedList.append({ 'ID' : g.id, 'Joined' : g.me.joined_at })
-            popList.append({ 'ID' : g.id, 'Population' : len(g.members) })
+            joined_list.append({ 'ID' : g.id, 'Joined' : g.me.joined_at })
+            pop_list.append({ 'ID' : g.id, 'Population' : len(g.members) })
         
         # sort the guilds by join date
-        joinedList = sorted(joinedList, key=lambda x:x['Joined'])
-        popList = sorted(popList, key=lambda x:x['Population'], reverse=True)
+        t_joined_list = sorted(joined_list, key=lambda x:x['Joined'])
+        t_pop_list = sorted(pop_list, key=lambda x:x['Population'], reverse=True)
         
-        check_item = { "ID" : guild.id, "Joined" : guild.me.joined_at }
-        total = len(joinedList)
-        position = joinedList.index(check_item) + 1
+        check_item = {"ID" : guild.id, "Joined": guild.me.joined_at}
+        total = len(t_joined_list)
+        position = t_joined_list.index(check_item) + 1
         server_embed.add_field(name="Join Position", value="{:,} of {:,}".format(position, total), inline=True)
         
         # Get our population position
-        check_item = { "ID" : guild.id, "Population" : len(guild.members) }
-        total = len(popList)
-        position = popList.index(check_item) + 1
+        check_item = {"ID": guild.id, "Population": len(guild.members)}
+        total = len(t_pop_list)
+        position = t_pop_list.index(check_item) + 1
         server_embed.add_field(name="Population Rank", value="{:,} of {:,}".format(position, total), inline=True)
         
         emojitext = ""
         emojicount = 0
         for emoji in guild.emojis:
             if emoji.animated:
-                emojiMention = "<a:"+emoji.name+":"+str(emoji.id)+">"
+                emoji_mention = "<a:"+emoji.name+":"+str(emoji.id)+">"
             else:
-                emojiMention = "<:"+emoji.name+":"+str(emoji.id)+">"
-            test = emojitext + emojiMention
+                emoji_mention = "<:"+emoji.name+":"+str(emoji.id)+">"
+            test = emojitext + emoji_mention
             if len(test) > 1024:
                 # TOOO BIIIIIIIIG
                 emojicount += 1
@@ -152,9 +147,9 @@ class Utility:
                 else:
                     ename = "Emojis (Continued)"
                 server_embed.add_field(name=ename, value=emojitext, inline=True)
-                emojitext=emojiMention
+                emojitext=emoji_mention
             else:
-                emojitext = emojitext + emojiMention
+                emojitext = emojitext + emoji_mention
 
         if len(emojitext):
             if emojicount == 0:
@@ -162,7 +157,6 @@ class Utility:
             else:
                 emojiname = "Emojis (Continued)"
             server_embed.add_field(name=emojiname, value=emojitext, inline=True)
-
 
         if len(guild.icon_url):
             server_embed.set_thumbnail(url=guild.icon_url)
