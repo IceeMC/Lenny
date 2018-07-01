@@ -1,4 +1,6 @@
 import discord
+import json
+import textwrap
 from discord.ext import commands
 
 
@@ -10,12 +12,12 @@ class Setup:
     """
     def __init__(self, bot):
         self.bot = bot
-        self.placeholders = "\n".join([
-            "/u/ - The user as a mention",
-            "/u-nm/ - The user but as User#Discriminator",
-            "/u-id/ - The ID of the user."
-            "/g/ - The name of the guild",
-            "/g-id/ - The id of the guild.",
+        self.placeholders = "".join([
+            "/u/ - The user as a mention.\n",
+            "/u-nm/ - The user but as User#Discriminator\n",
+            "/u-id/ - The ID of the user.\n"
+            "/g/ - The name of the guild.\n",
+            "/g-id/ - The id of the guild.\n",
             "/g-count/ - The count of member's in the guild."
         ])
         self.default_welcome_msg = "Hey **/u/**, Welcome to */g/*. Enjoy your stay."
@@ -42,8 +44,10 @@ class Setup:
             return await self.prompt_for_mod_log_channel(ctx, cache=cache)
 
     async def prompt_for_auto_role(self, ctx, cache):
-        cache.append(await ctx.send("Please enter a role name for the auto feature. Note: Names are case sensitive."))
+        cache.append(await ctx.send("Please enter a role name for the auto feature. (Type none/disable to disable.) Note: Names are case sensitive."))
         waiter = await self.bot.wait_for("message", check=lambda m: m.author.id == ctx.author.id)
+        if waiter.content.lower() in ["none", "disable"]:
+            pass
         role = discord.utils.get(ctx.guild.roles, name=waiter.clean_content)
         if role:
             await self.bot.db.update_config(ctx.guild.id, {"auto_role": role.id})
@@ -148,18 +152,20 @@ class Setup:
     async def setwmessage(self, ctx, *, msg: str = None):
         """Sets the welcome message."""
         if not msg:
-            await ctx.send(f"Please provide a welcome message you can use the following place holders.\n```\n{self.placeholders}```")
-        else:
-            await self.bot.db.update_config(ctx.guild.id, {"welcome_message": msg})
+            return await ctx.send(f"Please provide a welcome message you can use the following place holders.\n```\n{self.placeholders}```")
+
+        await self.bot.db.update_config(ctx.guild.id, {"welcome_message": msg})
+        await ctx.send("Done!")
 
     @commands.command(aliases=["setlm", "slm"])
     @commands.has_permissions(manage_guild=True)
     async def setlmessage(self, ctx, *, msg: str = None):
         """Sets the leave message."""
         if not msg:
-            await ctx.send(f"Please provide a leave message you can use the following place holders.\n```\n{self.placeholders}```")
-        else:
-            await self.bot.db.update_config(ctx.guild.id, {"leave_message": msg})
+            return await ctx.send(f"Please provide a leave message you can use the following place holders.\n```\n{self.placeholders}```")
+
+        await self.bot.db.update_config(ctx.guild.id, {"leave_message": msg})
+        await ctx.send("Done!")
 
     @commands.command(aliases=["setml", "sml"])
     @commands.has_permissions(manage_guild=True)
@@ -172,6 +178,16 @@ class Setup:
                 await cached.delete()
             except discord.Forbidden:
                 pass
+        await ctx.send("Done!")
+
+    @commands.command()
+    async def rawconfig(self, ctx):
+        """Displays the raw guild config."""
+        cfg = await self.bot.db.get_config(ctx.guild.id)
+        if len(str(cfg["mod_log_cases"])) > 400:
+            cfg["mod_log_cases"] = cfg["mod_log_cases"][0:2]
+        raw = json.dumps(cfg, indent=4)
+        await ctx.send(f"This means that you and your server are safe.\nNote if you have more than 3 mod log cases the first 2 will only show.\nSame with starboard messages\n```json\n{raw}```")
 
 
 def setup(bot):

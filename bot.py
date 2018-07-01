@@ -12,6 +12,7 @@ from discord.ext import commands
 from music.AudioManager import AudioManager
 from utils.Logger import Logger
 from utils.DBHelper import DBHelper
+from collections import deque
 
 
 async def prefix(cli, message):
@@ -30,6 +31,17 @@ bot.session = aiohttp.ClientSession(loop=bot.loop)
 bot.music_manager = AudioManager(bot, bot.config["nodes"], shards=1)
 bot.version = "1.1"
 bot.commands_ran = {}
+bot.games = deque([
+    "=help | Python > NodeJS",
+    "=help | ACK",
+    "=help | I pet my dog",
+    "=help | 00F",
+    "=help | ...",
+    "=help | Google > Bing",
+    "=help | Mine diamonds",
+    "=help | I'm always 🤔",
+    "=help | My name jif."
+])
 
 
 def update_counter(ctx):
@@ -66,6 +78,7 @@ async def on_guild_join(guild):
     em.set_footer(text=f"ID: {guild.id}")
     em.set_thumbnail(url=guild.icon_url)
     await lol.send(embed=em)
+    bot. games[0] = f"=help | with {len(bot.guilds)} servers!"  # Sets the new server count.
 
       
 @bot.event
@@ -75,7 +88,8 @@ async def on_guild_remove(guild):
     em.title = "I have left a server."
     em.description = f"Server: {guild}"
     em.set_footer(text=f"ID: {guild.id}")
-    await lol.send(embed=em)   
+    await lol.send(embed=em)
+    bot.games[0] = f"=help | with {len(bot.guilds)} servers!"  # Sets the new server count.
 
     
 @bot.event
@@ -103,6 +117,8 @@ async def on_ready():
         bot.load_extension(f"cogs.{cog}")
         Logger.info(f"Loaded cog: {cog}")
     Logger.info("All cogs loaded.")
+    bot.games.appendleft(f"=help | with {len(bot.users)} users!")
+    bot.games.appendleft(f"=help | with {len(bot.guilds)} servers!")
     bot.loop.create_task(status_change())
     Logger.task("Status change has started.")
     bot.loop.create_task(bot.music_manager.audio_task())
@@ -155,6 +171,8 @@ async def on_member_remove(member):
 async def on_command_error(ctx, error):
     if isinstance(error, discord.Forbidden):
         pass
+    elif isinstance(error, commands.BotMissingPermissions):
+        pass
     elif isinstance(error, commands.CommandNotFound):
         pass
     elif isinstance(error, commands.CheckFailure):
@@ -205,21 +223,8 @@ async def on_command(ctx):
 
 
 async def status_change():
-    games = [
-        f"=help | with {len(bot.guilds)} servers!",
-        f"=help | with {len(bot.users)} users!",
-        "=help | Python > NodeJS",
-        "=help | ACK",
-        "=help | I pet my dog",
-        "=help | 00F",
-        "=help | ...",
-        "=help | Google > Bing",
-        "=help | Mine diamonds",
-        "=help | I'm always 🤔",
-        "=help | My name jif."
-    ]
     while not bot.is_closed():
-        await bot.change_presence(activity=discord.Game(name=f"{random.choice(games)} | v{bot.version}"))
-        await asyncio.sleep(30)
+        await bot.change_presence(activity=discord.Game(name=f"{random.choice(bot.games)} | v{bot.version}"))
+        await asyncio.sleep(60)
 
 bot.run(bot.config["token"])

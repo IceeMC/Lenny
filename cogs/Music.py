@@ -1,5 +1,6 @@
 from discord.ext import commands
 from utils.Paginator import Paginator
+from bs4 import BeautifulSoup
 import re
 import discord
 
@@ -183,6 +184,31 @@ class Music:
 
         player.queue.clear()
         await self.music.leave(ctx)
+
+    @commands.command(aliases=["songlyrics", "lyric"])
+    async def lyrics(self, ctx, *, song: str):
+        """Gets lyrics for a song."""
+        async with ctx.typing():
+            resp = await (await self.bot.session.get(f"https://api.genius.com/search?q={song}", headers={"Authorization": f"Bearer {self.bot.config['genius']}"})).json()
+
+        if not resp["response"]["hits"]:
+            return await ctx.send(f"No results found for. Try looking for a different song.")
+
+        resp1 = await (await self.bot.session.get(resp["response"]["hits"][0]["result"]["url"])).text()
+        scraped = BeautifulSoup(resp1, "lxml")
+
+        if not scraped.find_all("p"):
+            return await ctx.send(f"No results found for. Try looking for a different song.")
+
+        description = scraped.find_all("p")[0].text
+        if len(description) > 2045:
+            description = f"{description[:2045]}..."
+
+        embed = discord.Embed(title=resp["response"]["hits"][0]["result"]["full_title"], color=0xffffff)
+        embed.description = description
+        embed.set_footer(text="Powered by: https://genius.com", icon_url=ctx.author.avatar_url)
+        embed.set_thumbnail(url=resp["response"]["hits"][0]["result"]["header_image_thumbnail_url"])
+        await ctx.send(embed=embed)
 
 
 def setup(bot):

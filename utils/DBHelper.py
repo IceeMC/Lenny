@@ -14,7 +14,7 @@ class DBHelper:
 
     # Configuration
 
-    async def _get_config(self, guild_id: int):
+    async def get_config(self, guild_id: int):
         config = await self.db.configs.find_one({"_id": guild_id})
         if not config:
             await self.db.configs.insert_one({
@@ -39,11 +39,11 @@ class DBHelper:
             return config
 
     async def get_prefix(self, guild_id):
-        config = await self._get_config(guild_id)
+        config = await self.get_config(guild_id)
         return config["prefix"]
 
     async def get_welcome_channel(self, guild_id):
-        config = await self._get_config(guild_id)
+        config = await self.get_config(guild_id)
         return config["welcome_channel"]
 
     async def get_starboard_channel(self, guild_id):
@@ -51,43 +51,43 @@ class DBHelper:
         return config["starboard_channel"]
 
     async def get_starboard_cache(self, guild_id):
-        config = await self._get_config(guild_id)
+        config = await self.get_config(guild_id)
         return config["starboard_cache"]
 
     async def get_welcomes_enabled(self, guild_id):
-        config = await self._get_config(guild_id)
+        config = await self.get_config(guild_id)
         return config["welcomes_enabled"]
 
     async def get_auto_role(self, guild_id):
-        config = await self._get_config(guild_id)
+        config = await self.get_config(guild_id)
         return config["auto_role"]
 
     async def get_leaves_enabled(self, guild_id):
-        config = await self._get_config(guild_id)
+        config = await self.get_config(guild_id)
         return config["leaves_enabled"]
 
     async def get_welcome_message(self, guild_id):
-        config = await self._get_config(guild_id)
+        config = await self.get_config(guild_id)
         return config["welcome_message"]
 
     async def get_leave_message(self, guild_id):
-        config = await self._get_config(guild_id)
+        config = await self.get_config(guild_id)
         return config["leave_message"]
 
     async def get_anti_links(self, guild_id):
-        config = await self._get_config(guild_id)
+        config = await self.get_config(guild_id)
         return config["anti_links"]
 
     async def get_anti_swear(self, guild_id):
-        config = await self._get_config(guild_id)
+        config = await self.get_config(guild_id)
         return config["anti_swear"]
 
     async def get_mod_log_channel(self, guild_id):
-        config = await self._get_config(guild_id)
+        config = await self.get_config(guild_id)
         return config["mod_log_channel"]
 
     async def get_mod_log_cases(self, guild_id):
-        config = await self._get_config(guild_id)
+        config = await self.get_config(guild_id)
         return config["mod_log_cases"]
 
     async def update_config(self, guild_id, to_update):

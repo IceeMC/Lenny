@@ -119,7 +119,7 @@ class Utility:
         t_joined_list = sorted(joined_list, key=lambda x :x['Joined'])
         t_pop_list = sorted(pop_list, key=lambda x: x['Population'], reverse=True)
         
-        check_item = {"ID" : guild.id, "Joined": guild.me.joined_at}
+        check_item = {"ID": guild.id, "Joined": guild.me.joined_at}
         total = len(t_joined_list)
         position = t_joined_list.index(check_item) + 1
         server_embed.add_field(name="Join Position", value="{:,} of {:,}".format(position, total), inline=True)
@@ -157,11 +157,7 @@ class Utility:
                 emojiname = "Emojis (Continued)"
             server_embed.add_field(name=emojiname, value=emojitext, inline=True)
 
-        if len(guild.icon_url):
-            server_embed.set_thumbnail(url=guild.icon_url)
-        else:
-            # No Icon
-            server_embed.set_thumbnail(url=ctx.author.default_avatar_url)
+        server_embed.set_thumbnail(url=guild.icon_url)
         server_embed.set_footer(text="Server ID: {}".format(guild.id))
         await ctx.send(embed=server_embed)
 

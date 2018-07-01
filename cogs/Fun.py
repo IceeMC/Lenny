@@ -33,25 +33,18 @@ class Fun:
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def fml(self, ctx):
-        """Gets many random fuck my life jokes."""
+        """Grabs a random fuck my life joke."""
         async with ctx.typing():
             resp = await (await self.bot.session.get("http://fmylife.com/random")).text()
 
-        pages = []
         data = BeautifulSoup(resp, "lxml")
-        parsed = data.find("div", {"class": "panel-content"})
-        for x in range(15):
-            content = parsed[x].find("div", {"class": "panel-content"})
-            em = discord.Embed(title=f"FML Joke")
-            em.description = content.find("p").text
-            if content.find("button", {"class": "btn btn-default vote-up title"}):
-                em.add_field(name="Likes", value=content.find("button", {"class": "btn btn-default vote-up title"}).text)
-            if content.find("button", {"class": "btn btn-default vote-down title"}):
-                em.add_field(name="Dislikes", value=content.find("button", {"class": "btn btn-default vote-down title"}).text)
-            pages.append(em)
+        joke = data.find("p", {"class": "block"})
 
-        page_session = Paginator(ctx, pages=pages)
-        await page_session.start()
+        em = discord.Embed(title=f"Random FML Joke", color=0xffffff)
+        em.description = joke.text
+        em.set_footer(text="Powered by: http://fmylife.com/random", icon_url=ctx.author.avatar_url)
+
+        await ctx.send(embed=em)
 
 
 def setup(bot):

@@ -18,7 +18,6 @@ class Owner:
 
     async def __local_check(self, ctx):
         if ctx.author.id not in self.bot.config["developers"]:
-            await ctx.send("Hmm, It appears you are not one of my developers.")
             return False
         return True
 
@@ -58,7 +57,7 @@ class Owner:
     @commands.command()
     async def logout(self, ctx):
         """Logs the bot out."""
-        await ctx.channel.send("<:nou:433731752855470081>")
+        await ctx.channel.send(self.bot.get_emoji())
         await self.bot.logout()
 
     @commands.command(aliases=["update", "gitpull"])
@@ -68,7 +67,7 @@ class Owner:
         res = subprocess.run("git pull", shell=True, stdout=subprocess.PIPE)
         stdout = res.stdout.decode("utf-8")
         if "Already" in stdout:
-            return await temp.edit(content="<:thonk:422506173606920193> No new changes.")
+            return await temp.edit(content=f"{self.bot.get_emoji(356771720863940608)} No new changes.")
 
         await temp.edit(content=f"Here are the latest changes:\n```xl\n{stdout}```")
 

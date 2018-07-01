@@ -58,6 +58,8 @@ class General:
         if not cmd:
             pages = []
             for cog in self.bot.cogs:
+                if cog == "Owner" and ctx.author.id not in self.bot.config["developers"]:
+                    pass
                 pages.append(self.new_cog_embed(cog))
 
             page_session = Paginator(ctx, pages=pages)
