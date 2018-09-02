@@ -28,7 +28,7 @@ class GuildMemberAddEvent extends Event {
     }
 
     autoRole(member) {
-        const { settings } = message.guild;
+        const { settings } = member.guild;
         if (!settings.autoRole) return;
         if (!member.guild.me.permissions.has("MANAGE_ROLES")) return;
         return member.roles.add(settings.autoRole, "RemixBot Auto Role").catch(() => null);
