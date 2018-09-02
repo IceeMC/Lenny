@@ -1,0 +1,2 @@
+const { Command } = require("klasa");
+

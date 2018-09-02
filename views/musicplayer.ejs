@@ -1,0 +1,91 @@
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Music Player - RemixBot</title>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+        <link rel="shortcut icon" href="https://cdn.discordapp.com/avatars/459153545917235200/e97ceafb396bb1afdf847095348115bd.png" type="image/x-icon">
+        <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+        <script src="/assets/scripts/PlayerSocket.js"></script>
+    </head>
+
+    <body>
+        <!-- Navbar works on desktop, and mobile -->
+        <nav class="navbar navbar-toggleable-md fixed-top navbar-inverse" style="background-color: #E84536;">
+            <a class="navbar-brand" style="color: #F1F1F1;"><img width="30" height="30" src="https://cdn.discordapp.com/avatars/459153545917235200/e97ceafb396bb1afdf847095348115bd.png"></a>
+            <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navBar" aria-controls="navBar" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navBar">
+                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item active"><a class="nav-link" href="#">Music Player</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <% if (authorized) { %>
+                    <li class="nav-item"><a class="nav-link" href="#"><%= usr.username %></a></li>
+                    <% if (owner) { %><li class="nav-item"><a class="nav-link" href="/console">Console</a></li><% } %>
+                    <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
+                    <% } else { %>
+                    <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
+                    <% } %>
+                </ul>
+            </div>
+        </nav>
+
+        <style>
+            div.Jumbotron {
+                background: #334049;
+                color: #F1F1F1;
+                margin-top: auto;
+            }
+            div.jumbotron h1.display-3 {
+                margin-top: 20px;
+            }
+        </style>
+
+        <div class="jumbotron">
+            <center>
+                <h1 class="display-3">Music Player</h1>
+                <p class="lead">
+                    Gets info on a guilds music player.
+                    Enter an id to get started.
+                </p>
+            </center>
+        </div>
+
+        <div class="container">
+            <div id="playerDiv">
+                <div id="playerDivOverlay">
+                    <div class="form-group">
+                        <input id="guildId" class="form-control" type="text">
+                    </div>
+                    <input class="btn btn-primary" id="submit" type="button" value="Go!"></input>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            const socket = new PlayerSocket();
+            const guildIdBox = document.getElementById("guildId");
+            const submitButton = document.getElementById("submit");
+            const clickEvent = click => {
+                console.log("[WS] Opening a connection to wss://remixbot.ml/");
+                if (guildIdBox instanceof HTMLInputElement) {
+                    socket.connect(guildIdBox.value);
+                }
+            };
+            const keyDown = event => {
+                const keyCode = event.keyCode ? event.keyCode : event.which;
+                if (keyCode === 13 && !event.shiftKey) submitButton.click();
+            }
+            submitButton.addEventListener("click", clickEvent.bind(this));
+            guildIdBox.addEventListener("keydown", keyDown.bind(this));
+        </script>
+    </body>
+</html>

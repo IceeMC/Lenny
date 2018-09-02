@@ -1,3 +1,4 @@
 config.json
 .env
-node_module/*
+node_modules/*
+test.js
