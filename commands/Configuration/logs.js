@@ -12,10 +12,10 @@ class Logs extends Command {
             permissionLevel: 7,
             description: language => language.get("COMMAND_LOGS_DESCRIPTION")
         });
-        this.validKeys = ["roles", "nicknames", "bans", "kicks", "joins", "leaves", "warns", "messages", "all", "everything"];
+        this.validKeys = ["guild", "channels", "roles", "nicknames", "bans", "kicks", "joins", "leaves", "warns", "messages", "all", "everything"];
     }
 
-    async run(message, [type, ...params]) {
+    async run(message, [type, params]) {
         if (type === "enable") return this.enableSetting(message, params);
         if (type === "disable") return this.disableSetting(message, params);
         if (type === "channel") return this.changeChannel(message, params);
@@ -43,6 +43,8 @@ class Logs extends Command {
 
     async enableAll(message) {
         await message.guild.settings.update([
+            ["logs.guild", true],
+            ["logs.channels", true],
             ["logs.roles", true],
             ["logs.nicknames", true],
             ["logs.bans", true],
@@ -57,6 +59,8 @@ class Logs extends Command {
 
     async disableAll(message) {
         await message.guild.settings.update([
+            ["logs.guild", false],
+            ["logs.channels", false],
             ["logs.roles", false],
             ["logs.nicknames", false],
             ["logs.bans", false],

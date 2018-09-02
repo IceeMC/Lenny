@@ -42,6 +42,7 @@ class RemixBot extends Client {
         const obj = { added: 0, notAdded: 0 };
         RemixBot.defaultGuildSchema
             .add("welcome", (folder) => folder
+                .add("enabled", "boolean", { default: false })
                 .add("welcomeMessage", "string", { default: "Hello **{mention}** welcome to **{guild}**!" })
                 .add("leaveMessage", "string", { default: "**{username}** has left **{guild}**." })
                 .add("welcomeChannel", "textchannel")
@@ -49,6 +50,8 @@ class RemixBot extends Client {
             )
             .add("logs", (folder) => folder
                 .add("channel", "textchannel")
+                .add("guild", "boolean", { default: false })
+                .add("channels", "boolean", { default: false })
                 .add("roles", "boolean", { default: false })
                 .add("nicknames", "boolean", { default: false })
                 .add("bans", "boolean", { default: false })

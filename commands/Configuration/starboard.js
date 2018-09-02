@@ -34,3 +34,5 @@ class Starboard extends Command {
     }
 
 }
+
+module.exports = Starboard;

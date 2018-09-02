@@ -9,6 +9,50 @@ class LogsEvent extends Event {
         const logChannel = guild.channels.get(settings.logs.channel);
         if (!logChannel.postable) return;
         switch (logData.type) {
+            // Guild
+            case "guildUpdate": {
+                logChannel.send(this.embed({
+                    action: "Guild Update",
+                    text: `
+                    Updates:
+
+                    ${logData.updates.map(update => `**${update.text}:**\nBefore: ${update.old}\nAfter: ${update.new}`)}
+                    `
+                }));break;
+            }
+            // Channels
+            case "channelAdd": {
+                logChannel.send(this.embed({
+                    action: "Channel Added",
+                    text: `
+                    Channel: \`${logData.channel.name}\`
+                    ID: ${logData.channel.id}
+                    `
+                }));
+                break;
+            }
+            case "channelUpdate": {
+                logChannel.send(this.embed({
+                    action: "Channel Updated",
+                    text: `
+                    Updates:
+
+                    ${logData.updates.map(update => `**${update.text}:**\nBefore: ${update.old}\nAfter: ${update.new}`)}
+                    `
+                }));
+                break;
+            }
+            case "channelRemove": {
+                logChannel.send(this.embed({
+                    action: "Channel Removed",
+                    text: `
+                    Channel: \`${logData.channel.name}\`
+                    ID: ${logData.channel.id}
+                    `
+                }));
+                break;
+                break;
+            }
             // Roles
             case "memberRoleAdd": {
                 logChannel.send(this.embed({
@@ -29,6 +73,7 @@ class LogsEvent extends Event {
             case "roleAdd": {
                 logChannel.send(this.embed({
                     action: "Roles",
+                    user: logData.member.user,
                     text: `A new role was created:\n\nName: ${logData.role.name}\nID: ${logData.role.id}`,
                 }));
                 break;
@@ -36,6 +81,7 @@ class LogsEvent extends Event {
             case "roleRemove": {
                 logChannel.send(this.embed({
                     action: "Roles",
+                    user: logData.member.user,
                     text: `A role was removed:\n\nName: ${logData.role.name}\nID: ${logData.role.id}`,
                 }));
                 break;
@@ -44,6 +90,7 @@ class LogsEvent extends Event {
             case "nicknameChange": {
                 logChannel.send(this.embed({
                     action: "Nicknames",
+                    user: logData.member.user,
                     text: `${logData.member.user.username} changed their nickname from \`${logData.oldNick}\` to \`${logData.newNick}\``
                 }));
                 break;
@@ -52,7 +99,9 @@ class LogsEvent extends Event {
             case "memberBan": {
                 logChannel.send(this.embed({
                     action: "Ban",
-                    text: `${logData.user.username} has been banned with reason: ${logData.reason}`
+                    text: `${logData.user.username} has been banned with reason: ${logData.reason}`,
+                    user: logData.user,
+                    thumbnail: logData.user.displayAvatarURL({ size: 2048 })
                 }));
                 break;
             }
@@ -60,10 +109,70 @@ class LogsEvent extends Event {
                 logChannel.send(this.embed({
                     action: "Unban",
                     text: `${logData.user.username} has been unbanned`,
-                    thumbnail: {
-                        image: logData.user.displayAvatarURL({ size: 2048 }),
-                        type: "user"
-                    }
+                    user: logData.user,
+                    thumbnail: logData.user.displayAvatarURL({ size: 2048 })
+                }));
+                break;
+            }
+            // Joins/Leaves
+            case "memberJoin": {
+                logChannel.send(this.embed({
+                    action: "Member Join",
+                    text: `**${logData.member.user.tag}** has joined the server!`,
+                    user: logData.member.user,
+                    thumbnail: logData.member.username
+                }));
+                break;
+            }
+            case "memberLeave": {
+                logChannel.send(this.embed({
+                    action: "Member Left",
+                    text: `**${logData.member.user.tag}** has left the server!`,
+                    user: logData.member.user,
+                    thumbnail: logData.member.username
+                }));
+                break;
+            }
+            // Warns
+            case "memberWarn": {
+                logChannel.send(this.embed({
+                    action: "Member Warned",
+                    text: `**${logData.member.user.tag}** has been warned for ${logData.reason}`,
+                    user: logData.member.user,
+                    thumbnail: logData.member.username
+                }));
+                break;
+            }
+            // Messages
+            case "bulkDelete": {
+                logChannel.send(this.embed({
+                    action: "Bulk message deletion",
+                    text: `${logData.count} messages were deleted in channel: ${logData.channel}`
+                }));
+                break;
+            }
+            case "messageDelete": {
+                logChannel.send(this.embed({
+                    action: "Message Deleted",
+                    text: `
+                    Message by ${logData.message.member.user} was deleted in channel ${logData.message.channel}
+                    \`Message Content:\`
+                    ${logData.message.content}
+                    `,
+                    user: logData.message.member.user,
+                    thumbnail: logData.message.member.user.displayAvatarURL({ size: 2048 })
+                }));
+                break;
+            }
+            case "messageUpdate": {
+                logChannel.send(this.embed({
+                    action: "Message Updated",
+                    text: `
+                    Old Content: ${logData.oldContent}
+                    New Content: ${logData.newContent}
+                    `,
+                    user: logData.member.user,
+                    thumbnail: logData.member.user.displayAvatarURL({ size: 2048 })
                 }));
                 break;
             }
@@ -78,9 +187,9 @@ class LogsEvent extends Event {
             .setColor(this.client.utils.color)
             .addField(data.action, data.text)
             .setTimestamp()
-            .setFooter("RemixBot logs");
+            .setFooter("RemixBot mod logs");
         if (data.user) embed.setAuthor(data.user.username, data.user.displayAvatarURL({ size: 2048 }));
-        if (data.thumbnail && data.thumbnail.type === "user") embed.setThumbnail(data.thumbnail.image);
+        if (data.thumbnail) embed.setThumbnail(data.thumbnail.image);
         return embed;
     }
 
