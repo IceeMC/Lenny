@@ -57,6 +57,7 @@ class RemixBot extends Client {
                 .add("warns", "boolean", { default: false })
                 .add("messages", "boolean", { default: false })
             )
+            .add("levelsEnabled", "boolean", { default: false })
             .add("tags", "any", { array: true })
             .add("starboard", (folder) => folder
                 .add("cache", "any", { array: true })

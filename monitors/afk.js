@@ -15,8 +15,8 @@ class AFK extends Monitor {
     
         if (message.mentions.users.size) {
             const firstUser = message.mentions.users.first();
-            const { afk, message } = firstUser.settings;
-            if (afk) return message.send(`**${firstUser.tag}** has gone afk: \`${message}\``);
+            const { afk, message: afkMessage } = firstUser.settings;
+            if (afk) return message.send(`**${firstUser.tag}** has gone afk: \`${afkMessage}\``);
         }
     }
 

@@ -81,7 +81,7 @@ module.exports = class extends Provider {
 	}
 
 	update(table, id, doc) {
-		return this.db.collection(table).updateOne(resolveQuery(id), { $set: parseUpdateObject(doc) });
+		return this.db.collection(table).updateOne(resolveQuery(id), { $set: parseUpdateObject(this.parseUpdateInput(doc)) });
 	}
 
 	replace(table, id, doc) {
