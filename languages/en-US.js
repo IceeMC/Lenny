@@ -189,8 +189,6 @@ Free - ${freeMem} GB
 			},
 			COMMAND_STATS_DESCRIPTION: 'Provides details about the bot.',
 			MESSAGE_PROMPT_TIMEOUT: 'The prompt has timed out.',
-
-			// Custom commands descriptions
 			COMMAND_SUDO_DESCRIPTION: "Runs a command as if another user ran it.",
 
 			// Idiotic | Image
@@ -236,6 +234,12 @@ To enable it run \`${prefix}logs disable ${key}\``,
 			COMMAND_LOGS_NO_SPEAK: "I can't set that as the mod log channel as I am not allowed to speak there!",
 			COMMAND_LOGS_CHANNEL_UPDATED: (channel) => `Updated the logs channel to ${channel}`,
 			COMMAND_LOGS_MENTION: "Please mention a channel for mod logs to be in.",
+			COMMAND_STARBOARD_LIMIT_SAME: "The starboard limit cannot be the same.",
+			COMMAND_STARBOARD_NOLIMIT: "You must provide a new limit.",
+			COMMAND_STARBOARD_LIMIT_CHANGED: (past, limit) => `The starboard limit was changed from **${past}** to **${limit}**`,
+			COMMAND_STARBOARD_CANT_SPEAK: "That cannot be the starboard channel as I can't speak there!",
+			COMMAND_STARBOARD_NO_MENTION: "Please mention a channel where the starred message will show up.",
+			COMMAND_STARBOARD_CHANNEL_UPDATE: (channel) => `The starboard channel was updated to ${channel}`,
 
 			// Music
 			COMMAND_PLAY_DESCRIPTION: "Plays a song in a voice channel.",

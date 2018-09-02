@@ -52,7 +52,6 @@ class RemixBot extends Client {
                 .add("roles", "boolean", { default: false })
                 .add("nicknames", "boolean", { default: false })
                 .add("bans", "boolean", { default: false })
-                .add("kicks", "boolean", { default: false })
                 .add("joins", "boolean", { default: false })
                 .add("leaves", "boolean", { default: false })
                 .add("warns", "boolean", { default: false })
@@ -67,6 +66,7 @@ class RemixBot extends Client {
             .add("automod", (folder) => folder
                 .add("invites", "boolean", { default: false })
                 .add("spamProtection", folder => folder
+                    .add("enabled", "boolean", { default: false })
                     .add("limit", "integer", { default: 5 })
                     .add("punishment", "string", { default: "mute" })
                 )

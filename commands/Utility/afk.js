@@ -20,18 +20,18 @@ class AFK extends Command {
     }
 
     async set(message, [...afkMessage]) {
-        if (!afkMessage) return message.channel.send("Please provide an AFK message.");
+        if (!afkMessage) throw "Please provide an AFK message.";
         const { afk, message } = message.author.settings;
-        if (!afk) return message.send("You are not AFK at the moment.");
+        if (!afk) throw "You are not AFK at the moment.";
         await message.author.settings.update([["afk.afk", true], ["afk.message", this.clean(afkMessage.join(" "))]]);
-        return message.send(`You are now AFK for: \`${afkMessage.join(" ")}\``);
+        return message.send(`Ok! You are now afk for: \`${afkMessage.join(" ")}\``);
     }
 
     async remove(message) {
         const { afk, message } = message.author.settings;
-        if (!afk) return message.send("You are not AFK at the moment.");
+        if (!afk) throw "You are not AFK at the moment.";
         await message.author.settings.update([["afk.afk", false], ["afk.message", null]]);
-        return message.send(`You are no longer afk`);
+        return message.send("Ok! You are no longer AFK.");
     }
 
     clean(text) {
