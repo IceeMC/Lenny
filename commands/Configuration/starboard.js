@@ -5,12 +5,15 @@ class Starboard extends Command {
     constructor(...args) {
         super(...args, {
             name: "starboard",
-            subCommands: true,
             description: language => language.get("COMMAND_STARBOARD_DESCRIPTION"),
             usage: "<limit|channel> [args:string]",
             runIn: ["text"],
             aliases: ["sboard"]
         });
+    }
+
+    async run(message, [type, params]) {
+        return this[type](message, params);
     }
 
     async limit(message, [limit]) {
