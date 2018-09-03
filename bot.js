@@ -5,22 +5,31 @@ const Raven = require("raven");
 const RawEventStore = require("./utils/RawEventStore.js");
 const Logger = require("./utils/Logger.js");
 const capcon = require('capture-console');
+const {
+    defaultGuildSchema,
+    defaultClientSchema,
+    defaultUserSchema,
+    defaultMemberSchema
+} = require("./utils/DefaultSchemas.js");
 
 Raven.config(config.sentry, { captureUnhandledRejections: true }).install();
 
 class RemixBot extends Client {
 
-    constructor(options) {
+    constructor() {
         super({
             pieceDefaults: { rawEvents: { enabled: true } },
             prefix: "r.",
             regexPrefix: /^((Hey|Hey )RemixBot(!|! |,|, | )|(r\.|r\. ))/i,
             commandEditing: true,
-            commandLogging: true,
             typing: true,
             providers: { default: "MongoProvider" },
             permissionLevels: permissionLevels,
-            readyMessage: (client) => `${client.user.tag} ready with ${client.guilds.size} guilds!`
+            readyMessage: (client) => `${client.user.tag} ready with ${client.guilds.size} guilds!`,
+            defaultGuildSchema,
+            defaultClientSchema,
+            defaultUserSchema,
+            defaultMemberSchema
         });
         this.config = require("./config.json");
         this.utils = new (require("./utils/Utils.js"))(this);
@@ -37,55 +46,7 @@ class RemixBot extends Client {
             this.logger.write(stdout);
         });
     }
-
-    schemaCheck() {
-        const obj = { added: 0, notAdded: 0 };
-        RemixBot.defaultGuildSchema
-            .add("welcome", (folder) => folder
-                .add("enabled", "boolean", { default: false })
-                .add("welcomeMessage", "string", { default: "Hello **{mention}** welcome to **{guild}**!" })
-                .add("leaveMessage", "string", { default: "**{username}** has left **{guild}**." })
-                .add("welcomeChannel", "textchannel")
-                .add("autoRole", "role")
-            )
-            .add("logs", (folder) => folder
-                .add("channel", "textchannel")
-                .add("guild", "boolean", { default: false })
-                .add("channels", "boolean", { default: false })
-                .add("roles", "boolean", { default: false })
-                .add("nicknames", "boolean", { default: false })
-                .add("bans", "boolean", { default: false })
-                .add("joins", "boolean", { default: false })
-                .add("leaves", "boolean", { default: false })
-                .add("warns", "boolean", { default: false })
-                .add("messages", "boolean", { default: false })
-            )
-            .add("levelsEnabled", "boolean", { default: false })
-            .add("tags", "any", { array: true })
-            .add("starboard", (folder) => folder
-                .add("limit", "integer", { default: 1 }) 
-                .add("channel", "textchannel")
-            )
-            .add("automod", (folder) => folder
-                .add("invites", "boolean", { default: false })
-                .add("spamProtection", folder => folder
-                    .add("enabled", "boolean", { default: false })
-                    .add("limit", "integer", { default: 5 })
-                    .add("punishment", "string", { default: "mute" })
-                )
-            );
-        RemixBot.defaultClientSchema
-            .add("latestRestart", "any")
-        RemixBot.defaultUserSchema
-            .add("inRelationShip", "boolean", { default: false })
-            .add("marriedTo", "user")
-            .add("dating", "boolean", { default: false })
-            .add("coins", "integer", { default: 50 })
-            .add("level", "integer", { default: 1 })
-            .add("afk", "any")
-        return this;
-    }
  
 }
 
-Raven.context(() => new RemixBot().schemaCheck().login(config.token));
+Raven.context(() => new RemixBot().login(config.token));
