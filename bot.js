@@ -63,7 +63,6 @@ class RemixBot extends Client {
             .add("levelsEnabled", "boolean", { default: false })
             .add("tags", "any", { array: true })
             .add("starboard", (folder) => folder
-                .add("cache", "any", { array: true })
                 .add("limit", "integer", { default: 1 }) 
                 .add("channel", "textchannel")
             )

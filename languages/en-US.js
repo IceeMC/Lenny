@@ -78,10 +78,10 @@ module.exports = class extends Language {
 			MONITOR_COMMAND_HANDLER_REPEATING_REPROMPT: (tag, name, time) => `${tag} | **${name}** is a repeating argument | You have **${time}** seconds to respond to this prompt with additional valid arguments. Type **"CANCEL"** to cancel this prompt.`, // eslint-disable-line max-len
 			MONITOR_COMMAND_HANDLER_ABORTED: 'Aborted',
 			INHIBITOR_COOLDOWN: (remaining) => `You have just used this command. You can use this command again in ${remaining} second${remaining === 1 ? '' : 's'}.`,
-			INHIBITOR_DISABLED: 'This command is currently disabled',
+			INHIBITOR_DISABLED: 'This command is currently disabled.',
 			INHIBITOR_MISSING_BOT_PERMS: (missing) => `Insufficient permissions, missing: **${missing}**`,
 			INHIBITOR_NSFW: 'You may not use NSFW commands in this channel.',
-			INHIBITOR_PERMISSIONS: 'You do not have permission to use this command',
+			INHIBITOR_PERMISSIONS: 'You do not have permission to use this command.',
 			INHIBITOR_REQUIRED_CONFIGS: (configs) => `The guild is missing the **${configs.join(', ')}** guild setting${configs.length !== 1 ? 's' : ''} and thus the command cannot run.`,
 			INHIBITOR_RUNIN: (types) => `This command is only available in ${types} channels`,
 			INHIBITOR_RUNIN_NONE: (name) => `The ${name} command is not configured to run in any channel.`,

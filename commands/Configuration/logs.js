@@ -8,6 +8,7 @@ class Logs extends Command {
             runIn: ["text"],
             aliases: ["mlogs", "modlogs"],
             usage: "<enable|disable|channel> [args:string]",
+            usageDelim: " ",
             permissionLevel: 7,
             description: language => language.get("COMMAND_LOGS_DESCRIPTION")
         });
@@ -15,11 +16,12 @@ class Logs extends Command {
     }
 
     async run(message, [type, params]) {
-        return this[type](message, params);
+        if (type === "enable") return this.enableSetting(message, params);
+        if (type === "disable") return this.disableSetting(message, params);
+        if (type === "channel") return this.changeChannel(message, params);
     }
 
-    async enableSetting(message, [key]) {
-        console.log(key);
+    async enableSetting(message, key) {
         if (!key) throw message.language.get("COMMAND_LOGS_NO_KEY", [this.validKeys.map(k => `\`${key}\``).join(", ")]);
         if (key === "all" || key === "everything") return this.enableAll(message);
         if (key === "channel") throw message.language.get("COMMAND_LOGS_CHANNEL_KEY", [message.guild.settings.prefix]);
@@ -29,7 +31,7 @@ class Logs extends Command {
         return message.sendLocale("COMMAND_LOGS_ENABLED", [key]);
     }
 
-    async disableSetting(message, [key]) {
+    async disableSetting(message, key) {
         if (!key) throw message.language.get("COMMAND_LOGS_NO_KEY", [this.validKeys.map(k => `\`${key}\``).join(", ")]);
         if (key === "all" || key === "everything") return this.enableAll(message);
         if (key === "channel") throw message.language.get("COMMAND_LOGS_CHANNEL_KEY", [message.guild.settings.prefix]);

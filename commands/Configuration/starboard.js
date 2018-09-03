@@ -7,23 +7,25 @@ class Starboard extends Command {
             name: "starboard",
             description: language => language.get("COMMAND_STARBOARD_DESCRIPTION"),
             usage: "<limit|channel> [args:string]",
+            usageDelim: " ",
             runIn: ["text"],
             aliases: ["sboard"]
         });
     }
 
     async run(message, [type, params]) {
-        return this[type](message, params);
+        if (type === "limit") return this.limit(message, params);
+        if (type === "channel") return this.channel(message, params);
     }
 
-    async limit(message, [limit]) {
+    async limit(message, limit) {
         if (!limit) throw message.language.get("COMMAND_STARBOARD_NOLIMIT");
         const { starboard } = message.guild;
         if (starboard.limit === limit) throw message.language.get("COMMAND_STARBOARD_LIMIT_SAME");
         await message.guild.settings.update([
             ["starboard.limit", limit]
         ]);
-        return message.sendLocale("COMMAND_STARBOARD_LIMIT_CHANGED");
+        return message.sendLocale("COMMAND_STARBOARD_LIMIT_CHANGED", [starboard.limit, limit]);
     }
 
     async channel(message) {

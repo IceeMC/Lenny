@@ -4,11 +4,9 @@ class Starboard {
 
     constructor(guild) {
         this.guild = guild;
-        Object.defineProperty(this, "_starboard", { value: guild.settings.starboard, writable: false });
-    }
-
-    get cache() {
-        return this._starboard.cache;
+        this._starboard = guild.settings.starboard;
+        this.regex = /Stars: (.*) \| ID: (.*)/;
+        this.filter = (m, m1) => m.embeds.length && m.embeds[0].footer && this.regex.test(m.embeds[0].footer.text) && m.embeds[0].footer.text.endsWith(m1.id);
     }
 
     get channel() {
@@ -19,71 +17,46 @@ class Starboard {
         return this._starboard.limit;
     }
 
-    getStar(id) {
-        return this._starboard.cache.find(cached => cached.id === id);
+    editStar(starred, message) {
+        const regexMatch = this.regex.exec(starred.embeds[0].footer.text);
+        const attachment = message.embeds[0] ? message.embeds[0].image ? this._check(message.embeds[0].image.url) : null : null;
+        const em = new MessageEmbed()
+            .setAuthor(message.author.tag, message.author.displayAvatarURL({ format: "png" }))
+            .setFooter(`Stars: ${parseInt(regexMatch[1])+1} | ID: ${message.id}`)
+            .setTimestamp()
+            .setColor(this.guild.client.utils.color)
+            .setImage(attachment)
+            .setDescription(message.content);
+        return starred.edit({ embed: em }).catch(() => null);
     }
 
-    editStar(channel, message) {
-        if (message.author.id === message.author.id) return;
-        let cached = this.getStar(message.id);
-        cached.stars++;
-        const embed = new MessageEmbed()
-            .setAuthor(cached.author.tag, author.avatar)
-            .setFooter(`Star count: ${cached.stars}`)
-            .setTimestamp(new Date(cached.timestamp))
-            .setColor(this.guild.client.utils.color);
-        if (cached.attachment) embed.setImage(cached.attachment);
-        if (cached.content) embed.setDescription(cached.content);
-        channel.messages.get(cached.editId).edit({ embed }).then(() => {
-            this._update(cached);
-        }).catch(() => null);
+    star(channel, message) {
+        if (message.reactions.get("⭐").count < this.limit) return;
+        const attachment = message.attachments.size > 0 ? this._check(message.attachments.array()[0].url) : null;
+        const em = new MessageEmbed()
+            .setAuthor(message.author.tag, message.author.displayAvatarURL({ format: "png" }))
+            .setFooter(`Stars: ${this.guild.settings.starboard.limit} | ID: ${message.id}`)
+            .setTimestamp()
+            .setColor(this.guild.client.utils.color)
+            .setImage(attachment)
+            .setDescription(message.content);
+        return channel.send({ embed: em }).catch(() => null);
     }
 
-    starRaw(channel, m, packet) {
-        if (m.author.id === packet.user_id) return;
-        let attachment = m.attachments.size > 0 ? this._check(m.attachments.array()[0].url) : null;
-        const data = {
-            id: packet.message_id,
-            attachment,
-            content: m.content,
-            author: {
-                tag: m.author.tag,
-                avatar: m.author.displayAvatarURL(),
-            },
-            timestamp: Date.now(),
-            stars: 1
-        };
-        const embed = new MessageEmbed()
-            .setAuthor(data.author.tag, data.author.avatar)
-            .setFooter(`Star count: ${data.stars}`)
-            .setTimestamp(new Date(data.timestamp))
-            .setColor(this.guild.client.utils.color);
-        if (data.attachment) embed.setImage(data.attachment);
-        if (data.content) embed.setDescription(data.content);
-        channel.send({ embed }).then(sent => {
-            data.editId = sent.id;
-            this._update(data);
-        }).catch(() => null);
-    }
-
-    removeStar(channel, message) {
-        let cached = this.getStar(message.id);
-        cached.stars--;
-        if (cached.stars < 1) {
-            const embed = new MessageEmbed()
-                .setAuthor(cached.author.tag, author.avatar)
-                .setFooter(`Star count: ${cached.stars}`)
-                .setTimestamp(new Date(cached.timestamp))
-                .setColor(this.guild.client.utils.color);
-            if (cached.attachment) embed.setImage(cached.attachment);
-            if (cached.content) embed.setDescription(cached.content);
-            channel.messages.get(cached.editId).edit({ embed }).then(() => {
-                this._update(cached);
-            }).catch(() => null);
+    removeStar(starred, message) {
+        const regexMatch = this.regex.exec(starred.embeds[0].footer.text);
+        const attachment = message.embeds[0] ? message.embeds[0].image ? this._check(message.embeds[0].image.url) : null : null;
+        if (parseInt(regexMatch[1]) > 1) {
+            const em = new MessageEmbed()
+                .setAuthor(message.author.tag, message.author.displayAvatarURL({ format: "png" }))
+                .setFooter(`Stars: ${parseInt(regexMatch[1])-1} | ID: ${message.id}`)
+                .setTimestamp()
+                .setColor(this.guild.client.utils.color)
+                .setImage(attachment)
+                .setDescription(message.content);
+            starred.edit({ embed: em }).catch(() => null);
         } else {
-            channel.messages.get(cached.editId).delete().then(() => {
-                this._update(cached, true);
-            })
+            starred.delete().catch(() => null);
         }
     }
 
@@ -92,10 +65,6 @@ class Starboard {
         const test = /(?:(png|jpeg|jpg|gif))/gi.test(urlSplit[urlSplit.length - 1]);
         if (test) return url;
         return null;
-    }
-
-    _update(data, remove = false) {
-        this.guild.settings.update("starboard.cache", data, { action: remove ? "add" : "remove" });
     }
 
 }

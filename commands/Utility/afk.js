@@ -16,7 +16,7 @@ class AFK extends Command {
 
     run(message, [type, ...params]) {
         if (type === "set") return this.set(message, params);
-        if (type === "remove") return this.remove(message);
+        if (type === "remove") return this.set(message, params);
     }
 
     async set(message, [...afkMessage]) {
