@@ -24,7 +24,7 @@ class Software extends Command {
     }
 
     async getRandomPost() {
-        const request = await get("https://api.reddit.com/r/softwaregore/top/.json?limit=1000")
+        const request = await get("https://api.reddit.com/r/softwaregore/top/.json?sort=top&t=day&limit=500")
         const children = request.body.data.children;
         const randomPost =  children[Math.floor(Math.random() * children.length)].data;
         return {
