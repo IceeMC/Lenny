@@ -238,6 +238,10 @@ To enable it run \`${prefix}logs disable ${key}\``,
 			COMMAND_LOGS_CANT_SPEAK: "I can't set that as the mod log channel as I am not allowed to speak there!",
 			COMMAND_LOGS_CHANNEL_UPDATED: (channel) => `Updated the logs channel to ${channel}`,
 			COMMAND_LOGS_MENTION: "Please mention a channel where the mod logs will show up.",
+			COMMAND_PREFIX_DESCRIPTION: "Controls the custom prefix of RemixBot in the server.",
+			COMMAND_PREFIX: (name) => `Successfully set my server prefix to **${name}**.`,
+			COMMAND_RAW_DESCRIPTION: "Returns the guilds config in a JSON format.",
+			COMMAND_STARBOARD_DESCRIPTION: "Allows you to change the limit or channel of the starboard.",
 			COMMAND_STARBOARD_LESS_THAN_ZERO: "The limit must be greater than 0.",
 			COMMAND_STARBOARD_LIMIT_SAME: "The starboard limit cannot be the same.",
 			COMMAND_STARBOARD_NOLIMIT: "You must provide a new limit.",
@@ -326,10 +330,6 @@ To enable it run \`${prefix}logs disable ${key}\``,
 			COMMAND_AFK_DESCRIPTION: "Sets or removes you from the afk status.",
 			COMMAND_COLOR_DESCRIPTION: "It gets a color... What else?",
 			COMMAND_SOURCE_DESCRIPTION: "Gets the source of a klasa piece",
-
-			// Configuration
-			COMMAND_PREFIX_DESCRIPTION: "Controls the custom prefix of RemixBot in the server.",
-			COMMAND_PREFIX: (name) => `Successfully set my server prefix to **${name}**.`
 		};
 	}
 
