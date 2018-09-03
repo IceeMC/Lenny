@@ -5,7 +5,6 @@ class Welcomes extends Command {
     constructor(...args) {
         super(...args, {
             name: "welcomes",
-            subcommands: true,
             description: language => language.get("COMMAND_WELCOMES_DESCRIPTION"),
             permissionLevel: 7,
             usage: "<enable|disable|channel> [args:string]",
@@ -14,12 +13,18 @@ class Welcomes extends Command {
         });
     }
 
-    async enable(message) {
+    async run(message, [type]) {
+        if (type === "enable") return this.enableWelcomes(message);
+        if (type === "disable") return this.disableWelcomes(message);
+        if (type === "channel") return this.channel(message);
+    }
+
+    async enableWelcomes(message) {
         await message.guild.settings.update([["welcome.enabled", true]]);
         return message.sendLocale("COMMAND_WELCOMES_ENABLED");
     }
 
-    async disable(message) {
+    async disableWelcomes(message) {
         await message.guild.settings.update([["welcome.enabled", false]]);
         return message.sendLocale("COMMAND_WELCOMES_DISABLED");
     }

@@ -15,7 +15,11 @@ class Starboard extends Command {
         });
     }
 
-    async limit(message, limit) {
+    async run(message, [type, ...params]) {
+        if (type === "limit") return this.limit(message, params);
+    }
+
+    async limit(message, [limit]) {
         if (!limit) throw message.language.get("COMMAND_STARBOARD_NOLIMIT");
         const { starboard } = message.guild;
         if (limit < 1) throw message.language.get("COMMAND_STARBOARD_LIMIT_ZERO");

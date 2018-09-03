@@ -22,7 +22,7 @@ class AFK extends Command {
     async set(message, [...afkMessage]) {
         if (!afkMessage) throw "Please provide an AFK message.";
         const { afk } = message.author.settings;
-        if (!afk) throw "You are not AFK at the moment.";
+        if (afk) throw "You are not AFK at the moment.";
         await message.author.settings.update([["afk.afk", true], ["afk.message", this.clean(afkMessage.join(" "))]]);
         return message.send(`Ok! You are now afk for: \`${afkMessage.join(" ")}\``);
     }
