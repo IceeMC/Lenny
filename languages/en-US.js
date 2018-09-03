@@ -191,6 +191,9 @@ Free - ${freeMem} GB
 			MESSAGE_PROMPT_TIMEOUT: 'The prompt has timed out.',
 			COMMAND_SUDO_DESCRIPTION: "Runs a command as if another user ran it.",
 
+			// Fun
+			COMMAND_SOFTWARE_DESCRIPTION: "Gets a random post from r/softwaregore",
+
 			// Idiotic | Image
 			COMMAND_ACHIEVEMENT_DESCRIPTION: "Generate an achievement.",
 			COMMAND_BEAUTIFUL_DESCRIPTION: "Makes you or someone else beautiful",
@@ -293,6 +296,7 @@ To enable it run \`${prefix}logs disable ${key}\``,
 			// Utility
 			COMMAND_SERVERINFO_DESCRIPTION: "Gets info about a server.",
 			COMMAND_USERINFO_DESCRIPTION: "Gets info about you or another user.",
+			COMMAND_ROLEINFO_DESCRIPTION: "Gets info about a role.",
 			COMMAND_REMIND_DESCRIPTION: "Sets a reminder for you.",
 			COMMAND_TAG_DESCRIPTION: "Allows you to do stuff with tags",
 			COMMAND_TAG_EXTENDED_HELP: [

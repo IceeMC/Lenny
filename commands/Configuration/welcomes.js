@@ -35,3 +35,5 @@ class Welcomes extends Command {
     }
 
 }
+
+module.exports = Welcomes;
