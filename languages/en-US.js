@@ -193,6 +193,7 @@ Free - ${freeMem} GB
 
 			// Fun
 			COMMAND_SOFTWARE_DESCRIPTION: "Gets a random post from r/softwaregore",
+			COMMAND_MEME_DESCRIPTION: "Gets a meme from a meme for you :)",
 
 			// Idiotic | Image
 			COMMAND_ACHIEVEMENT_DESCRIPTION: "Generate an achievement.",

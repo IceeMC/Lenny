@@ -2,13 +2,13 @@ const { Command } = require("klasa");
 const { MessageEmbed } = require("discord.js");
 const { get } = require("superagent");
 
-class Software extends Command {
+class Meme extends Command {
 
     constructor(...args) {
         super(...args, {
-            name: "software",
-            description: language => language.get("COMMAND_SOFTWARE_DESCRIPTION"),
-            aliases: ["softwaregore", "rsoftwaregore"]
+            name: "meme",
+            description: language => language.get("COMMAND_MEME_DESCRIPTION"),
+            aliases: ["m3m3", "memeplox"]
         });
     }
 
@@ -24,7 +24,7 @@ class Software extends Command {
     }
 
     async getRandomPost() {
-        const request = await get("https://api.reddit.com/r/softwaregore/top/.json?limit=1000")
+        const request = await get("https://api.reddit.com/user/kerdaloo/m/dankmemer/top/.json?limit=1000")
         const children = request.body.data.children;
         const randomPost =  children[Math.floor(Math.random() * children.length)].data;
         return {
@@ -37,4 +37,4 @@ class Software extends Command {
 
 }
 
-module.exports = Software;
+module.exports = Meme;
