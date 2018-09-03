@@ -5,6 +5,7 @@ class Logs extends Command {
     constructor(...args) {
         super(...args, {
             name: "logs",
+            subcommands: true,
             runIn: ["text"],
             aliases: ["mlogs", "modlogs"],
             usage: "<enable|disable|channel> [args:string]",
@@ -13,12 +14,6 @@ class Logs extends Command {
             description: language => language.get("COMMAND_LOGS_DESCRIPTION")
         });
         this.validKeys = ["guild", "channels", "roles", "nicknames", "bans", "kicks", "joins", "leaves", "warns", "messages", "all", "everything"];
-    }
-
-    async run(message, [type, params]) {
-        if (type === "enable") return this.enableSetting(message, params);
-        if (type === "disable") return this.disableSetting(message, params);
-        if (type === "channel") return this.changeChannel(message, params);
     }
 
     async enableSetting(message, key) {

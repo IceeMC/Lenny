@@ -15,7 +15,7 @@ class NowPlaying extends Command {
 
     async run(message) {
         const audioPlayer = this.client.audioManager.get(message.guild.id);
-        if (!audioPlayer || !audioPlayer.queue) return message.send("There is nothing playing.");
+        if (!audioPlayer) throw message.language.get("COMMAND_MUSIC_NOT_PLAYING");
         const embed = new MessageEmbed();
         embed.setColor(0xFFFFFF);
         embed.addField("Progress", this.getProgress(audioPlayer));

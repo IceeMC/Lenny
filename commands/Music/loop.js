@@ -14,11 +14,11 @@ class Loop extends Command {
 
     async run(message) {
         const audioPlayer = this.client.audioManager.get(message.guild.id);
-        if (!audioPlayer) return message.send("Nothing is currently playing.");
+        if (!audioPlayer) throw message.language.get("COMMAND_MUSIC_NOT_PLAYING");
         if (audioPlayer.queue[0].requester !== message.author && !message.member.permissions.has("ADMINISTRATOR"))
-            return message.send("<:rip:459416322917400588> You did not request this song.");
+            throw message.language.get("COMMAND_MUSIC_NOT_REQUESTER");
         audioPlayer.looping = !audioPlayer.looping;
-        return message.send(`:repeat: Looping has been **${audioPlayer.looping ? "enabled" : "disabled"}**`);
+        return message.sendLocale(audioPlayer.looping ? "COMMAND_LOOP_ENABLE" : "COMMAND_LOOP_DISABLE");
     }
 
 };

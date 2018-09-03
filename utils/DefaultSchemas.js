@@ -44,4 +44,4 @@ module.exports.defaultUserSchema = Client.defaultUserSchema
 
 module.exports.defaultMemberSchema = Client.defaultMemberSchema
     .add("coins", "integer", { default: 100 })
-    .add("level", "integer", { default: 1 });
+    .add("level", "integer", { default: 0 });

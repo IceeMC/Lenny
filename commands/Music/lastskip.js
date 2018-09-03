@@ -1,4 +1,4 @@
-const { Command, RichDisplay } = require('klasa');
+const { Command } = require('klasa');
 
 class LastSkip extends Command {
 
@@ -13,12 +13,12 @@ class LastSkip extends Command {
 
     async run(message, [position]) {
         const audioPlayer = this.client.audioManager.get(message.guild.id);
-        if (!audioPlayer || !audioPlayer.queue) return message.send("Nothing is currently playing.");
+        if (!audioPlayer || !audioPlayer.queue) throw message.language.get("COMMAND_MUSIC_NOT_PLAYING");
         if (audioPlayer.queue[0].requester !== message.author && !message.member.permissions.has("ADMINISTRATOR"))
-            return message.send("You did not request this song.");
+            throw message.language.get("COMMAND_MUSIC_NOT_REQUESTER");
 
         if (audioPlayer.queue.length === 0) {
-            message.channel.send("The music party is over... Queue up some more music!");
+            message.sendLocale("COMMAND_MUSIC_END");
             this.client.audioManager.leave(message.guild.id);
             // Discord bug fix
             this.client.audioManager.forEach(aPlayer => {
@@ -26,10 +26,9 @@ class LastSkip extends Command {
                 return setTimeout(() => aPlayer.resume(), 700);
             });
         } else {
-            message.send("Skipping...");
             audioPlayer.queue = [audioPlayer.queue[audioPlayer.queue.length - 1]];
             audioPlayer.play(audioPlayer.queue[0].track);
-            return await message.send(`:musical_note: **${audioPlayer.queue[0].title}** is now being played as requested by \`${audioPlayer.queue[0].requester.tag}\``);
+            return message.channel.send(message.language.get("COMMAND_MUSIC_PLAYING", audioPlayer));
         }
     }
 

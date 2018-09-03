@@ -6,7 +6,8 @@ class Prefix extends Command {
         super(...args, {
             name: "prefix",
             description: language => language.get('COMMAND_PREFIX_DESCRIPTION'),
-            usage: '<newPrefix:string>'
+            usage: '<newPrefix:string>',
+            permissionLevel: 7,
         });
     }
 

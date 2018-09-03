@@ -1,5 +1,5 @@
 const { Language, util } = require('klasa');
-const { MessageEmbed } = require("discord.js");
+const { MessageEmbed, Util: { escapeMarkdown } } = require("discord.js");
 
 module.exports = class extends Language {
 
@@ -73,7 +73,7 @@ module.exports = class extends Language {
 			COMMANDMESSAGE_MISSING: 'Missing one or more required arguments after end of input.',
 			COMMANDMESSAGE_MISSING_REQUIRED: (name) => `${name} is a required argument.`,
 			COMMANDMESSAGE_MISSING_OPTIONALS: (possibles) => `Missing a required option: (${possibles})`,
-			COMMANDMESSAGE_NOMATCH: (possibles) => `Your option didn't match any of the possibilities: (${possibles})`,
+			COMMANDMESSAGE_NOMATCH: (possibles) => `Invalid option provided, You can select from the following ${possibles}.`,
 			MONITOR_COMMAND_HANDLER_REPROMPT: (tag, error, time) => `${tag} | **${error}** | You have **${time}** seconds to respond to this prompt with a valid argument. Type **"ABORT"** to abort this prompt.`, // eslint-disable-line max-len
 			MONITOR_COMMAND_HANDLER_REPEATING_REPROMPT: (tag, name, time) => `${tag} | **${name}** is a repeating argument | You have **${time}** seconds to respond to this prompt with additional valid arguments. Type **"CANCEL"** to cancel this prompt.`, // eslint-disable-line max-len
 			MONITOR_COMMAND_HANDLER_ABORTED: 'Aborted',
@@ -231,26 +231,64 @@ To enable it run \`${prefix}logs disable ${key}\``,
 			COMMAND_LOGS_ENABLED: (key) => `Enabled the **${key}** setting.`,
 			COMMAND_LOGS_DISABLE_ALL: "All the modlog settings have been disabled.",
 			COMMAND_LOGS_DISABLED: (key) => `Disabled the **${key}** setting.`,
-			COMMAND_LOGS_NO_SPEAK: "I can't set that as the mod log channel as I am not allowed to speak there!",
+			COMMAND_LOGS_CANT_SPEAK: "I can't set that as the mod log channel as I am not allowed to speak there!",
 			COMMAND_LOGS_CHANNEL_UPDATED: (channel) => `Updated the logs channel to ${channel}`,
 			COMMAND_LOGS_MENTION: "Please mention a channel where the mod logs will show up.",
 			COMMAND_STARBOARD_LESS_THAN_ZERO: "The limit must be greater than 0.",
 			COMMAND_STARBOARD_LIMIT_SAME: "The starboard limit cannot be the same.",
 			COMMAND_STARBOARD_NOLIMIT: "You must provide a new limit.",
 			COMMAND_STARBOARD_LIMIT_CHANGED: (past, limit) => `The starboard limit was changed from **${past}** to **${limit}**`,
-			COMMAND_STARBOARD_CANT_SPEAK: "That cannot be the starboard channel as I can't speak there!",
+			COMMAND_STARBOARD_CANT_SPEAK: "That channel cannot be the starboard's channel as I can't speak there!",
 			COMMAND_STARBOARD_NO_MENTION: "Please mention a channel where the starred message will show up.",
 			COMMAND_STARBOARD_CHANNEL_UPDATE: (channel) => `The starboard channel was updated to ${channel}`,
+			COMMAND_WELCOMES_DESCRIPTION: "Allows you to enable or disable welcomes and set welcome/leave message.",
+			COMMAND_WELCOMES_CANT_SPEAK: "That channel cannot be the welcome/leave channel as I cannot speak there.",
+			COMMAND_WELCOMES_CHANNEL_UPDATED: (channel) => `Updates the welcomes/leaves channel to ${channel}`,
+			COMMAND_WELCOMES_NO_MENTION: "Please mention a channel for where welcomes/leaves will show up.",
+			COMMAND_WELCOMES_ENABLED: "Welcomes/leaves for this server have been enabled successfully.",
+			COMMAND_WELCOMES_DISABLED: "Welcomes/leaves for this server have been disabled successfully.",
 
 			// Music
 			COMMAND_PLAY_DESCRIPTION: "Plays a song in a voice channel.",
+			COMMAND_PLAY_NO_VC: "You must be in a voice channel first to play music!",
+			COMMAND_PLAY_NO_TRACKS: "No results found. Try looking for a different song!",
+			COMMAND_PLAYLIST_ENQUEUED: (info) => `Playlist **${escapeMarkdown(info.name)}** has been enqueued with ${info.tracks.size} songs.`,
 			COMMAND_LOOP_DESCRIPTION: "Loops the current song.",
+			COMMAND_LOOP_ENABLE: "Looping has been enabled.",
+			COMMAND_LOOP_DISABLE: "Looping has been disabled.",
 			COMMAND_QUEUE_DESCRIPTION: "Gets all the songs in the queue and puts them in a nice embed.",
 			COMMAND_SKIP_DESCRIPTION: "Skips to a specific song or the next song.",
 			COMMAND_STOP_DESCRIPTION: "Stops the current song.",
 			COMMAND_LASTSKIP_DESCRIPTION: "Skips to the last song in the queue.",
 			COMMAND_NOWPLAYING_DESCRIPTION: "Gets info on the current playing song.",
 			COMMAND_LYRICS_DESCRIPTION: "Gets lyrics about a specific song or the current playing one.",
+			COMMAND_MUSIC_NOT_REQUESTER: "You did not request this song.",
+			COMMAND_MUSIC_NOT_PLAYING: "There is nothing currently playing. Queue up a song first!",
+			COMMAND_MUSIC_END: "The music queue is empty. Queue up a song to keep the party going!",
+			COMMAND_MUSIC_PLAYING: (player) => new MessageEmbed()
+				.setColor(this.client.utils.color)
+				.setTitle(":arrow_right: Now playing!")
+				.setDescription(`
+				-> Song Title: **${escapeMarkdown(player.queue[0].title)}**
+				-> Song URL: **${player.queue[0].uri}**
+				-> Song Creator: **${escapeMarkdown(player.queue[0].author)}**
+				-> Song Requester: **${escapeMarkdown(player.queue[0].requester.tag)}**
+				-> Livestream: **${player.queue[0].isStream ? "Yes" : "No"}**
+				`)
+				.setTimestamp()
+				.setFooter("RemixBot music"),
+			COMMAND_MUSIC_ENQUEUED: (track) => new MessageEmbed()
+				.setColor(this.client.utils.color)
+				.setTitle(":arrow_right: Enqueued!")
+				.setDescription(`
+				-> Song Title: **${escapeMarkdown(track.title)}**
+				-> Song URL: **${track.uri}**
+				-> Song Creator: **${escapeMarkdown(track.author)}**
+				-> Song Requester: **${escapeMarkdown(track.requester.tag)}**
+				-> Livestream: **${track.isStream ? "Yes" : "No"}**
+				`)
+				.setTimestamp()
+				.setFooter("RemixBot music"),
 
 			// Utility
 			COMMAND_SERVERINFO_DESCRIPTION: "Gets info about a server.",

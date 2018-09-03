@@ -1,4 +1,4 @@
-const { Command, RichDisplay } = require('klasa');
+const { Command } = require('klasa');
 
 class Stop extends Command {
 
@@ -13,15 +13,15 @@ class Stop extends Command {
 
     async run(message) {
         const audioPlayer = this.client.audioManager.get(message.guild.id);
-        if (!audioPlayer || !audioPlayer.queue) return message.send("Nothing is currently playing.");
+        if (!audioPlayer || !audioPlayer.queue) throw message.language.get("COMMAND_MUSIC_NOT_PLAYING");
         if (audioPlayer.queue[0].requester !== message.author && !message.member.permissions.has("ADMINISTRATOR"))
-            return message.send("<:rip:459416322917400588> You did not request this song.");
+            throw message.language.get("COMMAND_MUSIC_NOT_REQUESTER");
 
         audioPlayer.stop();
         audioPlayer.idle = true;
         audioPlayer.playing = false;
         this.client.audioManager.leave(message.guild.id);
-        return message.send("The music party is over... Queue up some more music!");
+        return message.sendLocale("COMMAND_MUSIC_END");
     }
 
 };

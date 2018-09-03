@@ -1,4 +1,4 @@
-const { Command , RichMenu } = require("klasa");
+const { Command } = require("klasa");
 const AudioTrack = require("../../utils/music/AudioTrack.js");
 
 class Play extends Command {
@@ -37,7 +37,7 @@ class Play extends Command {
         } else {
             audioPlayer.queue.push(audioTrack);
             if (playlist) return;
-            return message.channel.send(`:white_check_mark: Enqueued song **${audioTrack.title}** by **${audioTrack.author}** (${audioTrack.length})`);
+            return message.channel.send(message.language.get("COMMAND_MUSIC_ENQUEUED", audioTrack));
         }
     }
 
@@ -46,7 +46,7 @@ class Play extends Command {
         const audioPlayer = this.client.audioManager.get(message.guild.id);
         audioPlayer.setVolume(50);
         audioPlayer.play(audioPlayer.queue[0].track);
-        return message.channel.send(`:musical_note: **${audioPlayer.queue[0].title}** is now being played as requested by \`${audioPlayer.queue[0].requester.tag}\``);
+        return message.channel.send(message.language.get("COMMAND_MUSIC_PLAYING", audioPlayer));
     }
 
     _listen(message) {
@@ -56,12 +56,12 @@ class Play extends Command {
             if (event.reason === "FINISHED") {
                 if (audioPlayer.looping) {
                     audioPlayer.play(audioPlayer.queue[0].track);
-                    return message.channel.send(`:musical_note: **${audioPlayer.queue[0].title}** is now being played as requested by \`${audioPlayer.queue[0].requester.tag}\``);
+                    return message.channel.send(message.language.get("COMMAND_MUSIC_PLAYING", audioPlayer));
                 }
                 audioPlayer.queue.shift();
                 if (audioPlayer.queue.length < 1) {
                     audioPlayer.idle = true;
-                    message.channel.send("The music party is over... Queue up some more music!");
+                    message.channel.send(message.language.get("COMMAND_MUSIC_END"));
                     this.client.audioManager.leave(message.guild.id);
                     // Discord bug fix
                     this.client.audioManager.forEach(aPlayer => {
@@ -70,7 +70,7 @@ class Play extends Command {
                     });
                 } else {
                     audioPlayer.play(audioPlayer.queue[0].track);
-                    return message.channel.send(`:musical_note: **${audioPlayer.queue[0].title}** is now being played as requested by \`${audioPlayer.queue[0].requester.tag}\``);
+                    return message.channel.send(message.language.get("COMMAND_MUSIC_PLAYING", audioPlayer));
                 }
             }
         });
@@ -87,48 +87,48 @@ class Play extends Command {
     async run(message, [query]) {
         query = query.replace(/\</g, "").replace(/\>/g, "");
 
-        if (!message.member.voiceChannel) return message.send("You must be in a voice channel first.");
+        if (!message.member.voiceChannel) throw message.language.get("COMMAND_PLAY_NO_VC");
 
         // YouTube URLS
         if (query.match(/https:\/\/?(www\.)?youtube\.com\/watch\?v=(.*)/)) {
             const tracks = await this.client.utils.getTracks(query, this.client.audioManager.nodes.get("localhost"));
-            if (!tracks) return message.send("It seems like that URL is invalid. Enter a valid youtube URL and try again!");
-            return await this.handle(new AudioTrack(tracks[0], message.author), message);
+            if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS");
+            return await this.handle(this.convert(tracks, message.author)[0], message);
         }
 
         if (query.match(/https:\/\/?(www\.)?youtu\.be\/(.*)/)) {
             const tracks = await this.client.utils.getTracks(query, this.client.audioManager.nodes.get("localhost"));
-            if (!tracks) return message.send("It seems like that URL is invalid. Enter a valid youtube URL and try again!");
-            return await this.handle(new AudioTrack(tracks[0], message.author), message);
+            if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS");
+            return await this.handle(this.convert(tracks, message.author)[0], message);
         }
 
         if (query.match(/(\?|\&)list=(.*)/)) {
             const { name, tracks } = await this.client.utils.getTracks(query, this.client.audioManager.nodes.get("localhost"));
-            if (!tracks) return message.send("It seems like that URL is invalid. Enter a valid youtube URL and try again!");
+            if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS");
             let queued = 0;
             for (let i = 0; i < 50; i++) {
                 if (!tracks[i]) continue;
                 await this.handle(new AudioTrack(tracks[i], message.author), message, true);
                 queued++;
             }
-            return message.send(`Playlist **${name}** enqueued with \`${queued}\` song${queued === 1 ? "" : "s"}.`);
+            return message.sendLocale("COMMAND_PLAYLIST_ENQUEUED", [{ name, tracks }]);
         }
 
         // SoundCloud URLS
         if (query.match(/https:\/\/?(www\.)?soundcloud\.com\/.*\/.*/)) {
             const tracks = await this.client.utils.getTracks(query, this.client.audioManager.nodes.get("localhost"));
-            if (!tracks) return message.send("It seems like that URL is invalid. Enter a valid soundcloud URL and try again!");
+            if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS");
             return await this.handle(new AudioTrack(tracks[0], message.author), message);
         }
 
         if (query.match(/https:\/\/?(www\.)?soundcloud\.com\/.*\/.*\/.*/)) {
             const tracks = await this.client.utils.getTracks(query, this.client.audioManager.nodes.get("localhost"));
-            if (!tracks) return message.send("It seems like that URL is invalid. Enter a valid soundcloud URL and try again!");
+            if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS");
             return await this.handle(new AudioTrack(tracks[0], message.author), message);
         }
 
         const tracks = await this.client.utils.getTracks(`ytsearch:${query}`, this.client.audioManager.nodes.get("localhost"));
-        if (!tracks) return message.send(`No songs found. Try looking for something different!`);
+        if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS");
         const converted = this.convert(tracks.slice(0, 10), message.author);
         const prompt = await message.prompt(`
 **Song select:tm:**
