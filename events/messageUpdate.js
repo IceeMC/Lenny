@@ -3,6 +3,7 @@ const { Event } = require("klasa");
 class MessageUpdateEvent extends Event {
 
     async run(oldMessage, newMessage) {
+        if (!oldMessage.guild.settings.logs.messages) return;
         if(oldMessage.content === newMessage.content) return;
         // Run monitors
         if (this.client.ready) this.client.monitors.run(newMessage);

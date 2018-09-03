@@ -3,7 +3,7 @@ const { Event } = require("klasa");
 class GuildMemberRemoveEvent extends Event {
 
     async run(member) {
-        this.client.emit("logs", member.guild, {
+        if (member.guild.settings.logs.leaves) this.client.emit("logs", member.guild, {
             type: "memberLeave",
             member
         });

@@ -3,6 +3,7 @@ const { Event } = require('klasa');
 module.exports = class extends Event {
 
 	run(messages) {
+		if (!messages.first().guild.settings.logs.messages) return;
 		const first = messages.first();
 		const guild = this.client.guilds.get(first.guild.id);
 		this.client.emit("logs", guild, {

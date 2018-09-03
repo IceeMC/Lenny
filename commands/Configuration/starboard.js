@@ -21,6 +21,7 @@ class Starboard extends Command {
     async limit(message, limit) {
         if (!limit) throw message.language.get("COMMAND_STARBOARD_NOLIMIT");
         const { starboard } = message.guild;
+        if (limit < 1) throw message.language.get("COMMAND_STARBOARD_LIMIT_ZERO");
         if (starboard.limit === limit) throw message.language.get("COMMAND_STARBOARD_LIMIT_SAME");
         await message.guild.settings.update([
             ["starboard.limit", limit]

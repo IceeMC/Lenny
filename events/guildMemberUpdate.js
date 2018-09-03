@@ -3,9 +3,7 @@ const { Event } = require("klasa");
 class GuildMemberUpdate extends Event {
 
     async run(oldMember, newMember) {
-        if (!newMember.guild.settings.logs.roles) return;
-        // Member has gotten a role.
-        if (newMember.roles.size > oldMember.roles.size) {
+        if (newMember.roles.size > oldMember.roles.size && newMember.guild.settings.logs.roles) {
             const oldRoles = oldMember.roles;
             const addedRoles = newMember.roles.filter(role => !oldRoles.has(role.id));
             this.client.emit("logs", newMember.guild, {
@@ -15,7 +13,7 @@ class GuildMemberUpdate extends Event {
             });
         }
         // Member has been removed from a role.
-        if (newMember.roles.size < oldMember.roles.size) {
+        if (newMember.roles.size < oldMember.roles.size && newMember.guild.settings.logs.roles) {
             const newRoles = newMember.roles;
             const removedRoles = oldMember.roles.filter(role => !newRoles.has(role.id));
             this.client.emit("logs", newMember.guild, {
@@ -24,8 +22,7 @@ class GuildMemberUpdate extends Event {
                 roles: removedRoles
             });
         }
-        // Nickname changed
-        if (newMember.nickname !== oldMember.nickname) {
+        if (newMember.nickname !== oldMember.nickname && newMember.guild.settings.logs.nicknames) {
             this.client.emit("logs", newMember.guild, {
                 type: "nicknameChange",
                 member: oldMember,

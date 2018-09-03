@@ -22,21 +22,21 @@ class Logs extends Command {
     }
 
     async enableSetting(message, key) {
-        if (!key) throw message.language.get("COMMAND_LOGS_NO_KEY", [this.validKeys.map(k => `\`${key}\``).join(", ")]);
+        if (!key) throw message.language.get("COMMAND_LOGS_NO_KEY", this.validKeys);
         if (key === "all" || key === "everything") return this.enableAll(message);
-        if (key === "channel") throw message.language.get("COMMAND_LOGS_CHANNEL_KEY", [message.guild.settings.prefix]);
+        if (key === "channel") throw message.language.get("COMMAND_LOGS_CHANNEL_KEY", message.guild.settings.prefix);
         if (!this.validKeys.includes(key)) throw message.language.get("COMMAND_LOGS_INVALID_KEY");
-        if (message.guild.settings.logs[key]) throw message.language.get("COMMAND_LOGS_ALREADY_ENABLED", [message.guild.settings.prefix, key]);
+        if (message.guild.settings.logs[key]) throw message.language.get("COMMAND_LOGS_ALREADY_ENABLED", message.guild.settings.prefix, key);
         await message.guild.settings.update([[`logs.${key}`, true]]);
         return message.sendLocale("COMMAND_LOGS_ENABLED", [key]);
     }
 
     async disableSetting(message, key) {
-        if (!key) throw message.language.get("COMMAND_LOGS_NO_KEY", [this.validKeys.map(k => `\`${key}\``).join(", ")]);
+        if (!key) throw message.language.get("COMMAND_LOGS_NO_KEY", this.validKeys);
         if (key === "all" || key === "everything") return this.enableAll(message);
-        if (key === "channel") throw message.language.get("COMMAND_LOGS_CHANNEL_KEY", [message.guild.settings.prefix]);
+        if (key === "channel") throw message.language.get("COMMAND_LOGS_CHANNEL_KEY", message.guild.settings.prefix);
         if (!this.validKeys.includes(key)) throw message.language.get("COMMAND_LOGS_INVALID_KEY");
-        if (!message.guild.settings.logs[key]) throw message.language.get("COMMAND_LOGS_ALREADY_DISABLED", [message.guild.settings.prefix, key]);
+        if (!message.guild.settings.logs[key]) throw message.language.get("COMMAND_LOGS_ALREADY_DISABLED", message.guild.settings.prefix, key);
         await message.guild.settings.update([[`logs.${key}`, true]]);
         return message.sendLocale("COMMAND_LOGS_DISABLED", [key]);
     }

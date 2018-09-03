@@ -219,7 +219,7 @@ Free - ${freeMem} GB
 			// Configuration
 			COMMAND_LOGS_DESCRIPTION: "Allows you to enable/disable mod log settings.",
 			COMMAND_LOGS_CHANNEL_KEY: (prefix) => `This setting can be configured with \`${prefix}logs channel #channel\``,
-			COMMAND_LOGS_NO_KEY: (keys) => `Please provide a key ${keys}`,
+			COMMAND_LOGS_NO_KEY: (keys) => `Please provide a key ${keys.map(key => `\`${key}\``).join(", ")}`,
 			COMMAND_LOGS_INVALID_KEY: "That is not a valid setting.",
 			COMMAND_LOGS_ALREADY_ENABLED: (prefix, key) => `
 This setting is already enabled.
@@ -227,13 +227,14 @@ To disable it run \`${prefix}logs disable ${key}\``,
 			COMMAND_LOGS_ALREADY_DISABLED: (prefix, key) => `
 This setting is already disabled.
 To enable it run \`${prefix}logs disable ${key}\``,
-			COMMAND_LOGS_ENABLE_ALL: (key) => `All the modlog settings have been enabled.`,
+			COMMAND_LOGS_ENABLE_ALL: "All the modlog settings have been enabled.",
 			COMMAND_LOGS_ENABLED: (key) => `Enabled the **${key}** setting.`,
-			COMMAND_LOGS_DISABLE_ALL: (key) => `All the modlog settings have been disabled.`,
+			COMMAND_LOGS_DISABLE_ALL: "All the modlog settings have been disabled.",
 			COMMAND_LOGS_DISABLED: (key) => `Disabled the **${key}** setting.`,
 			COMMAND_LOGS_NO_SPEAK: "I can't set that as the mod log channel as I am not allowed to speak there!",
 			COMMAND_LOGS_CHANNEL_UPDATED: (channel) => `Updated the logs channel to ${channel}`,
-			COMMAND_LOGS_MENTION: "Please mention a channel for mod logs to be in.",
+			COMMAND_LOGS_MENTION: "Please mention a channel where the mod logs will show up.",
+			COMMAND_STARBOARD_LESS_THAN_ZERO: "The limit must be greater than 0.",
 			COMMAND_STARBOARD_LIMIT_SAME: "The starboard limit cannot be the same.",
 			COMMAND_STARBOARD_NOLIMIT: "You must provide a new limit.",
 			COMMAND_STARBOARD_LIMIT_CHANGED: (past, limit) => `The starboard limit was changed from **${past}** to **${limit}**`,

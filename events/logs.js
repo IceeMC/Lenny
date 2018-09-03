@@ -7,7 +7,7 @@ class LogsEvent extends Event {
         const { settings } = guild;
         if (!settings.logs.channel) return;
         const logChannel = guild.channels.get(settings.logs.channel);
-        if (!logChannel.postable) return;
+        if (!logChannel || !logChannel.postable) return;
         switch (logData.type) {
             // Guild
             case "guildUpdate": {

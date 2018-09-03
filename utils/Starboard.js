@@ -6,7 +6,6 @@ class Starboard {
         this.guild = guild;
         this._starboard = guild.settings.starboard;
         this.regex = /Stars: (.*) \| ID: (.*)/;
-        this.filter = (m, m1) => m.embeds.length && m.embeds[0].footer && this.regex.test(m.embeds[0].footer.text) && m.embeds[0].footer.text.endsWith(m1.id);
     }
 
     get channel() {
@@ -46,7 +45,7 @@ class Starboard {
     removeStar(starred, message) {
         const regexMatch = this.regex.exec(starred.embeds[0].footer.text);
         const attachment = message.embeds[0] ? message.embeds[0].image ? this._check(message.embeds[0].image.url) : null : null;
-        if (parseInt(regexMatch[1]) > 1) {
+        if (parseInt(regexMatch[1]) - 1 > this.limit) {
             const em = new MessageEmbed()
                 .setAuthor(message.author.tag, message.author.displayAvatarURL({ format: "png" }))
                 .setFooter(`Stars: ${parseInt(regexMatch[1])-1} | ID: ${message.id}`)

@@ -3,7 +3,7 @@ const { Event } = require("klasa");
 class GuildMemberAddEvent extends Event {
 
     async run(member) {
-        this.client.emit("logs", member.guild, {
+        if (member.guild.settings.logs.joins) this.client.emit("logs", member.guild, {
             type: "memberJoin",
             member
         });
