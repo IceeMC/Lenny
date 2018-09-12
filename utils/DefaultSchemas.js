@@ -40,8 +40,11 @@ module.exports.defaultClientSchema = Client.defaultClientSchema
     .add("latestRestart", "any");
 
 module.exports.defaultUserSchema = Client.defaultUserSchema
-    .add("afk", "any");
+    .add("afk", folder => folder
+        .add("isAfk", "boolean", { default: true })
+        .add("afkMessage", "string")
+    );
 
 module.exports.defaultMemberSchema = Client.defaultMemberSchema
-    .add("coins", "integer", { default: 100 })
+    .add("coins", "integer", { default: 0 })
     .add("level", "integer", { default: 0 });

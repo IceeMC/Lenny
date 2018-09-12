@@ -1,4 +1,4 @@
-const { Command } = require("klasa");
+const { Command, util: { clean } } = require("klasa");
 
 class AFK extends Command {
 
@@ -20,22 +20,18 @@ class AFK extends Command {
     }
 
     async set(message, [...afkMessage]) {
-        if (!afkMessage) throw "Please provide an AFK message.";
-        const { afk } = message.author.settings;
-        if (afk) throw "You are not AFK at the moment.";
-        await message.author.settings.update([["afk.afk", true], ["afk.message", this.clean(afkMessage.join(" "))]]);
-        return message.send(`Ok! You are now afk for: \`${afkMessage.join(" ")}\``);
+        if (!afkMessage) throw message.language.get("COMMAND_AFK_NO_MESSAGE");
+        const { isAfk } = message.author.settings;
+        if (isAfk) throw message.language.get("COMMAND_AFK_ALREADY_AFK");
+        await message.author.settings.update([["afk.isAfk", true], ["afk.afkMessage", clean(afkMessage.join(" "))]]);
+        return message.sendLocale("COMMAND_ADK_SET", afkMessage.join(" "));
     }
 
     async remove(message) {
-        const { afk } = message.author.settings;
-        if (!afk) throw "You are not AFK at the moment.";
-        await message.author.settings.update([["afk.afk", false], ["afk.message", null]]);
-        return message.send("Ok! You are no longer AFK.");
-    }
-
-    clean(text) {
-        return text.replace(/@/g, "@\u200b").replace(/`/g, "");
+        const { isAfk } = message.author.settings;
+        if (!isAfk) throw message.language.get("COMMAND_AFK_NOT_AFK");
+        await message.author.settings.update("afk", null);
+        return message.sendLocale("COMMAND_AFK_REMOVE", afkMessage.join(" "));
     }
 
 }

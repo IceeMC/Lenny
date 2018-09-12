@@ -1,3 +1,4 @@
+
 const { Provider, util: { mergeDefault, mergeObjects, isObject } } = require('klasa');
 
 const { MongoClient: Mongo } = require('mongodb');
@@ -55,23 +56,6 @@ module.exports = class extends Provider {
 		return this.db.collection(table).aggregate({ $sample: { size: 1 } });
 	}
 
-	async removeValue(table, doc) {
-		// { channels: { modlog: true } }
-		if (typeof doc === 'object') {
-			return this.db.table(table).update({}, { $unset: doc }, { multi: true });
-		}
-		// 'channels.modlog'
-		if (typeof doc === 'string') {
-			const route = doc.split('.');
-			const object = {};
-			let ref = object;
-			for (let i = 0; i < route.length - 1; i++) ref = ref[route[i]] = {};
-			ref[route[route.length - 1]] = true;
-			return this.db.table(table).update({}, { $unset: object }, { multi: true });
-		}
-		throw new TypeError(`Expected an object or a string as first parameter. Got: ${typeof doc}`);
-	}
-
 	create(table, id, doc = {}) {
 		return this.db.collection(table).insertOne(mergeObjects(this.parseUpdateInput(doc), resolveQuery(id)));
 	}
@@ -81,7 +65,7 @@ module.exports = class extends Provider {
 	}
 
 	update(table, id, doc) {
-		return this.db.collection(table).updateOne(resolveQuery(id), { $set: this.parseUpdateInput(doc) });
+		return this.db.collection(table).updateOne(resolveQuery(id), { $set: isObject(doc) ? flatten(doc) : parseEngineInput(doc) });
 	}
 
 	replace(table, id, doc) {
@@ -91,3 +75,16 @@ module.exports = class extends Provider {
 };
 
 const resolveQuery = query => isObject(query) ? query : { id: query };
+
+function flatten(obj, path = '') {
+	let output = {};
+	for (const [key, value] of Object.entries(obj)) {
+		if (isObject(value)) output = Object.assign(output, flatten(value, path ? `${path}.${key}` : key));
+		else output[path ? `${path}.${key}` : key] = value;
+	}
+	return output;
+}
+
+function parseEngineInput(updated) {
+	return Object.assign({}, ...updated.map(entry => ({ [entry.data[0]]: entry.data[1] })));
+}

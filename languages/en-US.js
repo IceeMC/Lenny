@@ -77,6 +77,7 @@ module.exports = class extends Language {
 			MONITOR_COMMAND_HANDLER_REPROMPT: (tag, error, time) => `${tag} | **${error}** | You have **${time}** seconds to respond to this prompt with a valid argument. Type **"ABORT"** to abort this prompt.`, // eslint-disable-line max-len
 			MONITOR_COMMAND_HANDLER_REPEATING_REPROMPT: (tag, name, time) => `${tag} | **${name}** is a repeating argument | You have **${time}** seconds to respond to this prompt with additional valid arguments. Type **"CANCEL"** to cancel this prompt.`, // eslint-disable-line max-len
 			MONITOR_COMMAND_HANDLER_ABORTED: 'Aborted',
+			MONITOR_AFK_AFK: (afkUser) => `**${afkUser.tag}** has gone afk -> ${afkUser.settings.afk.afkMessage}`,
 			INHIBITOR_COOLDOWN: (remaining) => `You have just used this command. You can use this command again in ${remaining} second${remaining === 1 ? '' : 's'}.`,
 			INHIBITOR_DISABLED: 'This command is currently disabled.',
 			INHIBITOR_MISSING_BOT_PERMS: (missing) => `Insufficient permissions, missing: **${missing}**`,
@@ -159,17 +160,16 @@ Want to invite the bot? **[Click Here](${client.invite})**
 			COMMAND_CONF_SERVER: (key, list) => `**Guild Configuration${key}**\n${list}`,
 			COMMAND_CONF_USER_DESCRIPTION: 'Define per-user configuration.',
 			COMMAND_CONF_USER: (key, list) => `**User Configuration${key}**\n${list}`,
-			COMMAND_STATS: (memUsage, uptime, users, guilds, channels, klasaVersion, discordVersion, processVersion, message, players, totalMem, usedMem, freeMem, hostUptime) => {
+			COMMAND_STATS: (memUsage, uptime, users, guilds, channels, klasaVersion, discordVersion, processVersion, message, players, totalMem, usedMem, freeMem, hostUptime, systemUptime, cpuLoad) => {
 				const statsEmbed = new MessageEmbed();
 				statsEmbed.setTitle("Bot Statistics");
 				statsEmbed.setColor(this.client.utils.color);
 				statsEmbed.addField("General", `
 Players - ${players}
-Uptime - ${uptime}
-Host Uptime - ${hostUptime}
 Users - ${users}
 Guilds - ${guilds}
 Channels - ${channels}
+CPU Load - ${cpuLoad}%
 `);
 				statsEmbed.addField("Versions", `
 Klasa - ${klasaVersion}
@@ -179,6 +179,11 @@ Node.JS - ${processVersion}
 				if (this.client.shard) {
 					statsEmbed.addField("Shard", `${((message.guild ? message.guild.shardID : message.channel.shardID) || this.client.options.shardId) + 1} / ${this.client.options.shardCount}`)
 				}
+				statsEmbed.addField("Uptime", `
+Bot - ${uptime}
+System - ${systemUptime}
+Host - ${hostUptime}
+				`);
 				statsEmbed.addField("Memory (System wide)", `
 Process - ${memUsage} MB
 Total - ${totalMem} GB
@@ -277,11 +282,12 @@ To enable it run \`${prefix}logs disable ${key}\``,
 				.setColor(this.client.utils.color)
 				.setTitle(":arrow_right: Now playing!")
 				.setDescription(`
-				-> Song Title: **${escapeMarkdown(player.queue[0].title)}**
-				-> Song URL: **${player.queue[0].uri}**
-				-> Song Creator: **${escapeMarkdown(player.queue[0].author)}**
-				-> Song Requester: **${escapeMarkdown(player.queue[0].requester.tag)}**
-				-> Livestream: **${player.queue[0].isStream ? "Yes" : "No"}**
+-> Song Title: **${escapeMarkdown(player.queue[0].title)}**
+-> Song URL: **${player.queue[0].uri}**
+-> Song Creator: **${escapeMarkdown(player.queue[0].author)}**
+-> Song Requester: **${escapeMarkdown(player.queue[0].requester.tag)}**
+-> Song Length: **${player.queue[0].length}**
+-> Livestream: **${player.queue[0].isStream ? "Yes" : "No"}**
 				`)
 				.setTimestamp()
 				.setFooter("RemixBot music"),
@@ -289,11 +295,12 @@ To enable it run \`${prefix}logs disable ${key}\``,
 				.setColor(this.client.utils.color)
 				.setTitle(":arrow_right: Enqueued!")
 				.setDescription(`
-				-> Song Title: **${escapeMarkdown(track.title)}**
-				-> Song URL: **${track.uri}**
-				-> Song Creator: **${escapeMarkdown(track.author)}**
-				-> Song Requester: **${escapeMarkdown(track.requester.tag)}**
-				-> Livestream: **${track.isStream ? "Yes" : "No"}**
+-> Song Title: **${escapeMarkdown(track.title)}**
+-> Song URL: **${track.uri}**
+-> Song Creator: **${escapeMarkdown(track.author)}**
+-> Song Requester: **${escapeMarkdown(track.requester.tag)}**
+-> Song Length: **${track.length}**
+-> Livestream: **${track.isStream ? "Yes" : "No"}**
 				`)
 				.setTimestamp()
 				.setFooter("RemixBot music"),
@@ -328,6 +335,8 @@ To enable it run \`${prefix}logs disable ${key}\``,
 				"------> Sends a embed in the channel containing info about the tag also with the tags content."
 			].join("\n"),
 			COMMAND_AFK_DESCRIPTION: "Sets or removes you from the afk status.",
+			COMMAND_AFK_NO_MESSAGE: "Please provide a afk message.",
+			COMMAND_AFK_GONE_AFK: (afkMessage) => `Ok! You are now afk for \`${afkMessage}\``,
 			COMMAND_COLOR_DESCRIPTION: "It gets a color... What else?",
 			COMMAND_SOURCE_DESCRIPTION: "Gets the source of a klasa piece",
 		};

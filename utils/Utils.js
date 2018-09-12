@@ -94,11 +94,10 @@ class Utils {
     /**
      * Returns an Iterator of the methods in a class/object.
      * @param {Object} object The class/object to get the methods from.
-     * @returns {IterableIterator<Map<string, Function>>}
+     * @returns {IterableIterator<{name: string, func: Function}>}
      */
-    *getMethods(object) {
-        if (typeof object !== "object") throw new Error(`getMethods expects an object not ${typeof object}.`);
-        let methods = new Map();
+    *methods (object) {
+        if (typeof object !== "object") throw new Error(`methods expects an object not ${typeof object}.`);
         const included = [
             "constructor",
             "__defineGetter__",
@@ -113,11 +112,89 @@ class Utils {
         ];
         while (object = Reflect.getPrototypeOf(object)) {
             let keys = Reflect.ownKeys(object);
-            keys.forEach(key => {
-                if (typeof object[key] !== null && typeof object[key] === "function" && !included.includes(key)) methods.set(key, object[key]);
-            })
+            for (const key of keys)
+                if (typeof object[key] === "function" && !included.includes(key))
+                    yield { name: key, func: object[key] ? object[key] : null }
         }
-        return methods.entries();
+    }
+
+    /**
+     * Gets all the property names of the provided object/class;
+     * @returns {Array<string>}
+     */
+    dir(obj) {
+        if (typeof obj !== "object") throw new Error(`dir expects an object not ${typeof obj}.`);
+        const x = Object.getOwnPropertyNames(obj);
+        const p = Object.getOwnPropertyNames(obj.prototype ? obj.prototype : {});
+        return [...x, ...p];
+    }
+
+    async swapDbs() {
+        const mongoClient = await require("mongodb").MongoClient.connect(`mongodb://localhost:27017/`, { useNewUrlParser: true });
+        const db = mongoClient.db("lenny");
+        const guildDocuments = await db.collection("guilds").find({}).toArray();
+        const memberDocuments = await db.collection("members").find({}).toArray();
+        // Swap guild settings
+        for (const guildDocument of guildDocuments) {
+            const guild = this.client.guilds.get(guildDocument.id);
+            if (!guild) continue;
+            // Welcomes
+            if (guildDocument.welcome) {
+                await guild.settings.update([
+                    ["welcome.enabled", guildDocument.welcome.enabled ? guildDocument.welcome.enabled : false],
+                    ["welcome.welcomeMessage", guildDocument.welcome.welcomeMessage ? guildDocument.welcome.welcomeMessage : "Hello **{mention}** welcome to **{guild}**!" ],
+                    ["welcome.leaveMessage", guildDocument.welcome.leaveMessage ? guildDocument.welcome.leaveMessage : "**{username}** has left **{guild}**."],
+                    ["welcome.welcomeChannel", guildDocument.welcome.welcomeChannel ? guildDocument.welcome.welcomeChannel : null],
+                    ["welcome.autoRole", guildDocument.welcome.autoRole ? guildDocument.welcome.autoRole : null],
+                ], guild);
+                continue;
+            }
+            // Logs
+            if (guildDocument.logs) {
+                await guild.settings.update([
+                    ["logs.channel", guildDocument.logs.channel ? guildDocument.logs.channel : null],
+                    ["logs.guild", guildDocument.logs.guild ? guildDocument.logs.guild : false],
+                    ["logs.channels", guildDocument.logs.channels ? guildDocument.logs.channels : false],
+                    ["logs.roles", guildDocument.logs.roles ? guildDocument.logs.roles : false],
+                    ["logs.nicknames", guildDocument.logs.nicknames ? guildDocument.logs.nicknames : false],
+                    ["logs.bans", guildDocument.logs.bans ? guildDocument.logs.bans : false],
+                    ["logs.joins", guildDocument.logs.joins ? guildDocument.logs.joins : false],
+                    ["logs.leaves", guildDocument.logs.leaves ? guildDocument.logs.leaves : false],
+                    ["logs.warns", guildDocument.logs.warns ? guildDocument.logs.warns : false],
+                    ["logs.messages", guildDocument.logs.messages ? guildDocument.logs.messages : false]
+                ], guild);
+                continue;
+            }
+            // Levels enabled
+            if (guildDocument.levelsEnabled) {
+                await guild.settings.update("levelsEnabled", guildDocument.levelsEnabled);
+                continue;
+            }
+            // Tags
+            if (guildDocument.tags) {
+                for (const tag of guildDocument.tags) {
+                    await guild.settings.update("tags", tag, { action: "add" });
+                }
+                continue;
+            }
+            // Starboard
+            if (guildDocument.starboard) {
+                await guild.settings.update([
+                    ["starboard.limit", guildDocument.starboard.limit ? guildDocument.starboard.limit : 1],
+                    ["starboard.channel", guildDocument.starboard.channel ? guildDocument.starboard.channel : null]
+                ], guild);
+                continue;
+            }
+        }
+        // Swap guild member settings.
+        for (const memberDocument of memberDocuments) {
+            const guild = this.client.guilds.find(g => g.id === memberDocument.id.split(".")[0]);
+            if (!guild) continue;
+            const member = guild.members.get(memberDocument.id.split(".")[1]);
+            if (!member) continue;
+            await member.settings.update("coins", memberDocument.coins);
+            await member.settings.update("level", memberDocument.level);
+        }
     }
 
 }

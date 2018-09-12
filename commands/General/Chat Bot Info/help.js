@@ -41,7 +41,7 @@ module.exports = class extends Command {
 			embed.setColor(this.client.utils.color);
 			let helpPageValue = "";
 			for (let subCat = 0; subCat < subCategories.length; subCat++)
-				helpPageValue += `**${subCategories[subCat]}**\n\n${help[categories[cat]][subCategories[subCat]].join('\n')}\n`;
+				helpPageValue += `${help[categories[cat]][subCategories[subCat]].join('\n')}\n`;
 			embed.addField(`${categories[cat]} Commands`, helpPageValue);
 			helpMenu.addPage(embed);
 		}

@@ -12,7 +12,7 @@ class Logs extends Command {
             permissionLevel: 7,
             description: language => language.get("COMMAND_LOGS_DESCRIPTION")
         });
-        this.validKeys = ["guild", "channels", "roles", "nicknames", "bans", "kicks", "joins", "leaves", "warns", "messages", "all", "everything"];
+        this.validKeys = ["guild", "channels", "roles", "nicknames", "bans", "kicks", "joins", "leaves", "warns", "messages"];
     }
 
     async run(message, [type, ...params]) {
@@ -43,32 +43,14 @@ class Logs extends Command {
 
     async enableAll(message) {
         await message.guild.settings.update([
-            ["logs.guild", true],
-            ["logs.channels", true],
-            ["logs.roles", true],
-            ["logs.nicknames", true],
-            ["logs.bans", true],
-            ["logs.kicks", true],
-            ["logs.joins", true],
-            ["logs.leaves", true],
-            ["logs.warns", true],
-            ["logs.messages", true]
+            ...this.validKeys.map(k => [k, true])
         ]);
         return message.sendLocale("COMMAND_LOGS_ENABLE_ALL");
     }
 
     async disableAll(message) {
         await message.guild.settings.update([
-            ["logs.guild", false],
-            ["logs.channels", false],
-            ["logs.roles", false],
-            ["logs.nicknames", false],
-            ["logs.bans", false],
-            ["logs.kicks", false],
-            ["logs.joins", false],
-            ["logs.leaves", false],
-            ["logs.warns", false],
-            ["logs.messages", false]
+            ...this.validKeys.map(k => [k, false])
         ]);
         return message.sendLocale("COMMAND_LOGS_DISABLE_ALL");
     }

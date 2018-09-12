@@ -1,6 +1,7 @@
 const { Command, version: klasaVersion, Duration } = require('klasa');
 const { version: discordVersion } = require('discord.js');
 const os = require("os");
+const { readFileSync } = require("fs");
 
 module.exports = class extends Command {
 
@@ -79,7 +80,9 @@ module.exports = class extends Command {
 			(os.totalmem() / 1073741824).toFixed(2),
 			((os.totalmem() - os.freemem()) / 1073741824).toFixed(2),
 			((os.totalmem() / 1073741824) - ((os.totalmem() - os.freemem()) / 1073741824)).toFixed(2),
-			this.uptime(os.uptime())
+			this.uptime(os.uptime()),
+			this.uptime(parseFloat(readFileSync("/proc/uptime", { encoding: "utf-8" }).split(" ")[0])),
+			os.loadavg().map(avg => avg * 10000 / 1000).reduce((p, v) => p + v).toFixed(2),
 		));
 	}
 

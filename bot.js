@@ -23,7 +23,7 @@ class RemixBot extends Client {
             regexPrefix: /^((Hey|Hey )RemixBot(!|! |,|, | )|(r\.|r\. ))/i,
             commandEditing: true,
             typing: true,
-            providers: { default: "MongoProvider" },
+            providers: { default: "PostgreSQL", postgresql: { user: config.postgreUser, password: config.postgrePass } },
             permissionLevels: permissionLevels,
             readyMessage: (client) => `${client.user.tag} ready with ${client.guilds.size} guilds!`,
             defaultGuildSchema,
