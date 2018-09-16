@@ -47,4 +47,5 @@ module.exports.defaultUserSchema = Client.defaultUserSchema
 
 module.exports.defaultMemberSchema = Client.defaultMemberSchema
     .add("coins", "integer", { default: 0 })
-    .add("level", "integer", { default: 0 });
+    .add("level", "integer", { default: 0 })
+    .add("lastDaily", "integer", { default: Date.now() - 86400000 });

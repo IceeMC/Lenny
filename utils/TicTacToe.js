@@ -41,7 +41,7 @@ class TicTacToe {
         if (this.started) return this.msg.channel.send(":x: **This game is already in-progress**.");
         if (!this.players.get(user.id)) {
             this.players.set(user.id, user);
-            this.msg.channel.send(`${user}, **Has joined the game. ${this.players.size === 2 ? `\n${this.host}, You can start the game now. \`${this.msg.guild.configs.prefix}ttt start\`**` : "**"}`);
+            this.msg.channel.send(`${user}, **Has joined the game. ${this.players.size === 2 ? `\n${this.host}, You can start the game now. \`${this.msg.guild.settings.prefix}ttt start\`**` : "**"}`);
         } else {
             this.msg.send(":x: **You are already in this game!**");
         }
@@ -66,7 +66,8 @@ class TicTacToe {
             slot.userId = player.id;
             slot.taken = true;
             slot.taker = player.displayAvatarURL();
-            this.iconCache.set(player.id, (await get(player.displayAvatarURL({ format: "png" }))).body);
+            if (!this.iconCache.get(player.id))
+                this.iconCache.set(player.id, (await get(player.displayAvatarURL({ format: "png" }))).body);
             this.checkForWinner(player);
             if (this.winner || this.tie) return;
             await this.drawBoard();
