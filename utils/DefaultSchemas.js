@@ -43,9 +43,10 @@ module.exports.defaultUserSchema = Client.defaultUserSchema
     .add("afk", folder => folder
         .add("isAfk", "boolean", { default: true })
         .add("afkMessage", "string")
-    );
+    )
+    .add("theme", "string", { default: "blurple" });
 
 module.exports.defaultMemberSchema = Client.defaultMemberSchema
     .add("coins", "integer", { default: 0 })
     .add("level", "integer", { default: 0 })
-    .add("lastDaily", "integer", { default: Date.now() - 86400000 });
+    .add("lastDaily", "integer", { default: Date.now() - 864e5 })

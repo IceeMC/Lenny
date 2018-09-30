@@ -16,7 +16,7 @@ class Level extends Monitor {
     }
 
     async run(message) {
-        if (!message.guild || message.command) return;
+        if (!message.guild || !message.member || message.command) return;
         if (this.memberTimeouts.has(message.author.id)) return;
         const coins = Math.floor(Math.random() * 2) + 5;
         await message.member.setCoins(coins);

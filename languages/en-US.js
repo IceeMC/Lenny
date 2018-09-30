@@ -261,6 +261,11 @@ To enable it run \`${prefix}logs disable ${key}\``,
 			COMMAND_WELCOMES_ENABLED: "Welcomes/leaves for this server have been enabled successfully.",
 			COMMAND_WELCOMES_DISABLED: "Welcomes/leaves for this server have been disabled successfully.",
 
+			// Economy
+			COMMAND_DAILY_DESCRIPTION: "Claim your daily bonus!",
+			COMMAND_DAILY_ALREADY_CLAIMED: duration => `You have already claimed your daily bonus. You can claim again in \`${duration}\`.`,
+			COMMAND_DAILY_CLAIMED: amount => `You have been given \`${amount}\` as your daily bonus. Come back tomorrow to claim it again.`,
+
 			// Music
 			COMMAND_PLAY_DESCRIPTION: "Plays a song in a voice channel.",
 			COMMAND_PLAY_NO_VC: "You must be in a voice channel first to play music!",
