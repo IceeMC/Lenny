@@ -1,17 +1,14 @@
 const { Extendable } = require("klasa");
+const { Guild } = require("discord.js");
 const Starboard = require("../utils/Starboard.js");
 
 class StarBoard extends Extendable {
 
     constructor(...args) {
-        super(...args, {
-            appliesTo: ["Guild"],
-            name: 'starboard',
-            enabled: true
-        });
+        super(...args, { appliesTo: [Guild] });
     }
 
-    get extend() {
+    get starboard() {
         return new Starboard(this);
     }
 
