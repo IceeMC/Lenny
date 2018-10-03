@@ -10,7 +10,7 @@ class Level extends Monitor {
     async run(message) {
         if (!message.guild || !message.member || message.command) return;
         try {
-            (this.ratelimits.get(message.author.id) || this.ratelimits.create(message.author.id)).drip();
+            this.ratelimits.acquire(message.author.id).drip();
         } catch(err) {
             // They are ratelimited
             return;
