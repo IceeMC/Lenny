@@ -1,6 +1,6 @@
 const { nodes } = require("../../config.json");
 const { Client } = require("klasa"); // eslint-disable-line
-const { Collection } = require("discord.js");
+const NodeStore = require("./NodeStore.js");
 const AudioPlayer = require("./AudioPlayer.js"); // eslint-disable-line
 const AudioNode = require("./AudioNode.js"); // eslint-disable-line
 const { get } = require("snekfetch");
@@ -20,11 +20,7 @@ class AudioManager extends Collection {
          */
         Object.defineProperty(this, "client", { value: client, writable: false });
 
-        /**
-         * A Map of the current nodes.
-         * @type {Map<String, AudioNode>}
-         */
-        this.nodes = new Map();
+        this.nodes = new NodeStore();
         this.launchNodes();
     }
 
