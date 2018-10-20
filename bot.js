@@ -4,6 +4,7 @@ const config = require("./config.json");
 const Raven = require("raven");
 const RawEventStore = require("./utils/RawEventStore.js");
 const Logger = require("./utils/Logger.js");
+const replacer = /\[(..m|..\;..m|m)/g;
 const capcon = require('capture-console');
 const {
     defaultGuildSchema,
@@ -14,7 +15,7 @@ const {
 
 Raven.config(config.sentry, { captureUnhandledRejections: true }).install();
 
-class RemixBot extends Client {
+class ChatNoirClient extends Client {
 
     constructor() {
         super({
@@ -39,10 +40,10 @@ class RemixBot extends Client {
         this.tttGames = new Map();
         this.rawEvents = new RawEventStore(this);
         this.registerStore(this.rawEvents);
-        capcon.startCapture(process.stdout, stdout => this.logger.write(stdout));
-        capcon.startCapture(process.stderr, stderr => this.logger.write(stderr));
+        capcon.startCapture(process.stdout, stdout => this.logger.write(stdout.replace(replacer, "")));
+        capcon.startCapture(process.stderr, stderr => this.logger.write(stderr.replace(replacer, "")));
     }
  
 }
 
-Raven.context(() => new RemixBot().login(config.token));
+Raven.context(() => new ChatNoirClient().login(config.token));

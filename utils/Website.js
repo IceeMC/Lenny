@@ -52,7 +52,7 @@ class Website {
                     authorized: req.isAuthenticated(),
                     owner: req.user ? this.isOwner(req.user) : false,
                     usr: req.user,
-                    log: this.client.logger.read().replace(/\[(..m|..\;..m|m)/g,"")
+                    log: this.client.logger.read()
                 });
             }
         });
@@ -116,6 +116,7 @@ class Website {
             this.startWebsocket();
             this.client.console.log("The site is online.");
         });
+        return this;
     }
 
     socketSend(socket, payload) {
