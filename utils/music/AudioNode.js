@@ -162,6 +162,17 @@ class AudioNode extends EventEmitter {
         this.ws.send(object);
     }
 
+    toJSON() {
+        return {
+            ready: this.ready,
+            stats: this.stats,
+            ws: {
+                state: this.ws.readyState,
+                url: this.ws.url
+            }
+        };
+    }
+
 };
 
 module.exports = AudioNode;

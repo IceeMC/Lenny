@@ -26,14 +26,6 @@ class AudioManager extends Collection {
          */
         this.nodes = new Map();
         this.launchNodes();
-
-        this.client.on("raw", event => {
-            if (event.t === "VOICE_SERVER_UPDATE") {
-                const player = this.get(event.d.guild_id);
-                if (!player) return;
-                player.provideVoiceUpdate(event);
-            }
-        });
     }
 
     /**
@@ -63,7 +55,6 @@ class AudioManager extends Collection {
     join(data) {
         this.client.ws.send({
             op: 4,
-            shard: this.client.shard ? this.client.shard.id : 0,
             d: {
                 guild_id: data.guildId,
                 channel_id: data.channelId,

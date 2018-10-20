@@ -155,11 +155,12 @@ module.exports = class AudioPlayer extends EventEmitter {
      * @param {Object} data - The data Object from the VOICE_STATE_UPDATE event.
      */
     provideVoiceUpdate(data) {
+        console.log(data);
         this.node.sendToWS({
             op: "voiceUpdate",
             guildId: this.guildId,
-            sessionId: this.manager.client.guilds.get(this.guildId).me.voiceSessionID,
-            event: data.d
+            sessionId: this.manager.client.guilds.get(this.guildId).me.voice.sessionID,
+            event: data
         });
     }
 

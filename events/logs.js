@@ -13,44 +13,30 @@ class LogsEvent extends Event {
             case "guildUpdate": {
                 logChannel.send(this.embed({
                     action: "Guild Update",
-                    text: `
-                    Updates:
-
-                    ${logData.updates.map(update => `**${update.text}:**\nBefore: ${update.old}\nAfter: ${update.new}`)}
-                    `
-                }));break;
+                    text: `Updates:\n\n${logData.updates.map(update => `**${update.text}:**\nBefore: ${update.old}\nAfter: ${update.new}`) || "(No updates)"}`
+                }));
+                break;
             }
             // Channels
             case "channelAdd": {
                 logChannel.send(this.embed({
                     action: "Channel Added",
-                    text: `
-                    Channel: \`${logData.channel.name}\`
-                    ID: ${logData.channel.id}
-                    `
+                    text: `Channel: \`${logData.channel.name}\`\nID: ${logData.channel.id}`
                 }));
                 break;
             }
             case "channelUpdate": {
                 logChannel.send(this.embed({
                     action: "Channel Updated",
-                    text: `
-                    Updates:
-
-                    ${logData.updates.map(update => `**${update.text}:**\nBefore: ${update.old}\nAfter: ${update.new}`)}
-                    `
+                    text: `Updates:\n\n${logData.updates.map(update => `**${update.text}:**\nBefore: ${update.old}\nAfter: ${update.new}`) || "(No updates)"}`
                 }));
                 break;
             }
             case "channelRemove": {
                 logChannel.send(this.embed({
                     action: "Channel Removed",
-                    text: `
-                    Channel: \`${logData.channel.name}\`
-                    ID: ${logData.channel.id}
-                    `
+                    text: `Channel: \`${logData.channel.name}\`\nID: ${logData.channel.id}`
                 }));
-                break;
                 break;
             }
             // Roles
@@ -154,11 +140,7 @@ class LogsEvent extends Event {
             case "messageDelete": {
                 logChannel.send(this.embed({
                     action: "Message Deleted",
-                    text: `
-                    Message by ${logData.message.member.user} was deleted in channel ${logData.message.channel}
-                    \`Message Content:\`
-                    ${logData.message.content}
-                    `,
+                    text: `Message by ${logData.message.member.user} was deleted in channel ${logData.message.channel}\`Message Content:\` ${logData.message.content || "(This message has no content)"}`,
                     user: logData.message.member.user,
                     thumbnail: logData.message.member.user.displayAvatarURL({ size: 2048 })
                 }));
@@ -167,10 +149,7 @@ class LogsEvent extends Event {
             case "messageUpdate": {
                 logChannel.send(this.embed({
                     action: "Message Updated",
-                    text: `
-                    Old Content: ${logData.oldContent}
-                    New Content: ${logData.newContent}
-                    `,
+                    text: `Old Content: ${logData.oldContent || "(This message has no content)"}\nNew Content: ${logData.newContent || "(This message has no content)"}`,
                     user: logData.member.user,
                     thumbnail: logData.member.user.displayAvatarURL({ size: 2048 })
                 }));

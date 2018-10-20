@@ -100,7 +100,7 @@ class PlayerSocket {
     }
 
     playerInfo(data) {
-        this.elapsedTime = data.position;
+        this.elapsedTime = data.position || 0;
         if (!data.currentTrack) return this.notPlayingSong();
         const playerDiv = document.getElementById("playerDiv");
         playerDiv.innerHTML = `

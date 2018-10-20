@@ -37,7 +37,11 @@ module.exports.defaultGuildSchema = Client.defaultGuildSchema
     );
 
 module.exports.defaultClientSchema = Client.defaultClientSchema
-    .add("latestRestart", "any");
+    .add("latestRestart", folder => folder
+        .add("channel", "string")
+        .add("message", "string")
+        .add("started", "boolean", { default: false })
+    );
 
 module.exports.defaultUserSchema = Client.defaultUserSchema
     .add("afk", folder => folder

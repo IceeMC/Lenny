@@ -23,7 +23,7 @@ class RemixBot extends Client {
             regexPrefix: /^((Hey|Hey )RemixBot(!|! |,|, | )|(r\.|r\. ))/i,
             commandEditing: true,
             typing: true,
-            providers: { default: "PostgreSQL", postgresql: { user: config.postgreUser, password: config.postgrePass } },
+            providers: { default: "PostgreSQL", postgresql: { user: config.pgUser, password: config.pgPass } },
             permissionLevels: permissionLevels,
             readyMessage: (client) => `${client.user.tag} ready with ${client.guilds.size} guilds!`,
             defaultGuildSchema,
@@ -39,12 +39,8 @@ class RemixBot extends Client {
         this.tttGames = new Map();
         this.rawEvents = new RawEventStore(this);
         this.registerStore(this.rawEvents);
-        capcon.startCapture(process.stdout, (stdout) => {
-            this.logger.write(stdout);
-        });
-        capcon.startCapture(process.stderr, (stdout) => {
-            this.logger.write(stdout);
-        });
+        capcon.startCapture(process.stdout, stdout => this.logger.write(stdout));
+        capcon.startCapture(process.stderr, stderr => this.logger.write(stderr));
     }
  
 }

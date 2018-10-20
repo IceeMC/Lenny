@@ -1,5 +1,9 @@
-const express = require("express");
+const polka = require("polka");
+const send = require("@polka/send-type");
+const serveStatic = require("serve-static");
 const session = require("express-session");
+const { join } = require("path");
+const { renderFile } = require("ejs");
 const bodyParser = require("body-parser");
 const passport = require("passport");
 const Discord = require("passport-discord");
@@ -68,7 +72,7 @@ class Website {
     }
 
     start() {
-        // Passport
+        // Passport and helmet
         this.app.use(helmet({
             frameguard: false
         }));
@@ -84,7 +88,6 @@ class Website {
                 return done(null, profile);
             });
         }));
-        this.app.set("port", 3232);
         this.app.use(session({
             secret: this.client.config.sessionSecret,
             cookie: {
@@ -103,21 +106,16 @@ class Website {
         // Body parser
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: false }));
-        // View engine and session
-        this.app.set("view engine", "ejs");
-        this.app.use("/assets", express.static(`${process.cwd()}/assets`));
+        // Assets dir
+        this.app.use("/assets", serveStatic(`${process.cwd()}/assets`));
         // Load routes
         this.loadGetRoutes();
         this.loadPostRoutes();
         // Listen
-        this.server.listen(this.app.get("port"), () => {
+        this.server.listen(3232, () => {
             this.startWebsocket();
             this.client.console.log("The site is online.");
         });
-        for (const stack of this.app._router.stack) {
-            if (!stack.route) continue;
-            this.client.console.log(`${stack.route.stack[0].method.toUpperCase()} ${stack.route.path}`);
-        }
     }
 
     socketSend(socket, payload) {

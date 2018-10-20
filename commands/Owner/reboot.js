@@ -1,4 +1,5 @@
 const { Command } = require('klasa');
+const { spawn } = require("child_process");
 
 module.exports = class extends Command {
 
@@ -12,12 +13,12 @@ module.exports = class extends Command {
 
 	async run(message) {
 		const m = await message.sendLocale('COMMAND_REBOOT');
-		await this.client.settings.update({
-			latestRestart: {
-				channel: m.channel.id,
-				messageId: m.id
-			}
-		});
+		await this.client.settings.update([
+			["latestRestart.channel", m.channel.id],
+			["latestRestart.message", m.id],
+			["latestRestart.started", true]
+		], m);
+		spawn("node", ["."], { cwd: process.cwd() });
 	}
 
 };
