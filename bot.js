@@ -5,7 +5,7 @@ const Raven = require("raven");
 const RawEventStore = require("./utils/RawEventStore.js");
 const Logger = require("./utils/Logger.js");
 const replacer = /\[(..m|..\;..m|m)/g;
-const capcon = require('capture-console');
+const captureConsole = require("capture-console");
 const {
     defaultGuildSchema,
     defaultClientSchema,
@@ -20,8 +20,8 @@ class ChatNoirClient extends Client {
     constructor() {
         super({
             pieceDefaults: { rawEvents: { enabled: true } },
-            prefix: "r.",
-            regexPrefix: /^((Hey|Hey )RemixBot(!|! |,|, | )|(r\.|r\. ))/i,
+            prefix: "cn.",
+            regexPrefix: /^((Hey|Hey )(Chat Noir|ChatNoir)(!|! |,|, | )|(cn\.|cn\. ))/i,
             commandEditing: true,
             typing: true,
             providers: { default: "PostgreSQL", postgresql: { user: config.pgUser, password: config.pgPass } },
@@ -40,8 +40,8 @@ class ChatNoirClient extends Client {
         this.tttGames = new Map();
         this.rawEvents = new RawEventStore(this);
         this.registerStore(this.rawEvents);
-        capcon.startCapture(process.stdout, stdout => this.logger.write(stdout.replace(replacer, "")));
-        capcon.startCapture(process.stderr, stderr => this.logger.write(stderr.replace(replacer, "")));
+        captureConsole.startCapture(process.stdout, stdout => this.logger.write(stdout.replace(replacer, "")));
+        captureConsole.startCapture(process.stderr, stderr => this.logger.write(stderr.replace(replacer, "")));
     }
  
 }

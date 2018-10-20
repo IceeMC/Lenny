@@ -1,9 +1,6 @@
-const polka = require("polka");
-const send = require("@polka/send-type");
+const express = require("express");
 const serveStatic = require("serve-static");
 const session = require("express-session");
-const { join } = require("path");
-const { renderFile } = require("ejs");
 const bodyParser = require("body-parser");
 const passport = require("passport");
 const Discord = require("passport-discord");
@@ -23,7 +20,7 @@ class Website {
     }
 
     loadGetRoutes() {
-        this.app.get("/", (rq,rs,n)=>{rq.session.last = "/";n();}, (req, res) => {
+        this.app.get("/", (rq,_,n)=>{rq.session.last = "/";n();}, (req, res) => {
             res.render("index", {
                 authorized: req.isAuthenticated(),
                 client: this.client,
@@ -31,7 +28,7 @@ class Website {
                 owner: req.user ? this.isOwner(req.user) : false
             });
         });
-        this.app.get("/player", (rq,rs,n)=>{rq.session.last = "/";n();}, (req, res) => {
+        this.app.get("/player", (rq,_,n)=>{rq.session.last = "/";n();}, (req, res) => {
             res.render("musicplayer", {
                 authorized: req.isAuthenticated(),
                 client: this.client,
@@ -46,7 +43,7 @@ class Website {
             req.logout();
             res.redirect("/");
         });
-        this.app.get("/console", (rq,rs,n)=>{rq.session.last = "/console";n();}, this.authCheck, (req, res) => {
+        this.app.get("/console", (rq,_,n)=>{rq.session.last = "/console";n();}, this.authCheck, (req, res) => {
             if (this.isOwner(req.user)) {
                 res.render("console", {
                     authorized: req.isAuthenticated(),
