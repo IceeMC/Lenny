@@ -309,6 +309,8 @@ To enable it run \`${prefix}logs disable ${key}\``,
 				`)
 				.setTimestamp()
 				.setFooter("RemixBot music"),
+			COMMAND_MUSIC_VOLUME: "Change's the volume of the current playing song.",
+			COMMAND_MUSIC_SET_VOLUME: (oldVol, newVol) => `Success! Volume changed from \`${oldVol}\` to \`${newVol}\`.`,
 
 			// Utility
 			COMMAND_SERVERINFO_DESCRIPTION: "Gets info about a server.",
@@ -343,6 +345,8 @@ To enable it run \`${prefix}logs disable ${key}\``,
 			COMMAND_AFK_NO_MESSAGE: "Please provide a afk message.",
 			COMMAND_AFK_GONE_AFK: (afkMessage) => `Ok! You are now afk for \`${afkMessage}\``,
 			COMMAND_COLOR_DESCRIPTION: "It gets a color... What else?",
+			COMMAND_MEM_USAGE_DESCRIPTION: "Gets the latest memory captures (For nerds!)",
+			COMMAND_CPU_USAGE_DESCRIPTION: "Gets the latest cpu captures (For nerds!)",
 			COMMAND_SOURCE_DESCRIPTION: "Gets the source of a klasa piece",
 		};
 	}

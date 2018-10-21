@@ -1,5 +1,6 @@
 const { nodes } = require("../../config.json");
 const { Client } = require("klasa"); // eslint-disable-line
+const { Collection } = require("discord.js");
 const NodeStore = require("./NodeStore.js");
 const AudioPlayer = require("./AudioPlayer.js"); // eslint-disable-line
 const AudioNode = require("./AudioNode.js"); // eslint-disable-line
