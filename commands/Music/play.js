@@ -39,7 +39,7 @@ class Play extends Command {
                 host: "localhost"
             });
 
-            audioPlayer.queue.push(audioTrack);
+            audioPlayer.enQueue(audioTrack)
             audioPlayer.playing = true;
             return this.play(message);
         } else if (audioPlayer.queue.length < 1 && audioPlayer.idle) {
@@ -48,12 +48,12 @@ class Play extends Command {
                 channelId: message.member.voice.channelID,
                 host: "localhost"
             });
-            audioPlayer.queue.push(audioTrack);
+            audioPlayer.enQueue(audioTrack);
             audioPlayer.playing = true;
             audioPlayer.idle = false;
             return this.play(message, false);
         } else {
-            audioPlayer.queue.push(audioTrack);
+            audioPlayer.enQueue(audioTrack);
             if (playlist) return;
             return message.channel.send(message.language.get("COMMAND_MUSIC_ENQUEUED", audioTrack));
         }
@@ -102,7 +102,7 @@ class Play extends Command {
     async run(message, [query]) {
         query = query.replace(this.regex.escaper, "");
 
-        if (!message.member.voice) throw message.language.get("COMMAND_PLAY_NO_VC");
+        if (!message.member.voice.channelID) throw message.language.get("COMMAND_PLAY_NO_VC");
 
         if (await this.fromLink(message, query)) return;
         const tracks = await this.client.utils.getTracks(`ytsearch:${query}`, this.client.audioManager.nodes.get("localhost"));
@@ -111,14 +111,14 @@ class Play extends Command {
         const prompt = await message.prompt(`
 **Song selection**
 
-${converted.map(t => `📻 ➡ **${t.title}** (${t.length})`).join("\n")}
+${converted.map((t, i) => `📻(${i+1}) ➡ **${t.title}** (${t.length})`).join("\n")}
 
 Please provide a number between 1 and 10.
 If you wish to cancel this selection type \`cancel\` or \`quit\`
 **This will automatically cancel in 1 minute!**
         `, 60000);
         if (prompt.content.match(/(cancel|quit)/)) return message.send("Song selection canceled.");
-        if (parseInt(prompt.content) < 0 || parseInt(prompt.content) > 10) return message.send("You need to provide a number between 1 and 10... Selection stopped!");
+        if (parseInt(prompt.content) < 0 && parseInt(prompt.content) > 10) return message.send("You need to provide a number between 1 and 10... Selection stopped!");
         return await this.handle(converted[parseInt(prompt.content) - 1], message);
     }
 

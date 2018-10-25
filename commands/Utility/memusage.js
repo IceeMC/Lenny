@@ -14,7 +14,7 @@ class MemUsage extends Command {
 
     async run(message) {
         const node = new Chart(500, 500);
-        const labels = this.client.memoryCaptures.map((_, i) => `Capture ${i+1} (${_.usage}MB)`);
+        const labels = this.client.memoryCaptures.map((c, i) => `${i+1}: (${c.usage}MB)`);
         const data = this.client.memoryCaptures.map(c => c.usage);
         const backgroundColor = this.client.memoryCaptures.map(c => c.color);
         await node.drawChart({

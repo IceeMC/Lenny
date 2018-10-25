@@ -1,6 +1,4 @@
 const { Command } = require("klasa");
-const { MessageEmbed } = require("discord.js");
-const { get } = require("superagent");
 
 class Emojify extends Command {
 

@@ -7,8 +7,9 @@ class AudioNode extends EventEmitter {
     /**
      * Returns an AudioNode for the AudioManager.
      * @param {manager} manager - The AudioManager used for making nodes, players, etc.
+     * @param {data} 
      */
-    constructor(manager) {
+    constructor(manager, data) {
         /**
          * Create the EventEmitter.
          */
@@ -27,22 +28,11 @@ class AudioNode extends EventEmitter {
 
         /* WebSocket, AudioManger, and the an object */
 
-        /**
-         * The WebSocket used.
-         * @type {WebSocket}
-         */
-        Object.defineProperty(this, "ws", { value: null, writable: true });
-
-        /**
-         * The AudioManager that was used.
-         * @type {AudioManager}
-         */
+        Object.defineProperty(this, "ws", { value: null, writable: true })
         Object.defineProperty(this, "manager", { value: manager, writable: false });
+        Object.defineProperty(this, "nodeObj", { value: data, writable: true });
 
-        /**
-         * A object returned from the ready method.
-         */
-        Object.defineProperty(this, "nodeObj", { value: null, writable: true });
+        this._create(this.nodeObj);
     }
 
     /**
@@ -62,7 +52,7 @@ class AudioNode extends EventEmitter {
      * Creates the node with the given Object.
      * @param {Object} NodeObj - The nodes host, port and, other node info.
      */
-    create(NodeObj) {
+    _create(NodeObj) {
         this.host = NodeObj.host;
         this.port = NodeObj.port;
         this.password = NodeObj.password;

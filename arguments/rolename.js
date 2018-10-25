@@ -22,20 +22,14 @@ class RoleName extends Argument {
         for (const role of message.guild.roles.values()) { if (roleNameMatch.test(role.name)) roleResults.push(role); }
 
         if (roleResults.length > 0) {
-            const roles = roleResults.filter(r => roleNameMatch.test(arg));
-            if (roles.length > 1) {
-                type = "MULTIPLE";
-            } else {
-                type = "MATCH";
-            }
-        } else {
-            type = "INVALID";
-        }
+            const roles = roleResults.filter(() => roleNameMatch.test(arg));
+            type = roles.length < 1 ? "MATCH" : "MULTIPLE";
+        } else type = "INVALID";
 
         switch (type) {
             case "MATCH": return roleResults[0];
-            case "INVALID": throw message.language.get("RESOLVER_INVALID_ROLENAME", possible);
             case "MULTIPLE": return this.waitForSelection(message, roleResults);
+            case "INVALID": throw message.language.get("RESOLVER_INVALID_ROLENAME", possible);
         }
    }
 

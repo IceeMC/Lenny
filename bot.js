@@ -14,6 +14,7 @@ const {
     defaultMemberSchema
 } = require("./utils/DefaultSchemas.js");
 const { loadavg } = require("os");
+const BananAPI = require("bananapi");
 
 Raven.config(config.sentry, { captureUnhandledRejections: true }).install();
 
@@ -54,6 +55,7 @@ class ChatNoirClient extends Client {
         const randColor = randomHexColor();
         this.cpuCaptures = [{ usage: cpuUsage, color: randColor }];
         this.spotifyToken = null;
+        this.bananapi = new BananAPI.Client({ token: config.bananapi });
     }
  
 }

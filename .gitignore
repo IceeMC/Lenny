@@ -3,3 +3,5 @@ config.json
 node_modules/*
 test.js
 package-lock.json
+.next
+website/bootstrap

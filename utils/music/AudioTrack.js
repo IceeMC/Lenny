@@ -48,7 +48,7 @@ Url: ${this.uri}
                 discriminator: this.requester.discriminator,
                 tag: this.requester.tag
             },
-            track: this.title,
+            track: this.track,
             identifier: this.identifier,
             isSeekable: this.isSeekable,
             author: this.author,

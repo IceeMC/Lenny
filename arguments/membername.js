@@ -1,6 +1,6 @@
 const { Argument, util: { regExpEsc } } = require("klasa");
-const { Role } = require("discord.js");
 const userRegex = Argument.regex.userOrMember;
+const { GuildMember, User } = require("discord.js");
 
 function resolveUser(query, guild) {
     if (query instanceof GuildMember) return query.user;
@@ -29,20 +29,14 @@ class MemberName extends Argument {
         for (const member of message.guild.members.values()) { if (memberNameMatch.test(member.user.username)) memberResults.push(member); }
 
         if (memberResults.length > 0) {
-            const roles = memberResults.filter(r => memberNameMatch.test(arg));
-            if (roles.length > 1) {
-                type = "MULTIPLE";
-            } else {
-                type = "MATCH";
-            }
-        } else {
-            type = "INVALID";
-        }
+            const members = memberResults.filter(() => memberNameMatch.test(arg));
+            type = members.length < 1 ? "MATCH" : "MULTIPLE";
+        } else type = "INVALID";
 
         switch (type) {
             case "MATCH": return memberResults[0];
-            case "INVALID": throw message.language.get("RESOLVER_INVALID_MEMBERNAME", possible);
             case "MULTIPLE": return this.waitForSelection(message, memberResults);
+            case "INVALID": throw message.language.get("RESOLVER_INVALID_MEMBERNAME", possible);
         }
    }
 

@@ -130,12 +130,15 @@ module.exports = class AudioPlayer extends EventEmitter {
      * @param {number} volume - The new volume
      */
     setVolume(volume) {
+        const oldVolume = this.playerState.currentVolume;
+        const newVolume = Math.round(volume);
         this.node.sendToWS({
             op: "volume",
             guildId: this.guildId,
-            volume: volume
+            volume: newVolume
         });
-        this.playerState.currentVolume = volume;
+        this.playerState.currentVolume = newVolume;
+        this.emit("volume", oldVolume, newVolume);
     }
 
     /**
@@ -155,7 +158,6 @@ module.exports = class AudioPlayer extends EventEmitter {
      * @param {Object} data - The data Object from the VOICE_STATE_UPDATE event.
      */
     provideVoiceUpdate(data) {
-        console.log(data);
         this.node.sendToWS({
             op: "voiceUpdate",
             guildId: this.guildId,

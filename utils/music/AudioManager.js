@@ -22,20 +22,10 @@ class AudioManager extends Collection {
         Object.defineProperty(this, "client", { value: client, writable: false });
 
         this.nodes = new NodeStore();
-        this.launchNodes();
-    }
-
-    /**
-     * Creates all of the nodes and registers
-     * all of the event listeners
-     * for the nodes.
-     */
-    launchNodes() {
-        for (const node of nodes) {
+        for (let node of nodes) {
             // Create the node
-            const tempNode = new AudioNode(this);
-            tempNode.create(node);
-            this.nodes.set(tempNode.host, tempNode);
+            node = new AudioNode(this, node);
+            this.nodes.set(node.host, node);
         }
     }
 
@@ -61,7 +51,12 @@ class AudioManager extends Collection {
         });
         const node = this.nodes.get(data.host);
         if (!node) throw new Error(`No node with host: ${data.host} found.`);
-        return this._newPlayer(data, node);
+        const oldPlayer = this.get(data.guildId);
+        if (oldPlayer) return oldPlayer;
+        const newPlayer = new AudioPlayer(data, node, this);
+        this.set(data.guildId, newPlayer);
+        this.client.emit("newPlayer", newPlayer);
+        return newPlayer;
     }
 
     /**
@@ -78,22 +73,6 @@ class AudioManager extends Collection {
                 self_mute: false
             }
         });
-    }
-
-    /**
-     * Creates a new player or returns an old player.
-     * @param {Object} data - The object containing player data.
-     * @param {AudioNode} node - The AudioNode to use.
-     * @returns {AudioPlayer}
-     * @private
-     */
-    _newPlayer(data, node) {
-        const oldPlayer = this.get(data.guildId);
-        if (oldPlayer) return oldPlayer;
-        const newPlayer = new AudioPlayer(data, node, this);
-        this.set(data.guildId, newPlayer);
-        this.client.emit("newPlayer", newPlayer);
-        return newPlayer;
     }
 
 };

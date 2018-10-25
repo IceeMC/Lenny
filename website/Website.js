@@ -8,50 +8,56 @@ const LevelSessionStore = require("level-session-store")(session);
 const WebSocket = require("ws");
 const http = require("http");
 const helmet = require("helmet");
+const exec = require("util").promisify(require("child_process").exec);
 
 class Website {
 
     constructor(client) {
         Object.defineProperty(this, "client", { value: client, writable: false });
-        this.app = express();
-        this.server = http.createServer(this.app);
+        this.express = express();
+        this.app = require("next")({ dev: true, dir: __dirname });
+        this.requestHandler = this.app.getRequestHandler();
+        this.server = http.createServer(this.express);
         this.store = new LevelSessionStore();
         this.wss = null;
     }
 
     loadGetRoutes() {
-        this.app.get("/", (rq,_,n)=>{rq.session.last = "/";n();}, (req, res) => {
-            res.render("index", {
+        this.express.get("/", (rq,_,n)=>{rq.session.last = "/";n();}, (req, res) => {
+            this.app.render(req, res, "/homepage", {
                 authorized: req.isAuthenticated(),
-                client: this.client,
-                usr: req.user,
+                stats: { guilds: this.client.guilds.size },
+                usr: req.user ? req.user : null,
                 owner: req.user ? this.isOwner(req.user) : false
             });
         });
-        this.app.get("/player", (rq,_,n)=>{rq.session.last = "/";n();}, (req, res) => {
+        this.express.get("/player", (rq,_,n)=>{rq.session.last = "/";n();}, (req, res) => {
             res.render("musicplayer", {
                 authorized: req.isAuthenticated(),
-                client: this.client,
-                usr: req.user,
+                stats: { guilds: this.client.guilds.size },
+                usr: req.user ? req.user : null,
                 owner: req.user ? this.isOwner(req.user) : false
             });
         });
-        this.app.get("/login", passport.authenticate("discord", {
+        this.express.get("/login", passport.authenticate("discord", {
             failureRedirect: "/"
         }), (req, res) => res.redirect(req.session.last || "/"));
-        this.app.get("/logout", this.authCheck, (req, res) => {
+        this.express.get("/logout", this.authCheck, (req, res) => {
             req.logout();
             res.redirect("/");
         });
-        this.app.get("/console", (rq,_,n)=>{rq.session.last = "/console";n();}, this.authCheck, (req, res) => {
+        /* this.express.get("/console", (rq,_,n)=>{rq.session.last = "/console";n();}, this.authCheck, (req, res) => {
             if (this.isOwner(req.user)) {
                 res.render("console", {
                     authorized: req.isAuthenticated(),
-                    owner: req.user ? this.isOwner(req.user) : false,
-                    usr: req.user,
+                    stats: { guilds: this.client.guilds.size },
+                    usr: req.user ? req.user : null,
                     log: this.client.logger.read()
                 });
             }
+        }); */
+        this.express.get("*", (req, res) => {
+            return this.requestHandler(req, res);
         });
     }
 
@@ -69,51 +75,61 @@ class Website {
     }
 
     start() {
-        // Passport and helmet
-        this.app.use(helmet({
-            frameguard: false
-        }));
-        passport.serializeUser((user, done) => done(null, user));
-        passport.deserializeUser((user, done) => done(null, user));
-        passport.use(new Discord.Strategy({
-            clientID: this.client.user.id,
-            clientSecret: this.client.config.secret,
-            callbackURL: "https://remixbot.ml/login",
-            scope: ["identify"]
-        }, (assessToken, refreshToken, profile, done) => {
-            process.nextTick(() => {
-                return done(null, profile);
+        this.client.console.log("Starting build...");
+        const start = Date.now();
+        // Execute 'npx next build' to build app.
+        exec("npx next build", { cwd: __dirname }).then(v => {
+            this.client.console.log(`Finished building in ${(Date.now() - start).toFixed(2)}ms.`);
+            // Prepare next.js after building the files
+            this.app.prepare().then(() => {
+                // Passport and helmet
+                this.express.use(helmet({
+                    frameguard: false
+                }));
+                passport.deserializeUser((user, done) => done(null, user));
+                passport.serializeUser((user, done) => done(null, user));
+                passport.use(new Discord.Strategy({
+                    clientID: this.client.user.id,
+                    clientSecret: this.client.config.secret,
+                    callbackURL: "https://remixbot.ml/login",
+                    scope: ["identify"]
+                }, (_, __, profile, done) => {
+                    process.nextTick(() => {
+                        return done(null, profile);
+                    });
+                }));
+                // Use express session
+                this.express.use(session({
+                    secret: this.client.config.sessionSecret,
+                    cookie: {
+                        secure: true,
+                        httpOnly: true,
+                        domain: "remixbot.ml",
+                        path: "/",
+                        maxAge: 31536000000
+                    },
+                    store: this.store,
+                    saveUninitialized: true,
+                    resave: true
+                }));
+                // Initialize passport and passport.session
+                this.express.use(passport.initialize());
+                this.express.use(passport.session());
+                // Body parser
+                this.express.use(bodyParser.json());
+                this.express.use(bodyParser.urlencoded({ extended: false }));
+                // Statically serve assets
+                this.express.use("/assets", serveStatic(`${process.cwd()}/assets`));
+                // Load routes
+                this.loadGetRoutes();
+                this.loadPostRoutes();
+                // Listen
+                this.server.listen(3232, () => {
+                    this.startWebsocket();
+                    this.client.console.log("> Ready on port 3232");
+                });
             });
-        }));
-        this.app.use(session({
-            secret: this.client.config.sessionSecret,
-            cookie: {
-                secure: true,
-                httpOnly: true,
-                domain: "remixbot.ml",
-                path: "/",
-                maxAge: 31536000000
-            },
-            store: this.store,
-            saveUninitialized: true,
-            resave: true
-        }));
-        this.app.use(passport.initialize());
-        this.app.use(passport.session());
-        // Body parser
-        this.app.use(bodyParser.json());
-        this.app.use(bodyParser.urlencoded({ extended: false }));
-        // Assets dir
-        this.app.use("/assets", serveStatic(`${process.cwd()}/assets`));
-        // Load routes
-        this.loadGetRoutes();
-        this.loadPostRoutes();
-        // Listen
-        this.server.listen(3232, () => {
-            this.startWebsocket();
-            this.client.console.log("The site is online.");
-        });
-        return this;
+        }).catch(e => console.error(e));
     }
 
     socketSend(socket, payload) {
@@ -135,7 +151,8 @@ class Website {
                 pause: null,
                 end: null,
                 stuck: null,
-                update: null
+                update: null,
+                volume: null
             };
             socket.on("message", packet => {
                 try { JSON.parse(packet); } catch { return socket.close(1009, "Invalid JSON payload."); }
@@ -174,7 +191,7 @@ class Website {
             data: {
                 currentTrack: player.queue.length ? player.queue[0].toJSON() : null,
                 currentQueue: player.queue.slice(1).length > 1 ? player.queue.slice(1).length.map(t => t.toJSON()) : null,
-                position: player.playerState.currentPosition
+                position: player.playerState.currentPosition || 0
             }
         });
         socket.playerListeners.start = () => this.socketSend(socket, {
@@ -235,11 +252,19 @@ class Website {
                 }
             });
         }
+        socket.playerListeners.volume = (oldVolume, newVolume) => {
+            this.socketSend(socket, {
+                type: "VOLUME_CHANGE",
+                id,
+                data: { oldVolume, newVolume }
+            });
+        }
         player.on("start", socket.playerListeners.start.bind(this));
         player.on("pause", socket.playerListeners.pause.bind(this));
         player.on("end", socket.playerListeners.end.bind(this));
         player.on("stuck", socket.playerListeners.stuck.bind(this));
         player.on("update", socket.playerListeners.update.bind(this));
+        player.on("volume", socket.playerListeners.volume.bind(this));
     }
 
 }

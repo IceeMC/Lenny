@@ -8,16 +8,12 @@ class Logger extends EventEmitter {
         Object.defineProperty(this, "client", { value: client, writable: false });
         this.fullPath = `${process.cwd()}/${file}`;
         this.filename = file;
-        this._setup(file);
-    }
-
-    _setup(file) {
         if (!fs.existsSync(this.fullPath)) {
             fs.openSync(this.fullPath, "w");
-            this.client.console.log(`File saved ${this.filename}`);
+            this.client.console.log(`File saved as ${this.filename}`);
         } else {
             this._reset();
-            this.client.console.log(`Loaded log file: ${this.filename}`);
+            this.client.console.log(`Loaded log file ${this.filename}`);
         }
     }
 

@@ -14,7 +14,7 @@ class CPUUsage extends Command {
 
     async run(message) {
         const node = new Chart(500, 500);
-        const labels = this.client.cpuCaptures.map((_, i) => `Capture ${i+1} (${_.usage}%)`);
+        const labels = this.client.cpuCaptures.map((c, i) => `${i+1}: (${c.usage}%)`);
         const data = this.client.cpuCaptures.map(c => c.usage);
         const backgroundColor = this.client.cpuCaptures.map(c => c.color);
         await node.drawChart({

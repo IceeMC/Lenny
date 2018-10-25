@@ -8,9 +8,8 @@ class Utils {
     }
     
     get color() {
-        return 0xE84536;
+        return 0x1A1210;
     }
-
 
     /**
      * Gets tracks from the lavalink REST server.
@@ -91,32 +90,32 @@ class Utils {
             .catch(() => null);
     }
 
-    /**
-     * Returns an Iterator of the methods in a class/object.
-     * @param {Object} object The class/object to get the methods from.
-     * @returns {IterableIterator<{name: string, func: Function}>}
-     */
-    *methods (object) {
-        if (typeof object !== "object") throw new Error(`methods expects an object not ${typeof object}.`);
-        const included = [
-            "constructor",
-            "__defineGetter__",
-            "__defineSetter__",
-            "hasOwnProperty",
-            "__lookupGetter__",
-            "__lookupSetter__",
-            "isPrototypeOf",
-            "propertyIsEnumerable",
-            "valueOf",
-            "__proto__"
-        ];
-        while (object = Reflect.getPrototypeOf(object)) {
-            let keys = Reflect.ownKeys(object);
-            for (const key of keys)
-                if (typeof object[key] === "function" && !included.includes(key))
-                    yield { name: key, func: object[key] ? object[key] : null }
-        }
-    }
+    // /**
+    //  * Returns an Iterator of the methods in a class/object.
+    //  * @param {Object} object The class/object to get the methods from.
+    //  * @returns {IterableIterator<{name: string, func: Function}>}
+    //  */
+    // *methods (object) {
+    //     if (typeof object !== "object") throw new Error(`methods expects an object not ${typeof object}.`);
+    //     const included = [
+    //         "constructor",
+    //         "__defineGetter__",
+    //         "__defineSetter__",
+    //         "hasOwnProperty",
+    //         "__lookupGetter__",
+    //         "__lookupSetter__",
+    //         "isPrototypeOf",
+    //         "propertyIsEnumerable",
+    //         "valueOf",
+    //         "__proto__"
+    //     ];
+    //     while (object = Reflect.getPrototypeOf(object)) {
+    //         let keys = Reflect.ownKeys(object);
+    //         for (const key of keys)
+    //             if (typeof object[key] === "function" && typeof object[k] !== "undefined" && !included.includes(key))
+    //                 yield { name: key, func: object[key] ? object[key] : null }
+    //     }
+    // }
 
     /**
      * Gets all the property names of the provided object/class;

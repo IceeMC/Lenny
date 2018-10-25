@@ -7,6 +7,7 @@ module.exports = class extends Language {
 		super(...args);
 		this.language = {
 			DEFAULT: (key) => `${key} has not been localized for en-US yet.`,
+			BANANAPI_ERROR: text => text,
 			DEFAULT_LANGUAGE: 'Default Language',
 			PREFIX_REMINDER: (prefix) => `The prefix${Array.isArray(prefix) ?
 				`es for this guild are: ${prefix.map(pre => `\`${pre}\``).join(', ')}` :
@@ -214,6 +215,18 @@ Free - ${freeMem} GB
 			COMMAND_INVERT_DESCRIPTION: "Inverts a user or yourself.",
 			COMMAND_SEPIA_DESCRIPTION: "Gives someone or yourself a tinge of red.",
 			COMMAND_SLAP_DESCRIPTION: "Slaps a user *ouch*.",
+			COMMAND_TWEET_DESCRIPTION: "Tweet something as trump.",
+			COMMAND_DISABLED_DESCRIPTION:  "This seat is reserved for disabled people!",
+			COMMAND_EMOJIFY_DESCRIPTION: "Converts the text into emojis.",
+			COMMAND_HASH_DESCRIPTION: "Hashes the text you provide.",
+			COMMAND_HEADACHE_DESCRIPTION: "The types of headaches are insane.",
+			COMMAND_HUMANSGOOD_DESCRIPTION: "Humans are good!",
+			COMMAND_JSIFY_DESCRIPTION: "Converts the text into js",
+			COMMAND_PEEKABOO_DESCRIPTION: "Peekaboo?",
+			COMMAND_REVERSE_DESCRIPTION: "Reverses the text.",
+			COMMAND_REVERSE_TEXT_TOO_LONG: "The text is too long. Keep it under 500 characters!",
+			COMMAND_SPLIT_DESCRIPTION: "Takes the first half of an image and merges it with the other half.",
+			COMMAND_TWEET_DESCRIPTION: "Tweet something as trump.",
 
 			// Games
 			COMMAND_TTT_DESCRIPTION: "Allows the user to create, join, leave, or start a ttt game.",

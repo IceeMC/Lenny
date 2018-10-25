@@ -7,6 +7,7 @@ class PlayerSocket {
         this.elapsedTime = 0;
         this.barPaused = false;
         this.keepAliveInterval = null;
+        this.barInterval = null;
         this.alreadyInvalid = false;
     }
 
@@ -39,6 +40,7 @@ class PlayerSocket {
         console.log(`[WS] Message: ${packet.data}`);
         if (type === "NO_GUILD") return this.noGuild();
         if (type === "NO_PLAYER" || type === "PLAYER_QUEUE_FINISHED") return this.notPlayingSong();
+        if (type === "VOLUME_CHANGE") return this.updateVolume(data);
         if (type === "PLAYER_INFO") return this.playerInfo(data);
         if (type === "PLAYER_TRACK_START" || type === "PLAYER_TRACK_REPLACED") return this.playingSong(data);
         if (type === "PLAYER_UPDATE") return this.playerUpdate(data);
@@ -82,8 +84,9 @@ class PlayerSocket {
         playerDiv.innerHTML = `
         <strong style="color: #334049;">${data.currentTrack.title}</strong>
         <p id="time">
-            Elapsed time: ${this.convertTime(this.elapsedTime)}
+            Elapsed time: ${this.convertTime(this.elapsedTime || 0)}
             Duration: ${this.convertTime(data.currentTrack.msLength)}
+            Current Volume: ${data.volume}
         </p>
         <div class="progress">
             <div class="progress-bar" id="progress" style="width: 0%; background-color: #E84536;"role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
@@ -93,10 +96,20 @@ class PlayerSocket {
             this.elapsedTime += 1000;
             const elapsed = document.getElementById("time");
             if (elapsed) elapsed.innerText = `
-            Elapsed time: ${this.convertTime(this.elapsedTime)}
+            Elapsed time: ${this.convertTime(this.elapsedTime || 0)}
             Duration: ${this.convertTime(data.currentTrack.msLength)}
+            Current Volume: ${data.volume}
             `;
         }, 1000);
+    }
+
+    updateVolume(data) {
+        const elapsed = document.getElementById("time");
+        if (elapsed) elapsed.innerText = `
+        Elapsed time: ${this.convertTime(this.elapsedTime || 0)}
+        Duration: ${this.convertTime(data.currentTrack.msLength)}
+        Current Volume: ${data.newVolume}
+        `;
     }
 
     playerInfo(data) {
@@ -136,16 +149,19 @@ class PlayerSocket {
         this.destroy();
     }
 
-    playerUpdate(data) {
-        if (!this.barPaused) {
+    startProgressBar(data) {
+        if (!this.barInterval) this.barInterval = setTimeout(() => {
             const bar = document.getElementById("progress");
             if (bar) {
                 const progress = Math.ceil(data.position / data.currentTrack.msLength * 100);
                 bar.style.backgroundColor = "#E84536";
                 bar.style.width = `${progress}%`;
                 bar.setAttribute("aria-valuenow", progress);
+            } else {
+                clearInterval(this.barInterval);
+                this.barInterval = null;
             }
-        }
+        });
     }
 
     destroy() {
@@ -154,9 +170,7 @@ class PlayerSocket {
         this.alreadyInvalid = false;
         clearInterval(this.elapsedInterval);
         const bar = document.getElementById("progress");
-        if (bar) {
-            bar.remove();
-        }
+        if (bar) bar.remove(); 
     }
 
     keepAlive() {
