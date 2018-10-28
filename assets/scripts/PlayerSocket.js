@@ -10,7 +10,9 @@ class PlayerSocket {
         this.barInterval = null;
         this.barElapsed = 0;
         this.alreadyInvalid = false;
+        this.noIdPresent = false;
         this.trackLength = 0;
+        this.jumbotronLead = document.getElementById("jumboTronLead");
     }
 
     send(payload) {
@@ -21,7 +23,6 @@ class PlayerSocket {
     connect(id) {
         this.id = id;
         if (this.ws) {
-            console.log("[WS] There is already an open connection.");
             this.send({ id: this.id });
         } else {
             this.ws = new WebSocket("wss://remixbot.ml/");
@@ -41,7 +42,7 @@ class PlayerSocket {
         const { type, data } = JSON.parse(packet.data);
         console.log(`[WS] Message: ${packet.data}`);
         if (type === "NO_GUILD") return this.noGuild();
-        if (type === "NO_PLAYER" || type === "PLAYER_QUEUE_FINISHED") return this.notPlayingSong();
+        if (type === "NO_PLAYER" || type === "PLAYER_QUEUE_FINISHED") return this.destroy();
         if (type === "VOLUME_CHANGE") return this.updateVolume(data);
         if (type === "PLAYER_INFO") return this.playerInfo(data);
         if (type === "PLAYER_TRACK_START" || type === "PLAYER_TRACK_REPLACED") return this.playingSong(data);
@@ -56,7 +57,6 @@ class PlayerSocket {
     noGuild() {
         const playerDiv = document.getElementById("playerDiv");
         const invalidGuild = document.createElement("div");
-        console.log(playerDiv, invalidGuild);
         invalidGuild.innerHTML = `
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <h4 class="alert-heading">Oops!</h4>
@@ -81,8 +81,10 @@ class PlayerSocket {
     }
 
     playingSong(data) {
-        if (!data) return;
+        if (!data.currentTrack) return this.destroy();
+        this.trackLength = data.currentTrack.msLength;
         const playerDiv = document.getElementById("playerDiv");
+        if (this.jumbotronLead) this.jumbotronLead.innerText = `Music player info for: <strong>${data.guild.name}</strong>`;
         playerDiv.innerHTML = `
         <center><strong>${data.currentTrack.title}</strong></center>
         <p id="time">
@@ -91,7 +93,7 @@ class PlayerSocket {
             Current Volume: ${data.volume}
         </p>
         <div class="progress">
-            <div class="progress-bar" id="progress" style="width: 0%; background-color: #E84536;"role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            <div class="progress-bar" id="songProgress" style="width: 0%; background-color: #E84536;" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
         `;
         this.elapsedInterval = setInterval(() => {
@@ -117,8 +119,9 @@ class PlayerSocket {
 
     playerInfo(data) {
         this.elapsedTime = data.position || 0;
-        if (!data.currentTrack) return this.notPlayingSong();
+        if (!data.currentTrack) return this.destroy();
         const playerDiv = document.getElementById("playerDiv");
+        if (this.jumbotronLead) this.jumbotronLead.innerText = `Music player info for: <strong>${data.guild.name}</strong>`;
         playerDiv.innerHTML = `
         <strong style="color: #334049;">${data.currentTrack.title}</strong>
         <p id="time">
@@ -126,7 +129,7 @@ class PlayerSocket {
             Duration: ${this.convertTime(data.currentTrack.msLength)}
         </p>
         <div class="progress">
-            <div class="progress-bar" id="progress" style="width: 0%; background-color: #E84536;"role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            <div class="progress-bar" id="songProgress" style="width: 0%; background-color: #E84536;" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
         `;
         if (data.position && data.position > 0) this.playerUpdate(data);
@@ -141,25 +144,13 @@ class PlayerSocket {
         this.startProgressBar(data.position ? data.position : this.elapsedTime);
     }
 
-    notPlayingSong() {
-        const playerDiv = document.getElementById("playerDiv");
-        playerDiv.innerHTML = `
-        <center>
-            <p>Nothing is currently playing. Queue up a song first!</p>
-        </center>
-        `;
-        const overlay = document.getElementById("playerDivOverlay");
-        if (overlay) overlay.remove();
-        this.destroy();
-    }
-
     startProgressBar(pos) {
         this.barElapsed = pos;
         if (!this.barInterval) this.barInterval = setInterval(() => {
             this.barElapsed += 1000;
-            const bar = document.getElementById("progress");
+            const bar = document.getElementById("songProgress");
             if (bar) {
-                const progress = Math.ceil(this.barElapsed / data.currentTrack.msLength * 100);
+                const progress = Math.ceil(this.barElapsed / pos * 100);
                 bar.style.backgroundColor = "#E84536";
                 bar.style.width = `${progress}%`;
                 bar.setAttribute("aria-valuenow", progress);
@@ -172,16 +163,36 @@ class PlayerSocket {
     }
 
     destroy() {
-        this.elapsedTime = 0;
-        this.barElapsed = 0;
-        this.barPaused = false;
-        this.alreadyInvalid = false;
-        clearInterval(this.elapsedInterval);
+        // Only remove if overlay is present
+        const overlay = document.getElementById("playerDivOverlay");
+        if (overlay) overlay.remove();
+        // Clear intervals
         clearInterval(this.barInterval);
+        clearInterval(this.elapsedInterval);
+        // Reset props
+        this.id = null;
         this.elapsedInterval = null;
+        this.elapsedTime = 0;
+        this.barPaused = false;
+        this.keepAliveInterval = null;
         this.barInterval = null;
-        const bar = document.getElementById("progress");
-        if (bar) bar.remove(); 
+        this.barElapsed = 0;
+        this.alreadyInvalid = false;
+        this.noIdPresent = false;
+        this.trackLength = 0;
+        // Try and remove progress bar
+        const bar = document.getElementById("songProgress");
+        if (bar) bar.remove();
+        // Try and remove time and volume
+        const elapsed = document.getElementById("time");
+        if (elapsed) elapsed.remove();
+        // Set player div inner HTML
+        const playerDiv = document.getElementById("playerDiv");
+        playerDiv.innerHTML = `
+        <center>
+            <p>Nothing is currently playing. Queue up a song first!</p>
+        </center>
+        `;
     }
 
     keepAlive() {
@@ -205,6 +216,32 @@ class PlayerSocket {
         return str;
     }
 
+    noGuildIdPresent() {
+        const playerDiv = document.getElementById("playerDiv");
+        const invalidGuild = document.createElement("div");
+        invalidGuild.innerHTML = `
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <h4 class="alert-heading">Oops!</h4>
+            <p>
+                You need to provide a <strong>guild id</strong>. Please enter one and try again!<br>
+                This will disappear in 10 seconds.
+            </p>
+        </div>
+        `;
+        const overlay = document.getElementById("playerDivOverlay");
+        if (overlay && playerDiv)  {
+            if (this.noIdPresent) return;
+            this.noIdPresent = true;
+            overlay.remove();
+            playerDiv.appendChild(invalidGuild);
+            playerDiv.appendChild(overlay);
+            setTimeout(() => {
+                this.noIdPresent = false;
+                playerDiv.removeChild(invalidGuild);
+            }, 10000);
+        }
+    }
+
 }
 
 const socket = new PlayerSocket();
@@ -212,7 +249,10 @@ const guildIdBox = document.getElementById("guildId");
 const submitButton = document.getElementById("submit");
 const clickEvent = () => {
     console.log("[WS] Opening a connection to wss://remixbot.ml/");
-    if (guildIdBox instanceof HTMLInputElement) socket.connect(guildIdBox.value);
+    if (guildIdBox instanceof HTMLInputElement) {
+        if (!guildIdBox.value) return socket.noGuildIdPresent();
+        socket.connect(guildIdBox.value);
+    }
 };
 const keyDown = event => {
     const keyCode = event.keyCode ? event.keyCode : event.which;

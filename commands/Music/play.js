@@ -41,7 +41,7 @@ class Play extends Command {
 
             audioPlayer.enQueue(audioTrack)
             audioPlayer.playing = true;
-            return this.play(message);
+            return this.play(message, true);
         } else if (audioPlayer.queue.length < 1 && audioPlayer.idle) {
             await this.client.audioManager.join({
                 guildId: message.guild.id,
@@ -51,15 +51,15 @@ class Play extends Command {
             audioPlayer.enQueue(audioTrack);
             audioPlayer.playing = true;
             audioPlayer.idle = false;
-            return this.play(message, false);
+            return this.play(message);
         } else {
             audioPlayer.enQueue(audioTrack);
             if (playlist) return;
-            return message.channel.send(message.language.get("COMMAND_MUSIC_queueD", audioTrack));
+            return message.channel.send(message.language.get("COMMAND_MUSIC_ENQUEUED", audioTrack));
         }
     }
 
-    play(message, listen = true) {
+    play(message, listen = false) {
         if (listen) this._listen(message);
         const audioPlayer = this.client.audioManager.get(message.guild.id);
         audioPlayer.play(audioPlayer.queue[0].track);
@@ -81,10 +81,11 @@ class Play extends Command {
                     message.channel.send(message.language.get("COMMAND_MUSIC_END"));
                     this.client.audioManager.leave(message.guild.id);
                     // Discord bug fix
-                    this.client.audioManager.forEach(aPlayer => {
-                        aPlayer.pause();
-                        return setTimeout(() => aPlayer.resume(), 700);
-                    });
+                    for (const player of this.client.audioManager) {
+                        if (player.idle) continue;
+                        player.pause();
+                        setTimeout(() => player.resume(), 700);
+                    }
                 } else {
                     audioPlayer.play(audioPlayer.queue[0].track);
                     return message.channel.send(message.language.get("COMMAND_MUSIC_PLAYING", audioPlayer));

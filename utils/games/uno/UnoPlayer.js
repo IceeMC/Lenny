@@ -1,8 +1,7 @@
-const UnoCard = require("./UnoCard.js");
-
 class UnoPlayer {
 
-    constructor(user) {
+    constructor(uno, user) {
+        this.uno = uno;
         this.user = user;
         this.cards = [];
         this.ranking = null;
@@ -10,11 +9,11 @@ class UnoPlayer {
     }
 
     buildCards() {
-        for (let i = 0; i < 7; i++) this.cards.push(this.randomCard());
+        for (let i = 0; i < 7; i++) this.uno.randomCard();
     }
 
     drawCard() {
-        const card = this.randomCard();
+        const card = this.uno.randomCard();
         this.cards.push(card);
         return card;
     }
@@ -31,14 +30,6 @@ class UnoPlayer {
         const card = this.getCard(name);
         if (!card) throw "You don't have that card!";
         this.cards.splice(card, 1);
-    }
-
-    randomCard() {
-        return new UnoCard(UnoCard.cards.ALL[~~(Math.random() * UnoCard.cards.ALL.length)]);
-    }
-
-    get won() {
-        return this.cards.length;
     }
 
 }

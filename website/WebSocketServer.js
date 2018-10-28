@@ -37,13 +37,13 @@ class WebSocketServer {
                     data: null
                 });
                 socket.guildId = id;
-                if (player) return this.playerListener(socket, player, id);
+                if (player) return this.playerListener(socket, player);
                 this.socketSend(socket, {
                     type: "NO_PLAYER",
                     id: null,
                     data: null
                 });
-                this.client.once("newPlayer", player => this.playerListener(socket, player, id));
+                this.client.once("newPlayer", player => this.playerListener(socket, player));
             });
             socket.on("error", error => this.client.console.wtf(`[WS ERROR] ${error}`));
             socket.on("close", () => {
@@ -57,7 +57,9 @@ class WebSocketServer {
         return this;
     }
 
-    playerListener(socket, player, id) {
+    playerListener(socket, player) {
+        const id = socket.guildId;
+        const guild = this.client.guilds.get(soket.guildId);
         this.socketSend(socket, {
             type: "PLAYER_INFO",
             id,
@@ -65,7 +67,8 @@ class WebSocketServer {
                 currentTrack: player.queue.length ? player.queue[0].toJSON() : null,
                 currentQueue: player.queue.slice(1).length > 1 ? player.queue.slice(1).length.map(t => t.toJSON()) : null,
                 position: player.playerState.currentPosition,
-                volume: player.playerState.currentVolume
+                volume: player.playerState.currentVolume,
+                guild: { name: guild.name, id: guild.id, icon: guild.iconURL({ format: "png" }) || null }
             }
         });
         socket.playerListeners.start = () => this.socketSend(socket, {
@@ -75,7 +78,8 @@ class WebSocketServer {
                 currentTrack: player.queue.length ? player.queue[0].toJSON() : null,
                 currentQueue: player.queue.slice(1).length > 1 ? player.queue.slice(1).length.map(t => t.toJSON()) : null,
                 position: player.playerState.currentPosition,
-                volume: player.playerState.currentVolume
+                volume: player.playerState.currentVolume,
+                guild: { name: guild.name, id: guild.id, icon: guild.iconURL({ format: "png" }) || null }
             }     
         });
         socket.playerListeners.pause = paused => {
@@ -94,16 +98,6 @@ class WebSocketServer {
             }
         };
         socket.playerListeners.end = endEvent => {
-            if (endEvent.reason === "REPLACED") return this.socketSend(socket, {
-                type: "PLAYER_TRACK_REPLACED",
-                id,
-                data: {
-                    currentTrack: player.queue.length ? player.queue[0].toJSON() : null,
-                    currentQueue: player.queue.slice(1).length > 1 ? player.queue.slice(1).length.map(t => t.toJSON()) : null,
-                    position: player.playerState.currentPosition,
-                    volume: player.playerState.currentVolume
-                }
-            });
             if (endEvent.reason === "FINISHED" && player.queue.length < 1) return this.socketSend(socket, {
                 type: "PLAYER_QUEUE_FINISHED",
                 id,
