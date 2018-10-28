@@ -1,10 +1,11 @@
-const { Client } = require("klasa");
+const { Client, Schema } = require("klasa");
 const permissionLevels = require("./utils/PermissionLevels.js");
 const config = require("./config.json");
 const Raven = require("raven");
 const RawEventStore = require("./utils/RawEventStore.js");
 const Logger = require("./utils/Logger.js");
-const replacer = /\[(..m|..\;..m|m)/g;
+// const replacer = /\[(..m|..\;..m|m)/g;
+const CatLoggr = require("cat-loggr");
 const captureConsole = require("capture-console");
 const randomHexColor = require("random-hex-color");
 const {
@@ -37,6 +38,13 @@ class ChatNoirClient extends Client {
             defaultUserSchema,
             defaultMemberSchema
         });
+        // Init custom console
+        this.console = new CatLoggr()
+            .setLevels([
+                { name: "wtf", color: CatLoggr._chalk.black.bgRed },
+                { name: "log", color: CatLoggr._chalk.black.bgBlue },
+                { name: "warn", color: CatLoggr._chalk.black.bgYellow },
+            ]);
         // Set ChartJS options
         require("chart.js").defaults.global.defaultFontColor = "#FFFFFF";
         require("chart.js").defaults.global.showLines = false;
@@ -60,7 +68,15 @@ class ChatNoirClient extends Client {
         this.spotifyToken = null;
         this.bananapi = new BananAPI.Client({ token: config.bananapi });
     }
- 
+
 }
 
-Raven.context(() => new ChatNoirClient().login(config.token));
+const client = new ChatNoirClient();
+
+client.gateways.register("unoSaves", {
+    provider: "PostgreSQL",
+    schema: new Schema()
+        .add("players", "any")
+});
+
+Raven.context(() => client.login(config.token));

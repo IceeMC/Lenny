@@ -181,7 +181,7 @@ If you wish to cancel this selection type \`cancel\` or \`quit\`
                     await this.handle(new AudioTrack(result[0], message.author), message, true);
                 }
                 await m.delete();
-                message.sendLocale("COMMAND_PLAYLIST_queueD", [{ name: album.name, tracks: album.tracks.items  }]);
+                message.sendLocale("COMMAND_PLAYLIST_ENQUEUED", [{ name: album.name, tracks: album.tracks.items  }]);
             }
             return true;
         }

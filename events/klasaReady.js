@@ -21,10 +21,10 @@ class KlasaReady extends Event {
         this.client.audioManager = new AudioManager(this.client);
         this.client.website = new Website(this.client);
         this.client.website.start();
-        this.client.audioManager.nodes.forEach(n => {
-            n.on("ready", () => this.client.console.log(`AudioNode connected with host: ${n.host}`));
-            n.on("error", error => this.client.console.error(`AudioNode failed to connect with host: ${n.host}. This node will not be used for audio.`));
-        });
+        for (const node of this.client.audioManager) {
+            node.on("ready", () => this.client.console.log(`AudioNode connected with host: ${n.host}`));
+            node.on("error", error => this.client.console.error(`AudioNode failed to connect with host: ${n.host}. This node will not be used for audio.`));
+        }
     }
 
 }

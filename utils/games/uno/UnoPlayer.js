@@ -5,11 +5,12 @@ class UnoPlayer {
         this.user = user;
         this.cards = [];
         this.ranking = null;
+        this.hasGone = false;
         this.buildCards();
     }
 
     buildCards() {
-        for (let i = 0; i < 7; i++) this.uno.randomCard();
+        for (let i = 0; i < 7; i++) this.cards.push(this.uno.randomCard());
     }
 
     drawCard() {
@@ -18,8 +19,12 @@ class UnoPlayer {
         return card;
     }
 
+    static from(data) {
+
+    }
+
     getCard(name) {
-        return this.cards.find(c => c.info.name === name);
+        return this.cards.find(c => c.info.name.toLowerCase() === name.toLowerCase());
     }
 
     send(content) {

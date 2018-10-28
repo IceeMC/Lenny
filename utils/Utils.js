@@ -68,7 +68,6 @@ class Utils {
      */
     newTTTGame(message) {
         const game = new TicTacToe(message);
-        if (game) return game;
         this.client.tttGames.set(message.channel.id, game);
         return game;
     }
@@ -80,7 +79,6 @@ class Utils {
      */
     newUnoGame(message) {
         const game = new Uno(message);
-        if (game) return game;
         this.client.unoGames.set(message.channel.id, game);
         return game;
     }
