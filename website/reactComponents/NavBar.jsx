@@ -1,7 +1,7 @@
 import { Navbar, NavbarToggler, NavbarBrand, Collapse, Nav, NavItem, NavLink } from "reactstrap";
 import React, { Component } from "react";
 
-const avatar = "https://cdn.discordapp.com/avatars/459153545917235200/95295dfb8efc3e70d6395ffa26d54162.png?size=2048";
+const avatar = "https://cdn.discordapp.com/avatars/459153545917235200/95295dfb8efc3e70d6395ffa26d54162.png";
 const allPages = [{
     href: "/",
     name: "Home",
@@ -37,14 +37,14 @@ class NavBar extends Component {
 
     render() {
         return (
-            <Navbar color="dark" dark expand="md" style={{ color: "#FFFFFF", backgroundColor: "#1A1210" }}>
+            <Navbar color="dark" dark expand="md" style={{ color: "#FFFFFF" }}>
                 <NavbarBrand><img src={avatar} style={{ width: 30, height: 30 }}></img></NavbarBrand>
                 <NavbarToggler onClick={this.toggleNav}/>
                 <Collapse isOpen={this.state.isOpen} navbar>
                     <Nav className="ml-auto" navbar>
-                        {pages.map(pg => <NavItem><NavLink active={this.props.activePage === pg.name} href={pg.href}>{pg.name}</NavLink></NavItem>)}
+                        {pages.map(pg => <NavItem key={pg.name}><NavLink active={this.props.activePage === pg.name} href={pg.href}>{pg.name}</NavLink></NavItem>)}
+                        {this.listPages()}
                     </Nav>
-                    {this.listPages()}
                 </Collapse>
             </Navbar>
         );
@@ -52,17 +52,15 @@ class NavBar extends Component {
 
     listPages() {
         if (this.props.authorized) {
-            const base = (
-                <div>
-                    <NavItem><NavLink>{this.props.usr.username}</NavLink></NavItem>
-                    <div>{authPages.map(pg => <NavItem><NavLink active={this.props.activePage === pg.name} href={pg.href}>{pg.name}</NavLink></NavItem>)}</div>
-                </div>
-            );
-            if (this.props.owner) base += ownerPages.map(pg => <NavItem><NavLink active={this.props.activePage === pg.name} href={pg.href}>{pg.name}</NavLink></NavItem>);
-            base += <NavItem><NavLink href="/logout">Logout</NavLink></NavItem>;
+            let base = <div>
+                <NavItem><NavLink>{this.props.usr.username}</NavLink></NavItem>
+                <div>{authPages.map(pg => <NavItem key={pg.name}><NavLink active={this.props.activePage === pg.name} href={pg.href}>{pg.name}</NavLink></NavItem>)}</div>
+            </div>;
+            if (this.props.owner) base += ownerPages.map(pg => <NavItem key={pg.name}><NavLink active={this.props.activePage === pg.name} href={pg.href}>{pg.name}</NavLink></NavItem>);
+            base += <NavItem key="logout"><NavLink href="/logout">Logout</NavLink></NavItem>;
             return base;
         }
-        return (<NavItem><NavLink href="/login">Login</NavLink></NavItem>);
+        return <NavItem key="login"><NavLink href="/login">Login</NavLink></NavItem>;
     }
 
 }

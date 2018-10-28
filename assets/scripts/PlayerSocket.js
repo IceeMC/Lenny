@@ -8,7 +8,9 @@ class PlayerSocket {
         this.barPaused = false;
         this.keepAliveInterval = null;
         this.barInterval = null;
+        this.barElapsed = 0;
         this.alreadyInvalid = false;
+        this.trackLength = 0;
     }
 
     send(payload) {
@@ -43,7 +45,6 @@ class PlayerSocket {
         if (type === "VOLUME_CHANGE") return this.updateVolume(data);
         if (type === "PLAYER_INFO") return this.playerInfo(data);
         if (type === "PLAYER_TRACK_START" || type === "PLAYER_TRACK_REPLACED") return this.playingSong(data);
-        if (type === "PLAYER_UPDATE") return this.playerUpdate(data);
         if (type === "PLAYER_PAUSE" || type === "PLAYER_RESUME") return this.barPaused = !this.barPaused;
     }
 
@@ -55,6 +56,7 @@ class PlayerSocket {
     noGuild() {
         const playerDiv = document.getElementById("playerDiv");
         const invalidGuild = document.createElement("div");
+        console.log(playerDiv, invalidGuild);
         invalidGuild.innerHTML = `
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <h4 class="alert-heading">Oops!</h4>
@@ -82,9 +84,9 @@ class PlayerSocket {
         if (!data) return;
         const playerDiv = document.getElementById("playerDiv");
         playerDiv.innerHTML = `
-        <strong style="color: #334049;">${data.currentTrack.title}</strong>
+        <center><strong>${data.currentTrack.title}</strong></center>
         <p id="time">
-            Elapsed time: ${this.convertTime(this.elapsedTime || 0)}
+            Elapsed time: ${this.convertTime(data.position ? data.position : this.elapsedTime)}
             Duration: ${this.convertTime(data.currentTrack.msLength)}
             Current Volume: ${data.volume}
         </p>
@@ -96,17 +98,18 @@ class PlayerSocket {
             this.elapsedTime += 1000;
             const elapsed = document.getElementById("time");
             if (elapsed) elapsed.innerText = `
-            Elapsed time: ${this.convertTime(this.elapsedTime || 0)}
+            Elapsed time: ${this.convertTime(data.position ? data.position : this.elapsedTime)}
             Duration: ${this.convertTime(data.currentTrack.msLength)}
             Current Volume: ${data.volume}
             `;
         }, 1000);
+        this.startProgressBar(data.position ? data.position : this.elapsedTime);
     }
 
     updateVolume(data) {
         const elapsed = document.getElementById("time");
         if (elapsed) elapsed.innerText = `
-        Elapsed time: ${this.convertTime(this.elapsedTime || 0)}
+        Elapsed time: ${this.convertTime(data.position ? data.position : this.elapsedTime)}
         Duration: ${this.convertTime(data.currentTrack.msLength)}
         Current Volume: ${data.newVolume}
         `;
@@ -135,6 +138,7 @@ class PlayerSocket {
             Duration: ${this.convertTime(data.currentTrack.msLength)}
             `;
         }, 1000);
+        this.startProgressBar(data.position ? data.position : this.elapsedTime);
     }
 
     notPlayingSong() {
@@ -149,26 +153,33 @@ class PlayerSocket {
         this.destroy();
     }
 
-    startProgressBar(data) {
-        if (!this.barInterval) this.barInterval = setTimeout(() => {
+    startProgressBar(pos) {
+        this.barElapsed = pos;
+        if (!this.barInterval) this.barInterval = setInterval(() => {
+            this.barElapsed += 1000;
             const bar = document.getElementById("progress");
             if (bar) {
-                const progress = Math.ceil(data.position / data.currentTrack.msLength * 100);
+                const progress = Math.ceil(this.barElapsed / data.currentTrack.msLength * 100);
                 bar.style.backgroundColor = "#E84536";
                 bar.style.width = `${progress}%`;
                 bar.setAttribute("aria-valuenow", progress);
             } else {
                 clearInterval(this.barInterval);
                 this.barInterval = null;
+                this.barElapsed = 0;
             }
-        });
+        }, 1000);
     }
 
     destroy() {
         this.elapsedTime = 0;
+        this.barElapsed = 0;
         this.barPaused = false;
         this.alreadyInvalid = false;
         clearInterval(this.elapsedInterval);
+        clearInterval(this.barInterval);
+        this.elapsedInterval = null;
+        this.barInterval = null;
         const bar = document.getElementById("progress");
         if (bar) bar.remove(); 
     }
@@ -195,3 +206,17 @@ class PlayerSocket {
     }
 
 }
+
+const socket = new PlayerSocket();
+const guildIdBox = document.getElementById("guildId");
+const submitButton = document.getElementById("submit");
+const clickEvent = () => {
+    console.log("[WS] Opening a connection to wss://remixbot.ml/");
+    if (guildIdBox instanceof HTMLInputElement) socket.connect(guildIdBox.value);
+};
+const keyDown = event => {
+    const keyCode = event.keyCode ? event.keyCode : event.which;
+    if (keyCode === 13 && !event.shiftKey) submitButton.click();
+}
+submitButton.addEventListener("click", clickEvent.bind(this));
+guildIdBox.addEventListener("keydown", keyDown.bind(this));

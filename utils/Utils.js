@@ -1,5 +1,6 @@
 const { get, post } = require("superagent");
-const TicTacToe = require("./TicTacToe.js");
+const TicTacToe = require("./games/TicTacToe.js");
+const Uno = require("./games/uno/Uno.js");
 
 class Utils {
 
@@ -14,10 +15,12 @@ class Utils {
     /**
      * Gets tracks from the lavalink REST server.
      * @param {string} search The song to search for.
-     * @param {AudioNode} node The node to execute the search on.
+     * @param {string} host The AudioNode's host.
      * @returns {Promise<Object>}
      */
-    async getTracks(search, node) {
+    async getTracks(search, host) {
+        const node = this.client.audioManager.nodes.get(host);
+        if (!node) throw new Error(`The requested node with host ${host} was not found.`);
         return get(`http://${node.host}:2333/loadtracks?identifier=${search}`)
             .set("Authorization", node.password)
             .then(res => {
@@ -53,19 +56,32 @@ class Utils {
      * @returns {Boolean}
      */
     isVoter(id) {
-        return get(`https://discordbots.org/api/bots/${this.client.user.id}/check?userid=${id}`)
+        return get(`https://discordbots.org/api/bots/${this.client.user.id}/check?userId=${id}`)
             .set("Authorization", this.client.config.dbl)
             .then(res => Boolean(res.body.voter));
     }
 
     /**
-     * Creates instance TicTacToe game for a channel.
+     * Creates a TicTacToe instance.
      * @param {KlasaMessage} message The message.
      * @returns {TicTacToe}
      */
     newTTTGame(message) {
         const game = new TicTacToe(message);
+        if (game) return game;
         this.client.tttGames.set(message.channel.id, game);
+        return game;
+    }
+
+    /**
+     * Creates a Uno instance.
+     * @param {KlasaMessage} message The message.
+     * @returns {TicTacToe}
+     */
+    newUnoGame(message) {
+        const game = new Uno(message);
+        if (game) return game;
+        this.client.unoGames.set(message.channel.id, game);
         return game;
     }
 

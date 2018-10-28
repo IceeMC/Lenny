@@ -16,7 +16,9 @@ const {
 const { loadavg } = require("os");
 const BananAPI = require("bananapi");
 
-Raven.config(config.sentry, { captureUnhandledRejections: true }).install();
+Raven.config(config.sentry, {
+    captureUnhandledRejections: true
+}).install();
 
 class ChatNoirClient extends Client {
 
@@ -44,10 +46,11 @@ class ChatNoirClient extends Client {
         this.logger = new Logger(this, "log.txt");
         this.website = null;
         this.tttGames = new Map();
+        this.unoGames = new Map();
         this.rawEvents = new RawEventStore(this);
         this.registerStore(this.rawEvents);
-        captureConsole.startCapture(process.stdout, stdout => this.logger.write(stdout.replace(replacer, "")));
-        captureConsole.startCapture(process.stderr, stderr => this.logger.write(stderr.replace(replacer, "")));
+        captureConsole.startCapture(process.stdout, stdout => this.logger.write(stdout));
+        captureConsole.startCapture(process.stderr, stderr => this.logger.write(stderr));
         const usage = Math.round(process.memoryUsage().heapUsed / 1024 / 1024);
         const color = randomHexColor();
         this.memoryCaptures = [{ usage, color }];

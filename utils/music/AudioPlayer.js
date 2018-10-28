@@ -1,4 +1,5 @@
 const { EventEmitter } = require("events");
+const AudioTrack = require("./AudioTrack.js");
 const AudioNode = require("./AudioNode.js"); // eslint-disable-line
 const AudioManager = require("./AudioManager"); // eslint-disable-line
 
@@ -151,6 +152,15 @@ module.exports = class AudioPlayer extends EventEmitter {
             guildId: this.guildId,
             position: ms
         });
+    }
+
+    /**
+     * Adds a track to the queue firing the "queue" event.
+     */
+    enQueue(track) {
+        if (!track instanceof AudioTrack) throw new Error("track must be a AudioTrack instance.");
+        this.queue.push(track);
+        this.emit("queue", track);
     }
 
     /**
