@@ -139,6 +139,8 @@ Want to join the support server? **[Click Here](https://discord.gg/ftsNNMM)**
 Want to invite the bot? **[Click Here](${client.invite})**
 				`).setColor(this.client.utils.color),
 			COMMAND_INVITE_DESCRIPTION: 'Invite or join the support server... What else?',
+			COMMAND_DM_SUCCESS: "Help has arrived in your DMs!",
+			COMMAND_DM_FAILED: "Failed to send help. Did you disable Direct Messages?",
 			COMMAND_HELP_DESCRIPTION: 'Display help for a command.',
 			COMMAND_HELP_NO_EXTENDED: 'No extended help available.',
 			COMMAND_HELP_USAGE: (usage) => `usage :: ${usage}`,

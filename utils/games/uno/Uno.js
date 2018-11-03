@@ -3,19 +3,25 @@ const UnoCard = require("./UnoCard.js");
 const { Duration, KlasaMessage } = require("klasa");
 const colors = ["R", "G", "B", "Y"];
 
+function repeat(arr = [], elem, times = 1) {
+    for (let i = 0; i < times; i++) arr.push(elem);
+    return arr;
+}
+
 class Uno {
     
-    constructor(msg, save = null) {
-        this.players = save.players || [];
-        this.cards = save.cards || [];
-        this.deadCards = save.deadCards || [];
-        this.rankings = save.rankings || [];
-        this.lastPlayed = save.lastPlayed || null;
-        this.drawnCards = save.drawnCards || 0;
-        this.msg = msg instanceof KlasaMessage ? msg : this.client.channels.find(save.msg.channel).get(save.msg.id);
-        this.started = save.started || false;
-        this.startedAt = save.startedAt || null;
-        this.reversed = save.reversed || false;
+    constructor(msg) {
+        this.players = [];
+        this.currentCard = null;
+        this.cards = [];
+        this.deadCards = [];
+        this.rankings = [];
+        this.drawnCards =  0;
+        this.msg = msg;
+        this.settings = this.msg ? this.msg.client.gateways.unoSaves.get(this.msg.channel.id, true) : null;
+        this.started = false;
+        this.startedAt = null;
+        this.buildCards();
     }
 
     get current() {
@@ -44,42 +50,50 @@ class Uno {
         // Add one zero card to for each color
         for (const color of colors) {
             this.cards.push(new UnoCard(`${color}0`));
-            for (let i = 0; i < 10; i++) this.cards.push(new UnoCard(`${color}${i}`), new UnoCard(`${color}${i}`));
-            this.cards.push(
-                new UnoCard(`${color}SKIP`), new UnoCard(`${color}SKIP`),
-                new UnoCard(`${color}REVERSE`), new UnoCard(`${color}REVERSE`),
-                new UnoCard(`${color}+2`), new UnoCard(`${color}+2`)
-            )
+            for (let i = 0; i < 10; i++) this.cards.concat(repeat([], new UnoCard(`${color}${i}`), 2));
+            // Push 2 skip cards, 2 reverse cards, 2 +2 cards for the color
+            this.cards.concat(repeat([], new UnoCard(`${color}SKIP`), 2));
+            this.cards.concat(repeat([], new UnoCard(`${color}REVERSE`), 2));
+            this.cards.concat(repeat([], new UnoCard(`${color}+2`), 2));
         }
         // Add 4 Wild cards and 4 wild +4 cards
-        this.cards.push(
-            new UnoCard("WILD"), new UnoCard("WILD"), new UnoCard("WILD"), new UnoCard("WILD"),
-            new UnoCard("WILD+4"), new UnoCard("WILD+4"), new UnoCard("WILD+4"), new UnoCard("WILD+4"),
-        )
+        this.cards.concat(repeat([], new UnoCard("WILD"), 4))
+        this.cards.concat(repeat([], new UnoCard("WILD+4"), 4));
+        // Lastly shuffle the cards
+        this.cards.concat(this.shuffle());
+        // Pick a random shuffled card as a base card
+        // Making sure it isn't a wild card
+        const filtered = this.cards.filter(c => !c.reverse || !c.skip || !c.wild);
+        this.currentCard = filtered[Math.floor(Math.random() * filtered.length)];
     }
 
-    shuffle() {
-
-    }
-
-    randomCard() {
-        return this.cards[Math.floor(Math.random() * this.cards.length)];
+    shuffle(array = [...this.cards, ...this.deadCards]) {
+        let j, x, i;
+        for (i = array.length - 1; i > 0; i--) {
+            j = Math.floor(Math.random() * (i + 1));
+            x = array[i];
+            array[i] = array[j];
+            array[j] = x;
+        }
+        return array;
     }
 
     getNextTurn() {
+        // Shift next player then push it back into the array creating a "recursive" effect.
         const next = this.players.shift();
         this.players.push(next);
         return next;
     }
 
     reversePlayers() {
-        this.reversed = !this.reversed;
+        // Shifts the array, reverses it, then appends the shifted player back
         const player = this.players.shift();
         this.players.reverse();
         this.players.unshift(player);
     }
 
     skipPlayer() {
+        // This will shift the next player then push it back 
         const skipped = this.players.shift();
         this.players.push(skipped);
     }
@@ -97,37 +111,43 @@ You own ${player.cards.length} cards now.`);
 
     static async save(game) {
         const save = {};
-        save.players = game.players.map(p => p.toJSON());
+        const { settings } = game;
+        save.players = [this.current, ...game.players.map(p => p.toJSON())];
         save.cards = game.cards.map(c => c.toJSON());
         save.deadCards = game.deadCards.map(c => c.toJSON());
-        save.rankings = game.rankings;
+        save.rankings = game.rankings.map(r => r.toJSON());
         save.lastPlayed = game.lastPlayed;
         save.drawnCards = game.drawnCards;
         save.msg = { channel: game.msg.channel.id, id: game.msg.id };
         save.started = game.started;
         save.startedAt = game.startedAt;
         save.reversed = game.reversed;
-        return save;
+        await settings.update(save);
+        return true;
     }
 
-    static load(save) {
-        const g = new Uno(null, save);
+    static async load(client, save) {
+        const g = new Uno(null);
         if (!g.msg) return null;
-        this.msg.client.unoGames.set(g.msg.channel.id, g);
-        return g;
+        g.players = save.players.map(p => UnoPlayer.from(p));
+        g.cards = save.cards.map(c => UnoCard.from(c));
+        g.deadCards = save.deadCards.map(c => UnoCard.from(c));
+        g.rankings = save.rankings.map(r => UnoPlayer.from(r));
+        g.drawnCards = save.drawnCards;
+        g.msg = client.channels.get()
     }
 
     drawCards(cards = 1) {
         const drawn = [];
         for (let i = 0; i < cards; i++) for (const p of this.players) {
-            !drawn[p.user.id] ? drawn[p.user.id] = [this.randomCard()] : drawn[p.user.id].push(this.randomCard());
+            !drawn[p.user.id] ? drawn[p.user.id] = [p.drawCard()] : drawn[p.user.id].push(p.drawCard());
         }
         this.drawnCards += cards * this.players.length;
-        this.players.map(v =>
-            this.send(v[0], `
+        this.players.map(p =>
+            this.send(p.user.id, `
 Here, I have given you${cards > 1 ? " some cards" : "a card"}:
 
-${v[1].map(c => `\`${c}\``).join(", ")}
+${drawn[p.user.id].map(c => `\`${c}\``).join(", ")}
 
 You own ${player.cards.length} cards now.
 `)
@@ -139,6 +159,10 @@ You own ${player.cards.length} cards now.
             .catch(() => this.msg.channel.send(`${player.user}, You seem to have disabled your DMs. To view your cards, run \`uno cards\`.`));
     }
 
+    sendAll(content) {
+        for (const player of this.players) player.send(content).catch(() => null);
+    }
+
     buildScoreboard() {
         return `
 Game over. Thanks for playing.
@@ -146,7 +170,8 @@ Game over. Thanks for playing.
 Here are the rankings:
 ${this.rankings.map((r, i) => `${i+1} -> \`${r.user.tag}\``).join("\n")}
 
-The game took **${Duration.toNow(Date.now() - this.startedAt)}** to complete. ${this.drawnCards.toLocaleString()} were removed from the deck in all.
+The game took **${Duration.toNow(Date.now() - this.startedAt)}** to complete.
+**${this.drawnCards.toLocaleString()}** cards were removed from the deck in all.
         `;
     }
 

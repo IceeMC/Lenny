@@ -71,17 +71,14 @@ class Play extends Command {
         audioPlayer.on("end", event => {
             if (event.reason === "REPLACED") return;
             if (event.reason === "FINISHED") {
-                if (audioPlayer.looping) {
-                    audioPlayer.play(audioPlayer.queue[0].track);
-                    return message.channel.send(message.language.get("COMMAND_MUSIC_PLAYING", audioPlayer));
-                }
+                if (audioPlayer.looping) return audioPlayer.play(audioPlayer.queue[0].track);
                 audioPlayer.queue.shift();
                 if (audioPlayer.queue.length < 1) {
                     audioPlayer.idle = true;
                     message.channel.send(message.language.get("COMMAND_MUSIC_END"));
                     this.client.audioManager.leave(message.guild.id);
                     // Discord bug fix
-                    for (const player of this.client.audioManager) {
+                    for (const player of this.client.audioManager.values()) {
                         if (player.idle) continue;
                         player.pause();
                         setTimeout(() => player.resume(), 700);
@@ -118,13 +115,14 @@ Please provide a number between 1 and 10.
 If you wish to cancel this selection type \`cancel\` or \`quit\`
 **This will automatically cancel in 1 minute!**
         `, 60000);
-        if (prompt.content.match(/(cancel|quit)/)) return message.send("Song selection canceled.");
-        if (parseInt(prompt.content) < 0 && parseInt(prompt.content) > 10) return message.send("You need to provide a number between 1 and 10... Selection stopped!");
-        return await this.handle(converted[parseInt(prompt.content) - 1], message);
+        const index = parseInt(prompt.content);
+        const invalidNumber = (isNaN(index) == true) ? NaN : (index < 0 && 11 > index) ? NaN : index;
+        if (prompt.content.search("cancel") !== -1 || invalidNumber != index)
+            return message.send(`Song selection canceled.${isNaN(invalidNumber) ? " You didn't provide a number between 1 and 10." : ""}`);
+        else return await this.handle(converted[index - 1], message);
     }
 
     async fromLink(message, query) {
-
         const youtubeFullMatch = this.regex.youtube.full.exec(query);
         const youtubeShortMatch = this.regex.youtube.full.exec(query);
         const youtubePlaylistMatch = this.regex.youtube.full.exec(query);
@@ -133,11 +131,16 @@ If you wish to cancel this selection type \`cancel\` or \`quit\`
         const soundcloudPlaylist = this.regex.soundcloud.playlist.exec(query);
 
         const spotifyTrackOrAlbum = this.regex.spotify.trackOrAlbum.exec(query);
-        const spotifyPlaylist = this.regex.spotify.customPlaylist.exec(query);
+        // const spotifyPlaylist = this.regex.spotify.customPlaylist.exec(query);
 
         // Test matches
-        if (youtubeFullMatch || youtubeShortMatch) {
-            const tracks = await this.client.utils.getTracks(youtubeFullMatch[1] || youtubeShortMatch[1], "localhost");
+        if (youtubeFullMatch) {
+            const tracks = await this.client.utils.getTracks(youtubeFullMatch[1], "localhost");
+            if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS");
+            await this.handle(this.convert(tracks, message.author)[0], message);
+            return true;
+        } else if (youtubeShortMatch) {
+            const tracks = await this.client.utils.getTracks(youtubeShortMatch[1], "localhost");
             if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS");
             await this.handle(this.convert(tracks, message.author)[0], message);
             return true;

@@ -1,17 +1,11 @@
-const cValRgx = /(?:R|G|B|Y|WILD)\+([0-9])/;
-
-function validCardSave(save) {
-    if (!save.rawName) return false;
-    if (!save.info) return false;
-    return true;
-}
+const cValRgx = /(?:R|G|B|Y|WILD)?(\+2|\+4|[0-9])/;
 
 class UnoCard {
 
     constructor(rawName) {
-        if (!UnoCard.cards.ALL.includes(rawName)) throw new Error(`${rawName} is NOT a valid UNO card.`);
         this.rawName = rawName;
-        this.info = this.getInfo();
+        this.info = rawName ? this.getInfo() : null;
+        if (this.info !== null) for (const [k, v] of Object.entries(this.info)) this[k] = v;
     }
 
     get cardUrl() {
@@ -19,21 +13,24 @@ class UnoCard {
     }
 
     getInfo() {
-        let name, value, color, skip, reverse, wild, meta;
+        let name, value, plusCard, color, skip, reverse, wild, meta, cVal = cValRgx.exec(this.rawName);
         name = this.getCardName();
-        value = cValRgx.test(this.rawName) ? parseInt(cValRgx.exec(this.rawName)[1]) : 0;
+        value = cVal ? parseInt(cVal[1].startsWith("+") ? cVal[1].slice(1) : cVal[1]) : 0;
+        plusCard = this.rawName.includes("+");
         color = this.getHexCode(name);
         skip = this.rawName.includes("SKIP");
         reverse = this.rawName.includes("REVERSE");
         wild = this.rawName.includes("WILD");
-        meta = skip ? " Skip" : reverse ? " Reverse" : wild ? ` Wild${value > 3 ? " +4" : ""}` : "";
-        return { name, value, color, skip, reverse, wild, meta };
+        meta = this.getCardMeta();
+        return { name, value, color, plusCard, skip, reverse, wild, meta };
     }
 
-    static from(cardSave) {
-
+    static from(save) {
+        const card = new UnoCard();
+        card.rawName = save.rawName;
+        card.info = save.info;
+        return card;
     }
-
 
     getCardName() {
         if (this.rawName.startsWith("R")) return "Red";
@@ -52,6 +49,15 @@ class UnoCard {
         return 0x000001;
     }
     
+    getCardMeta() {
+        let meta = "";
+        if (this.skip) meta = "Skip";
+        if (this.wild) meta = "WILDCARD";
+        if (this.plusCard) meta = "+2";
+        if (this.reverse) meta = "Reverse";
+        return meta === "WILDCARD" ? ` Wild${this.value > 3 ? "+4" : ""}` : meta === "" ? ` ${this.value}` : ` ${meta}`;
+    }
+
     toString() {
         return `${this.info.name}${this.info.meta}`;
     }
@@ -59,8 +65,7 @@ class UnoCard {
     toJSON() {
         return {
             rawName: this.rawName,
-            info: this.info,
-            url: this.cardUrl
+            info: this.info
         };
     }
 

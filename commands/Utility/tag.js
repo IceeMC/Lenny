@@ -1,5 +1,7 @@
-const { Command, Timestamp } = require("klasa");
+const { Command, Timestamp, util: { clean } } = require("klasa");
 const { MessageEmbed }  = require("discord.js");
+const { Parser } = require("breadtags");
+const customtags = require("../../utils/customtags.js");
 
 class Tag extends Command {
 
@@ -9,17 +11,18 @@ class Tag extends Command {
             aliases: ["tagcmd", "bottag"],
             runIn: ["text"],
             description: language => language.get("COMMAND_TAG_DESCRIPTION"),
-            usage: "<add|create|all|edit|delete|get|name:string> [params:string] [...]",
+            usage: "<add|create|all|list|edit|delete|get|name:string> [params:string] [...]",
             usageDelim: " ",
             extendedHelp: message => message.language.get("COMMAND_TAG_EXTENDED_HELP")
         });
         this.ts = new Timestamp("MM/DD/YYYY");
+        this.parser = new Parser();
+        Parser.loadTag(customtags);
     }
 
     run(message, [type, ...params]) {
-        if (type === "add") return this.add(message, params);
-        if (type === "create") return this.add(message, params);
-        if (type === "all") return this.all(message);
+        if (type === "add" || type === "create")  return this.add(message, params);
+        if (type === "all" || type === "list") return this.all(message);
         if (type === "edit") return this.edit(message, params);
         if (type === "delete") return this.delete(message, params[0]);
         if (type === "get") return this.get(message, params[0]);
@@ -27,10 +30,10 @@ class Tag extends Command {
     }
 
     async add(message, [name, ...content]) {
-        if (name === undefined) return message.send("Please provide a tag name.");
-        if (["add", "create", "all", "edit", "delete", "get"].includes(name)) return message.send("The tag name is reserved. Man, that would screw me up.");
-        if (message.guild.settings.tags.find(t => t.name === name)) return message.send("The tag already exists. So unoriginal...");
-        if (!content.length) return message.send("Please provide some content for the tag. Here's an idea: dat banana boi is not a weeb.");
+        if (name === undefined) throw "Please provide a tag name.";
+        if (["add", "create", "all", "edit", "delete", "get"].includes(name)) throw "The tag name is reserved. Man, that would screw me up.";
+        if (message.guild.settings.tags.find(t => t.name === name)) throw "The tag already exists. So unoriginal...";
+        if (!content.length) throw "Please provide some content for the tag. Here's an idea: dat banana boi is not a weeb.";
         const newTag = {
             name,
             content: content.join(" "),
@@ -43,10 +46,10 @@ class Tag extends Command {
     }
 
     async create(message, [name, ...content]) {
-        if (name === undefined) return message.send("Please provide a tag name.");
-        if (["add", "create", "all", "edit", "delete", "get"].includes(name)) return message.send("The tag name is reserved.");
-        if (message.guild.settings.tags.find(t => t.name === name)) return message.send("The tag already exists. So unoriginal...");
-        if (!content.length) return message.send("Please provide some content for the tag. Here's an idea: dat banana boi is not a weeb.");
+        if (name === undefined) throw "Please provide a tag name.";
+        if (["add", "create", "all", "edit", "delete", "get"].includes(name)) throw "The tag name is reserved. Man, that would screw me up.";
+        if (message.guild.settings.tags.find(t => t.name === name)) throw "The tag already exists. So unoriginal...";
+        if (!content.length) throw "Please provide some content for the tag. Here's an idea: dat banana boi is not a weeb.";
         const newTag = {
             name,
             content: content.join(" "),
@@ -70,13 +73,15 @@ class Tag extends Command {
     }
 
     async edit(message, [name, ...newContent]) {
-        if (name === undefined) return message.send("Please provide a tag name.");
-        if (["add", "create", "all", "edit", "delete", "get"].includes(name)) return message.send("The tag name is reserved. Man, that would screw me up.");
+        if (name === undefined) throw "Please provide a tag name.";
+        if (["add", "create", "all", "edit", "delete", "get"].includes(name)) throw "The tag name is reserved. Man, that would screw me up.";
+        if (!message.guild.settings.tags.find(t => t.name === name)) throw "The tag already exists. So unoriginal...";
+        if (!content.length) throw "Please provide some content for the tag. Here's an idea: dat banana boi is not a weeb.";
         const { tags } = message.guild.settings;
-        if (!tags.find(t => t.name === name)) return message.send("The tag was not found.");
+        if (!tags.find(t => t.name === name)) throw "The tag was not found.";
         if (tags.find(t => t.name === name).creator !== message.author.id && !message.member.permissions.has("ADMINISTRATOR"))
-            return message.send("Hey! That ain't your tag, and you don't have **Administrator** permissions, so back off.")
-        if (!newContent.length) return message.send("Please provide some content for the tag.");
+            throw "Hey! That ain't your tag, and you don't have **Administrator** permissions, so back off.";
+        if (!newContent.length) throw "Please provide some content for the tag.";
         const newTag = {
             name,
             content: newContent.join(" "),
@@ -85,15 +90,15 @@ class Tag extends Command {
             created: this.ts.display(new Date())
         };
         await message.guild.settings.update("tags", newTag, { action: "overwrite" });
-        return message.send(`Edited the tag with name: \`${name}\`.`);
+        return message.send(`Edited the tag: \`${name}\`.`);
     }
 
     async delete(message, name) {
-        if (name === undefined) return message.send("Please provide a tag name.");
-        if (["add", "create", "all", "edit", "delete", "get"].includes(name)) return message.send("The tag name is reserved. Man, that would screw me up.");
-        if (!message.guild.settings.tags.find(t => t.name === name)) return message.send("The tag was not found. Create one or move on.");
+        if (name === undefined) throw "Please provide a tag name.";
+        if (["add", "create", "all", "edit", "delete", "get"].includes(name)) throw "The tag name is reserved. Man, that would screw me up.";
+        if (!message.guild.settings.tags.find(t => t.name === name)) throw "The tag does not exist.";
         if (message.guild.settings.tags.find(t => t.name === name).creator !== message.author.id && !message.member.permissions.has("ADMINISTRATOR"))
-            return message.send("Hey! That ain't your tag, or you don't have **Administrator** permission, so back off.")
+            throw "Hey! That ain't your tag, or you don't have **Administrator** permission, so back off.";
         const { tags } = message.guild.settings;
         const tag = tags.indexOf(message.guild.settings.tags.find(t => t.name === name));
         await message.guild.settings.update("tags", tag, { action: "remove" });
@@ -101,13 +106,12 @@ class Tag extends Command {
     }
     
     async get(message, name) {
-        if (name === undefined) return message.send("Please provide a tag name.");
-        if (["add", "create", "all", "edit", "delete", "get"].includes(name)) return message.send("The tag name is reserved.");
-        if (!message.guild.settings.tags.find(t => t.name === name)) return message.send("Invalid tag name passed");
+        if (name === undefined) throw "Please provide a tag name.";
+        if (["add", "create", "all", "edit", "delete", "get"].includes(name)) throw "The tag name is reserved. Man, that would screw me up.";
         const tag = message.guild.settings.tags.find(t => t.name === name);
         const tagEmbed = new MessageEmbed();
         tagEmbed.setTitle(name);
-        tagEmbed.setColor(0xFFFFFF);
+        tagEmbed.setColor(this.client.utils.color);
         tagEmbed.setDescription(`
 **Tag creator** -> \`${tag.creatorString}\`
 
@@ -119,12 +123,22 @@ ${tag.content}
         return message.sendEmbed(tagEmbed);
     }
 
-    async get2(message, name) {
-        if (name === undefined) return message.send("Please provide a tag name.");
-        if (["add", "create", "all", "edit", "delete", "get"].includes(name)) return message.send("The tag name is reserved.");
-        if (!message.guild.settings.tags.find(t => t.name === name)) return message.send("Invalid tag name passed");
+    async get2(message, name, args) {
+        if (name === undefined) throw "Please provide a tag name.";
+        if (["add", "create", "all", "edit", "delete", "get"].includes(name)) throw "The tag name is reserved. Man, that would screw me up.";
+        if (!message.guild.settings.tags.find(t => t.name === name)) throw "That tag was not found... Are you trying to break the bot?";
         const tag = message.guild.settings.tags.find(t => t.name === name);
-        return message.send(tag.content.replace(/@/g, "@\u200b"));
+        return message.send(await this.parse(tag.content, message, args));
+    }
+
+    async parse(content, message, args) {
+        return await this.parser.parse(clean(content), {
+            user: message.author,
+            guild: message.guild,
+            channel: message.channel,
+            member: message.member,
+            args
+        });
     }
 
 }

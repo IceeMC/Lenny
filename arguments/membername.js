@@ -2,14 +2,14 @@ const { Argument, util: { regExpEsc } } = require("klasa");
 const userRegex = Argument.regex.userOrMember;
 const { GuildMember, User } = require("discord.js");
 
-function resolveUser(query, guild) {
+function resolveMember(query, guild) {
     if (query instanceof GuildMember) return query.user;
     if (query instanceof User) return query;
     if (typeof query === "string") {
       if (userRegex.test(query)) return guild.client.users.fetch(userRegex.exec(query)[1]).catch(() => null);
       if (/\w{1,32}#\d{4}/.test(query)) {
         const res = guild.members.find(member => member.user.tag === query);
-        return res ? res.user : null;
+        return res || null;
       }
     }
     return null;
@@ -19,7 +19,7 @@ class MemberName extends Argument {
 
     async run(arg, possible, message) {
         if (!message.guild) return this.user(arg, possible, message);
-        const resolved = resolveUser(arg, message.guild);
+        const resolved = resolveMember(arg, message.guild);
         if (resolved) return resolved;
 
         const memberResults = [];

@@ -13,7 +13,7 @@ class Tweet extends Command {
     }
 
     async run(message, [text]) {
-        const file = await this.client.bananapi.trumptweet(text).catch(() => null);
+        const file = await this.client.bananapi.trumptweet(text);
         if (!file) throw message.language.get("BANANAPI_ERROR", "Please shorten the text to 240 characters or less!");
         return message.send(new MessageAttachment(file, "tweet.png"));
     }

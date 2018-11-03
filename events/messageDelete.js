@@ -8,6 +8,7 @@ class MessageDeleteEvent extends Event {
             type: "messageDelete",
             message
         });
+        for (const response of message.responses) await response.delete();
     }
 
 }

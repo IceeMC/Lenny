@@ -19,24 +19,27 @@ class UserInfo extends Command {
             offline: "<:offline:485644354149416964> -> Offline",
             streaming: "<:streaming:485647466914381826> -> Streaming"
         }
+        this.ts = new Timestamp("MM/DD/YYYY");
     }
 
     async run(message, [member]) {
         if (!member) member = message.member;
         const embed = new MessageEmbed();
-        const ts = new Timestamp("MM/DD/YYYY");
         embed.setTitle("User info");
         embed.setAuthor(member.nickname ? member.nickname : member.user.tag, member.user.displayAvatarURL());
         embed.setColor(member.roles.highest.color);
         embed.setThumbnail(member.user.displayAvatarURL());
         embed.addField("-> ID", member.user.id, true);
         embed.addField("-> Join Position", message.guild.members.array().sort((a, b) => a.joinedAt > b.joinedAt ? 1 : -1).indexOf(member), true);
-        embed.addField("-> Account type", member.user.bot ? ":robot: Bot" : ":bust_in_silhouette: User", true);
-        embed.addField("-> Created", ts.display(member.user.createdAt), true);
-        embed.addField("-> Joined guild", ts.display(member.joinedAt), true);
+        embed.addField("-> Account type", this.member.user.bot ? ":robot: Bot" : ":bust_in_silhouette: User", true);
+        embed.addField("-> Created", this.ts.display(member.user.createdAt), true);
+        embed.addField("-> Joined guild", this.ts.display(member.joinedAt), true);
         embed.addField("-> Highest role", member.roles.highest.name, true);
+        embed.addField("-> Hoist role", member.roles.hoist.name, true);
         embed.addField("-> Role count", member.roles.size, true);
-        const roles = member.roles.filter(r => r.name !== "@everyone").array().sort((a, b) => a.position < b.position ? 1 : -1).join(", ");
+        let roles = message.guild.member("277981712989028353").roles.array();
+        roles.splice(roles.indexOf(roles.find(r => r.id === message.guild.id), 1));
+        roles = roles.sort((a, b) => a.position < b.position ? 1 : -1).join(", ");
         embed.addField("-> Roles", roles, true);
         embed.addField("-> Status", this.isStreaming(member) ? this.statuses.streaming : this.statuses[member.presence.status], true);
         if (member.presence.activity) embed.addField("-> Presence", `${this.presenceType(member.presence.activity.type)} **${member.presence.activity.name}**`, true);

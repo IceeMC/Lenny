@@ -76,7 +76,15 @@ const client = new ChatNoirClient();
 client.gateways.register("unoSaves", {
     provider: "PostgreSQL",
     schema: new Schema()
-        .add("players", "any")
+        .add("players", "any", { default: [] })
+        .add("cards", "any", { default: [] })
+        .add("deadCards", "any", { default: [] })
+        .add("rankings", "any", { default: [] })
+        .add("msg", "any")
+        .add("drawnCards", "integer", { default: 0 })
+        .add("started", "boolean", { default: false })
+        .add("startedAt", "integer", { default: Date.now() })
+        .add("reversed", "boolean", { default: false })
 });
 
 Raven.context(() => client.login(config.token));
