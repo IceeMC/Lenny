@@ -8,14 +8,14 @@ class Starboard extends Command {
             subcommands: true,
             description: language => language.get("COMMAND_STARBOARD_DESCRIPTION"),
             permissionLevel: 7,
-            usage: "<limit|channel> [args:string]",
+            usage: "<limit|channel> [args:string] [channel:textchannel]",
             usageDelim: " ",
             runIn: ["text"],
             aliases: ["sboard"]
         });
     }
 
-    async run(message, [type, ...params]) {
+    async run(message, [type, ...params, channel]) {
         if (type === "limit") return this.limit(message, params);
         if (type === "channel") return this.channel(message, params);
     }

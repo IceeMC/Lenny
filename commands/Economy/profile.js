@@ -9,6 +9,7 @@ class Profile extends Command {
     constructor(...args) {
         super(...args, {
             name: "profile",
+            runIn: ["text"],
             description: language => language.get("COMMAND_DAILY_DESCRIPTION"),
             usage: "[member:membername]",
             aliases: ["myprofile"]

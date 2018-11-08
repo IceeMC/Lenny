@@ -48,6 +48,7 @@ class ChatNoirClient extends Client {
         // Set ChartJS options
         require("chart.js").defaults.global.defaultFontColor = "#FFFFFF";
         require("chart.js").defaults.global.showLines = false;
+        // More defining
         this.config = require("./config.json");
         this.utils = new (require("./utils/Utils.js"))(this);
         this.audioManager = null;
@@ -57,15 +58,16 @@ class ChatNoirClient extends Client {
         this.unoGames = new Map();
         this.rawEvents = new RawEventStore(this);
         this.registerStore(this.rawEvents);
+        // Console
         captureConsole.startCapture(process.stdout, stdout => this.logger.write(stdout));
         captureConsole.startCapture(process.stderr, stderr => this.logger.write(stderr));
+        // Stats
         const usage = Math.round(process.memoryUsage().heapUsed / 1024 / 1024);
         const color = randomHexColor();
         this.memoryCaptures = [{ usage, color }];
         const cpuUsage = loadavg().map(avg => avg * 10000 / 1000).reduce((p, v) => p + v).toFixed(2);
         const randColor = randomHexColor();
         this.cpuCaptures = [{ usage: cpuUsage, color: randColor }];
-        this.spotifyToken = null;
         this.bananapi = new BananAPI.Client({ token: config.bananapi });
     }
 

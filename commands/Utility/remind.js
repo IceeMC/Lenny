@@ -5,7 +5,6 @@ class Remind extends Command {
     constructor(...args) {
         super(...args, {
             name: "remind",
-            runIn: ["text"],
             description: language => language.get("COMMAND_REMIND_DESCRIPTION"),
             aliases: ["remindme", "setreminder"],
             usage: "<when:time> <text:string> [...]",

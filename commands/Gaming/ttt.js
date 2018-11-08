@@ -6,6 +6,7 @@ class TicTacToe extends Command {
         super(...args, {
             name: "ttt",
             aliases: ["tictactoe"],
+            runIn: ["text"],
             description: language => language.get("COMMAND_TTT_DESCRIPTION"),
             usage: "<create|join|leave|start> [args:string]",
             usageDelim: " "

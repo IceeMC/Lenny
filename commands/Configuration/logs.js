@@ -37,21 +37,17 @@ class Logs extends Command {
         if (key === "channel") throw message.language.get("COMMAND_LOGS_CHANNEL_KEY", message.guild.settings.prefix);
         if (!this.validKeys.includes(key)) throw message.language.get("COMMAND_LOGS_INVALID_KEY");
         if (!message.guild.settings.logs[key]) throw message.language.get("COMMAND_LOGS_ALREADY_DISABLED", message.guild.settings.prefix, key);
-        await message.guild.settings.update([[`logs.${key}`, true]]);
+        await message.guild.settings.update([[`logs.${key}`, false]]);
         return message.sendLocale("COMMAND_LOGS_DISABLED", [key]);
     }
 
     async enableAll(message) {
-        await message.guild.settings.update([
-            ...this.validKeys.map(k => [k, true])
-        ]);
+        await message.guild.settings.update([...this.validKeys.map(k => [`logs.${key}`, true])]);
         return message.sendLocale("COMMAND_LOGS_ENABLE_ALL");
     }
 
     async disableAll(message) {
-        await message.guild.settings.update([
-            ...this.validKeys.map(k => [k, false])
-        ]);
+        await message.guild.settings.update([...this.validKeys.map(k => [`logs.${key}`, false])]);
         return message.sendLocale("COMMAND_LOGS_DISABLE_ALL");
     }
 

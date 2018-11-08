@@ -7,6 +7,7 @@ class RoleInfo extends Command {
         super(...args, {
             name: "roleinfo",
             aliases: ["rinfo"],
+            runIn: ["text"],
             description: language => language.get('COMMAND_ROLEINFO_DESCRIPTION'),
             usage: "<role:rolename>"
         });

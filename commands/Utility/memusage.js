@@ -6,7 +6,6 @@ class MemUsage extends Command {
     constructor(...args) {
         super(...args, {
             name: "memusage",
-            runIn: ["text"],
             description: language => language.get("COMMAND_MEM_USAGE_DESCRIPTION"),
             aliases: ["memstats", "memory"],
         });

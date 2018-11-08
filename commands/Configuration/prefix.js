@@ -5,6 +5,7 @@ class Prefix extends Command {
     constructor(...args) {
         super(...args, {
             name: "prefix",
+            runIn: ["text"],
             description: language => language.get('COMMAND_PREFIX_DESCRIPTION'),
             usage: '<newPrefix:string>',
             permissionLevel: 7,

@@ -6,7 +6,6 @@ class CPUUsage extends Command {
     constructor(...args) {
         super(...args, {
             name: "cpuusage",
-            runIn: ["text"],
             description: language => language.get("COMMAND_CPU_USAGE_DESCRIPTION"),
             aliases: ["cpustats", "cpu"],
         });

@@ -9,7 +9,7 @@ class UserInfo extends Command {
             runIn: ["text"],
             description: language => language.get("COMMAND_USERINFO_DESCRIPTION"),
             aliases: ["ui", "useri"],
-            usage: "[member:member]",
+            usage: "[member:membername]",
             extendedHelp: "No extended help available."
         });
         this.statuses = {

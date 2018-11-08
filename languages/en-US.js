@@ -34,6 +34,7 @@ module.exports = class extends Language {
 				return embed;
 			},
 			RESOLVER_INVALID_ROLES_CHOICE: (choice, roles) => `${choice} was not in the list of roles. Please choose from ${roles.map(r => `\`${r.name}\``).join(", ")}`,
+			RESOLVER_INVALID_MEMBERS_CHOICE: (choice, members) => `${choice} was not in the list of roles. Please choose from ${members.map(m => `\`${m.user.username}\``).join(", ")}`,
 			RESOLVER_INVALID_MEMBERNAME: (possible) => `${possible.name} must be a valid role member name, member id, or member mention.`,
 			RESOLVER_MULTIPLE_MEMBERS: (results) => {
 				let index = 0;
@@ -42,7 +43,7 @@ module.exports = class extends Language {
 				embed.setDescription(`
 				I have found multiple members with that name.
 				Choose a members name from the list below.
-				${results.map(r => `${++index}: ${r.name}`).join("\n")}
+				${results.map(r => `${++index}: ${r.user.username}`).join("\n")}
 				`);
 				return embed;
 			},
@@ -202,8 +203,7 @@ Free - ${freeMem} GB
 			// Fun
 			COMMAND_SOFTWARE_DESCRIPTION: "Gets a random post from r/softwaregore",
 			COMMAND_MEME_DESCRIPTION: "Gets a meme from a meme for you :)",
-
-			// Idiotic | Image
+			COMMAND_SPONGEBOB_DESCRIPTION: "maKeS YoUr tExT LiKe tHiS",
 			COMMAND_ACHIEVEMENT_DESCRIPTION: "Generate an achievement.",
 			COMMAND_BEAUTIFUL_DESCRIPTION: "Makes you or someone else beautiful",
 			COMMAND_BLAME_DESCRIPTION: "Blame something. wow rood",
@@ -362,6 +362,7 @@ To enable it run \`${prefix}logs disable ${key}\``,
 			COMMAND_COLOR_DESCRIPTION: "It gets a color... What else?",
 			COMMAND_MEM_USAGE_DESCRIPTION: "Gets the latest memory captures (For nerds!)",
 			COMMAND_CPU_USAGE_DESCRIPTION: "Gets the latest cpu captures (For nerds!)",
+			COMMAND_MDN_DESCRIPTION: "Gets info from the MDN documentation.",
 			COMMAND_SOURCE_DESCRIPTION: "Gets the source of a klasa piece",
 		};
 	}

@@ -5,6 +5,7 @@ class Daily extends Command {
     constructor(...args) {
         super(...args, {
             name: "daily",
+            runIn: ["text"],
             description: language => language.get("COMMAND_DAILY_DESCRIPTION"),
             aliases: ["dailycoins", "dcoins", "coindaily", "coinbonus"]
         });

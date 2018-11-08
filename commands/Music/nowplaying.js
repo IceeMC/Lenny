@@ -9,7 +9,7 @@ class NowPlaying extends Command {
             runIn: ["text"],
             description: language => language.get("COMMAND_NOW_PLAYING_DESCRIPTION"),
             aliases: ["np", "nowp", "nplay"],
-            requiredPermissions: ["ATTACH_FILES", "SEND_MESSAGES"]
+            requiredPermissions: ["SEND_MESSAGES"]
         });
     }
 
