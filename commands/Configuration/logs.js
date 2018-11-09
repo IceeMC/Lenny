@@ -42,12 +42,12 @@ class Logs extends Command {
     }
 
     async enableAll(message) {
-        await message.guild.settings.update([...this.validKeys.map(k => [`logs.${key}`, true])]);
+        await message.guild.settings.update([...this.validKeys.map(k => [`logs.${k}`, true])]);
         return message.sendLocale("COMMAND_LOGS_ENABLE_ALL");
     }
 
     async disableAll(message) {
-        await message.guild.settings.update([...this.validKeys.map(k => [`logs.${key}`, false])]);
+        await message.guild.settings.update([...this.validKeys.map(k => [`logs.${k}`, false])]);
         return message.sendLocale("COMMAND_LOGS_DISABLE_ALL");
     }
 

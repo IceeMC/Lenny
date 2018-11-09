@@ -8,7 +8,7 @@ class Tweet extends Command {
             name: "tweet",
             description: language => language.get("COMMAND_TWEET_DESCRIPTION"),
             aliases: ["trumptweet"],
-            usasge: "<text:string>"
+            usage: "<text:string>"
         });
     }
 

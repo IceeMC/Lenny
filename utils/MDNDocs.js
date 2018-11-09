@@ -5,7 +5,7 @@ class MDNDocs {
 
     static async search(query = null) {
         if (!query) throw "No query specified.";        
-        const $ = cheerio.load((await superagent.get(`https://developer.mozilla.org/en-US/search?q=${query}&topic=js`)).text);
+        const $ = cheerio.load((await superagent.get(`https://developer.mozilla.org/en-US/search?q=${encodeURIComponent(query)}&topic=js`)).text);
         let resText = $("div[class=\"search-pane search-results-explanation\"]");
         resText = resText.children("p").text().split("\n").map(t=>t.trim()).filter(t=>t!=="").join("\n");
         if (resText === `0 documents found for "${query}" in English (US).`) return null;
@@ -34,7 +34,8 @@ class MDNDocResult {
     }
 
     get description() {
-        return md(this.$("meta[property=\"og:description\"]").attr("content"));
+        const desc = this.$("p").first().html();
+        return md(desc);
     }
 
     get url() {
@@ -45,7 +46,6 @@ class MDNDocResult {
         const rgx = /<h[1-6] id="Parameters">Parameters<\/h[1-6]>/;
         const indexes = this.text.split("\n").map(t=>t.trim()).filter(t=>t!=="");
         let index = indexes.indexOf(rgx.test(this.text) ? rgx.exec(this.text)[0] : null);
-        // Finally if no index just return null
         if (index === -1) return null;
         const params = [];
         const text = indexes.slice(index+1).join("\n");
@@ -84,13 +84,13 @@ function chunk(arr, len) {
     return chunked;
 }
 
-function md(text) {
-    return text
-        .replace(/<a href=".*" title=".*">(.*)<\/a>/g, `$1`)
+function md(html) {
+    return html
+        .replace(/<a href="(.*)" title="(.*)">.*<\/a>/g, "[$1]($2)")
         .replace(/<\/?code>/g, "`")
-        .replace(/<\/?span>/, "")
+        .replace(/<span>(.*)<\/span>/g, "$1")
         .replace(/<strong>(.*)<\/strong>/, "**$1**")
-        .replace(/<span class="inlineIndicator optional optionalInline">Optional/, " | Optional")
+        .replace(/<span class="inlineIndicator optional optionalInline">Optional/, " (Optional)")
         .replace(/(&.*;|&#xA;)/g, " ");
 }
 

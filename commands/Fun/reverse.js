@@ -6,7 +6,7 @@ class Reverse extends Command {
         super(...args, {
             name: "reverse",
             description: language => language.get("COMMAND_REVERSE_DESCRIPTION"),
-            usasge: "<text:string>"
+            usage: "<text:string>"
         });
     }
 

@@ -16,7 +16,7 @@ class Darken extends Command {
 
     async run(message, [member]) {
         if (!member) member = message.member;
-        const body = await this.client.utils.idiotic("effects/darken", `?avatar=${member.user.displayAvatarURL({ format: "png", size: 1024 })}&darkness=50`);
+        const body = await this.client.utils.idiotic("effects/darkness", `?avatar=${member.user.displayAvatarURL({ format: "png", size: 1024 })}&darkness=50`);
         await message.channel.send(new MessageAttachment(Buffer.from(body.data)));
     }
 
