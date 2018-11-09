@@ -1,5 +1,10 @@
 const superagent = require("superagent");
 const cheerio = require("cheerio");
+const turndown = new (require("turndown"))();
+turndown.addRule("hyperlink", {
+    filter: "a",
+    replacement: (text, e) => `[${text}](https://developer.mozilla.org${e.href})`
+})
 
 class MDNDocs {
 
@@ -85,13 +90,7 @@ function chunk(arr, len) {
 }
 
 function md(html) {
-    return html
-        .replace(/<a href="(.*)" title="(.*)">.*<\/a>/g, "[$1]($2)")
-        .replace(/<\/?code>/g, "`")
-        .replace(/<span>(.*)<\/span>/g, "$1")
-        .replace(/<strong>(.*)<\/strong>/, "**$1**")
-        .replace(/<span class="inlineIndicator optional optionalInline">Optional/, " (Optional)")
-        .replace(/(&.*;|&#xA;)/g, " ");
+    return turndown.turndown(html);
 }
 
 module.exports = MDNDocs;
