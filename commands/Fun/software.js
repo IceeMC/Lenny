@@ -14,6 +14,7 @@ class Software extends Command {
 
     async run(message) {
         const result = await this.getRandomPost();
+        if (result.nsfw && !message.channel.nsfw) throw "The post I found could only be viewed in NSFW channels. Try again!";
         const embed = new MessageEmbed()
             .setColor(this.client.utils.color)
             .setTitle(result.title)
@@ -28,7 +29,8 @@ class Software extends Command {
         const children = request.body.data.children;
         const randomPost =  children[Math.floor(Math.random() * children.length)].data;
         return {
-            url: randomPost.preview.images[0].source.url,
+            nsfw: randomPost.over_18,
+            url: randomPost.url,
             title: randomPost.title,
             ups: randomPost.ups,
             downs: randomPost.downs

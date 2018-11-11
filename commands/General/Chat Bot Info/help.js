@@ -11,7 +11,7 @@ module.exports = class extends Command {
 			usage: '(command:command)'
 		});
 		this.createCustomResolver('command', (arg, possible, message) => {
-			return !arg ? undefined: this.client.arguments.get('command').run(arg, possible, message);
+			return !arg ? undefined : this.client.arguments.get('command').run(arg, possible, message);
 		});
 	}
 
@@ -47,8 +47,6 @@ module.exports = class extends Command {
 			let dmHelp = "";
 			for (let cat = 0; cat < categories.length; cat++) {
 				const subCategories = Object.keys(help[categories[cat]]);
-				const embed = new MessageEmbed();
-				embed.setColor(this.client.utils.color);
 				let helpPageValue = "\`\`\`ascii\n";
 				for (let subCat = 0; subCat < subCategories.length; subCat++)
 					helpPageValue += `${help[categories[cat]][subCategories[subCat]].map(c => c.dm).join('\n')}`;
@@ -57,8 +55,25 @@ module.exports = class extends Command {
 			}
 			return message.author.send(dmHelp, { split: { char: "\u200b" } })
 				.then(() => { if (message.channel.type !== "dm") message.sendLocale("COMMAND_DM_SUCCESS") })
-				.catch(() => { if (message.channel.type !== "dm") message.sendLocale("COMMAND_DM_FAILED") });
+				.catch(async () => {
+					if (message.channel.type !== "dm") message.channel.send(await this.buildHelp2(message), { split: { char: "\u200b" }}).catch(() => null);
+				});
 		}
+	}
+
+	async buildHelp2(message) {
+		const help = await this.buildHelp(message);
+		const categories = Object.keys(help);
+		let helpStr = "";
+		for (let cat = 0; cat < categories.length; cat++) {
+			const subCategories = Object.keys(help[categories[cat]]);
+			let helpPageValue = "\`\`\`ascii\n";
+			for (let subCat = 0; subCat < subCategories.length; subCat++)
+				helpPageValue += `${help[categories[cat]][subCategories[subCat]].map(c => c.dm).join('\n')}`;
+			helpPageValue += "\`\`\`\u200b";
+			helpStr += `**${categories[cat]} Commands:**\n\n${helpPageValue}`;
+		}
+		return helpStr;
 	}
 
 	async buildHelp(message) {

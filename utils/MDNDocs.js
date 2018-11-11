@@ -39,12 +39,20 @@ class MDNDocResult {
     }
 
     get description() {
-        const desc = this.$("p").first().html();
-        return md(desc);
+        return turndown.turndown(this.$("p").html());
     }
 
     get url() {
         return this.$("meta[property=\"og:url\"]").attr("content");
+    }
+
+    get syntax() {
+        const rgx = /<h[1-6] id="Syntax">Syntax<\/h[1-6]>/;
+        const indexes = this.text.split("\n").map(t=>t.trim()).filter(t=>t!=="");
+        let index = indexes.indexOf(rgx.test(this.text) ? rgx.exec(this.text)[0] : null);
+        if (index === -1) return null;
+        const $ = cheerio.load(indexes.slice(index+1).join("\n"));
+        return turndown.turndown($("pre").first().html()).replace(/\//g, "");
     }
 
     get params() {
@@ -53,9 +61,8 @@ class MDNDocResult {
         let index = indexes.indexOf(rgx.test(this.text) ? rgx.exec(this.text)[0] : null);
         if (index === -1) return null;
         const params = [];
-        const text = indexes.slice(index+1).join("\n");
-        const $ = cheerio.load(text);
-        $("dl").first().children().map((_, e) => params.push(md($(e).html())));
+        const $ = cheerio.load(indexes.slice(index+1).join("\n"));
+        $("dl").first().children().map((_, e) => params.push(turndown.turndown($(e).html())));
         return chunk(params, 2);
     }
 
@@ -65,9 +72,8 @@ class MDNDocResult {
         let index = indexes.indexOf(rgx.test(this.text) ? rgx.exec(this.text)[0] : null);
         if (index === -1) return null;
         const methods = [];
-        const text = indexes.slice(index+1).join("\n");
-        const $ = cheerio.load(text);
-        $("dl").first().children().map((_, e) => methods.push(md($(e).html())));
+        const $ = cheerio.load(indexes.slice(index+1).join("\n"));
+        $("dl").first().children().map((_, e) => methods.push(turndown.turndown($(e).html())));
         return chunk(methods, 2);
     }
 
@@ -76,9 +82,8 @@ class MDNDocResult {
         const indexes = this.text.split("\n").map(t=>t.trim()).filter(t=>t!=="");
         const index = indexes.indexOf(rgx.test(this.text) ? rgx.exec(this.text)[0] : null);
         if (index === -1) return null;
-        const text = indexes.slice(index+1).join("\n");
-        const $ = cheerio.load(text);
-        return md($("p").first().html());
+        const $ = cheerio.load(indexes.slice(index+1).join("\n"));
+        return turndown.turndown($("p").first().html());
     }
 
 }
@@ -87,10 +92,6 @@ function chunk(arr, len) {
     const chunked = [];
     for (let i = 0; i < arr.length; i += len) chunked.push(arr.slice(i, i + len));
     return chunked;
-}
-
-function md(html) {
-    return turndown.turndown(html);
 }
 
 module.exports = MDNDocs;

@@ -50,19 +50,19 @@ class Uno {
         // Add one zero card to for each color
         for (const color of colors) {
             this.cards.push(new UnoCard(`${color}0`));
-            for (let i = 0; i < 10; i++) this.cards.concat(repeat([], new UnoCard(`${color}${i}`), 2));
+            for (let i = 0; i < 10; i++) this.cards.push(...repeat([], new UnoCard(`${color}${i}`), 2));
             // Push 2 skip cards, 2 reverse cards, 2 +2 cards for the color
-            this.cards.concat(repeat([], new UnoCard(`${color}SKIP`), 2));
-            this.cards.concat(repeat([], new UnoCard(`${color}REVERSE`), 2));
-            this.cards.concat(repeat([], new UnoCard(`${color}+2`), 2));
+            this.cards.push(...repeat([], new UnoCard(`${color}SKIP`), 2));
+            this.cards.push(...repeat([], new UnoCard(`${color}REVERSE`), 2));
+            this.cardspush(...repeat([], new UnoCard(`${color}+2`), 2));
         }
         // Add 4 Wild cards and 4 wild +4 cards
-        this.cards.concat(repeat([], new UnoCard("WILD"), 4))
-        this.cards.concat(repeat([], new UnoCard("WILD+4"), 4));
+        this.cards.push(...repeat([], new UnoCard("WILD"), 4))
+        this.cards.push(...repeat([], new UnoCard("WILD+4"), 4));
         // Lastly shuffle the cards
-        this.cards.concat(this.shuffle());
+        this.cards.push(...this.shuffle());
         // Pick a random shuffled card as a base card
-        // Making sure it isn't a wild card
+        // Making sure it isn't a special card.
         const filtered = this.cards.filter(c => !c.reverse || !c.skip || !c.wild);
         this.currentCard = filtered[Math.floor(Math.random() * filtered.length)];
     }
@@ -127,7 +127,7 @@ You own ${player.cards.length} cards now.`);
     }
 
     static async load(client, save) {
-        const g = new Uno(null);
+        const g = new Uno(client.channels.get(save.msg.channel).messages.get());
         if (!g.msg) return null;
         g.players = save.players.map(p => UnoPlayer.from(p));
         g.cards = save.cards.map(c => UnoCard.from(c));
@@ -145,7 +145,7 @@ You own ${player.cards.length} cards now.`);
         this.drawnCards += cards * this.players.length;
         this.players.map(p =>
             this.send(p.user.id, `
-Here, I have given you${cards > 1 ? " some cards" : "a card"}:
+Hey, I have given you${cards > 1 ? " some cards" : "a card"}:
 
 ${drawn[p.user.id].map(c => `\`${c}\``).join(", ")}
 
@@ -171,7 +171,10 @@ Here are the rankings:
 ${this.rankings.map((r, i) => `${i+1} -> \`${r.user.tag}\``).join("\n")}
 
 The game took **${Duration.toNow(Date.now() - this.startedAt)}** to complete.
-**${this.drawnCards.toLocaleString()}** cards were removed from the deck in all.
+
+**Game Statistics:**
+${this.drawnCards.toLocaleString()} cards were drawn.
+
         `;
     }
 

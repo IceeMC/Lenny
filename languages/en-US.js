@@ -204,6 +204,7 @@ Free - ${freeMem} GB
 			COMMAND_SOFTWARE_DESCRIPTION: "Gets a random post from r/softwaregore",
 			COMMAND_MEME_DESCRIPTION: "Gets a meme from a meme for you :)",
 			COMMAND_SPONGEBOB_DESCRIPTION: "maKeS YoUr tExT LiKe tHiS",
+			COMMAND_STAR_DESCRIPTION: "Creates a star.",
 			COMMAND_ACHIEVEMENT_DESCRIPTION: "Generate an achievement.",
 			COMMAND_BEAUTIFUL_DESCRIPTION: "Makes you or someone else beautiful",
 			COMMAND_BLAME_DESCRIPTION: "Blame something. wow rood",

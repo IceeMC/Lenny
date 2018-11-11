@@ -28,6 +28,7 @@
     "raven": "^2.6.3",
     "snekfetch": "^4.0.4",
     "superagent": "^3.8.3",
+    "turndown": "^5.0.1",
     "ws": "^6.0.0"
   }
 }
