@@ -48,7 +48,7 @@ class CommandUsage {
                 break;
             } else {
                 const arg = usageTag.all ?
-                    copied.args.slice(i).join(" ") :
+                    message.args.slice(i).join(" ") :
                     copied.args[i];
                 const result = await usageTag.run(message, arg);
                 argArray.push(result);
