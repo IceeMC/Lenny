@@ -43,6 +43,7 @@ class CommandUsage {
         const argArray = [];
         const copied = this.client.utils.copyObject(message);
         copied.args = this.parseArgs(copied.args.join(" "));
+        console.log(copied.args);
         for (let i = (index || 0); i < this.usageTags.length; i++) {
             const usageTag = this.usageTags[i];
             if (!usageTag.required && !usageTag.all && !copied.args[i]) {
