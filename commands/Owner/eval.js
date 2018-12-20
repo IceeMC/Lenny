@@ -48,7 +48,7 @@ ${this.formatTime(...times)}`, { split: true });
             }
         } catch (err) {
             evaledType = new ClassType(err).toString();
-            res = this.client.clean(message, err.stack || err.toString());
+            res = this.client.clean(message, err && err.stack ? err.stack : err === null ? "null" : err.toString());
             error = true;
             syncEvalTime = stopwatch.stop();
         }
