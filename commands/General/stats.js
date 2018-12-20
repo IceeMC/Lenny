@@ -36,10 +36,8 @@ class Stats extends Command {
 			((os.totalmem() - os.freemem()) / 1073741824).toFixed(2),
 			((os.totalmem() / 1073741824) - ((os.totalmem() - os.freemem()) / 1073741824)).toFixed(2),
 			this.client.utils.formatMS(os.uptime()),
-			process.platform !== "win32" ?
-				this.client.utils.formatMS(parseFloat(readFileSync("/proc/uptime", { encoding: "utf-8" }).split(" ")[0])) :
-				this.client.utils.formatMS(os.uptime()),
-			os.loadavg().map(avg => avg * 10000 / 1000).reduce((p, v) => p + v).toFixed(2),
+			this.client.utils.formatMS(parseFloat(readFileSync("/proc/uptime", { encoding: "utf-8" }).split(" ")[0])),
+			os.loadavg().map(avg => avg * 10000 / 1000).reduce((p, v) => p + v).toFixed(2)
 		));
 	}
 
