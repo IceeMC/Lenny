@@ -40,6 +40,10 @@ class Command {
         return this._category;
     }
 
+    async run() {
+        throw `${this.name} has no run method.`;
+    }
+
     // A shortcut for command.key = value;
     def(...props) { props.map(p => this[p.k] = p.v); }
 

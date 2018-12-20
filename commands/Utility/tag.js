@@ -13,33 +13,33 @@ class Tag extends Command {
             runIn: ["text"],
             description: language => language.get("COMMAND_TAG_DESCRIPTION"),
             extendedHelp: language => language.get("COMMAND_TAG_EXTENDED_HELP"),
-            usage: "<type> [args:string::all]",
+            usage: "[t:string] [name:string] [content:string::all]",
         });
         this.parser = new Parser();
         customtags.map(Parser.loadTag.bind(this));
     }
 
-    run(message, [type, ...args]) {
+    run(message, [type, name, content]) {
         const types = ["add", "create", "all", "list", "edit", "delete", "get", "tagName"];
-        if (!type) throw message.language.get("BAD_SUB_CMD_TYPE", types);
-        if (type === "add" || type === "create")  return this.add(message, args);
+        if (!type) throw message.language.get("SUB_COMMAND_INVALID", types);
+        if (type === "add" || type === "create")  return this.add(message, [name, content]);
         if (type === "all" || type === "list") return this.all(message);
-        if (type === "edit") return this.edit(message, args);
-        if (type === "delete") return this.delete(message, args[0]);
-        if (type === "get") return this.get(message, args[0]);
+        if (type === "edit") return this.edit(message, [name, content]);
+        if (type === "delete") return this.delete(message, name);
+        if (type === "get") return this.get(message, name);
         if (!["add", "create", "all", "edit", "delete", "get"].includes(type)) return this.get2(message, type);
-        throw message.language.get("BAD_SUB_CMD_TYPE", types);
+        throw message.language.get("SUB_COMMAND_INVALID", types);
     }
 
-    async add(message, [name, ...content]) {
+    async add(message, [name, content]) {
         if (!name) throw "Please provide a tag name.";
         name = this.client.clean(message, name);
         if (["add", "create", "all", "edit", "delete", "get"].includes(name)) throw "The tag name is reserved. Man, that would screw me up.";
         if (message.guild.config.tags.find(t => t.name === name)) throw "The tag already exists. So unoriginal...";
-        if (!content.length) throw "Please provide some content for the tag.";
+        if (!content) throw "Please provide content for the tag.";
         const newTag = {
             name,
-            content: this.client.clean(message, content.join("")),
+            content: this.client.clean(message, content),
             creator: message.author.id,
             creatorString: message.author.tag,
             created: moment(new Date()).format("MM/DD/YYYY HH:MM:SS")
@@ -60,7 +60,7 @@ class Tag extends Command {
         return message.send(allTags);
     }
 
-    async edit(message, [name, ...newContent]) {
+    async edit(message, [name, newContent]) {
         if (!name) throw "Please provide a tag name.";
         name = this.client.clean(message, name);
         if (!newContent.length) throw "Please provide some content for the tag.";
@@ -70,9 +70,9 @@ class Tag extends Command {
         if (!tag) throw "The tag was not found.";
         if (tag.creator !== message.author.id && !message.member.permissions.has("ADMINISTRATOR"))
             throw "Hey! That ain't your tag, and you don't have **Administrator** permissions, so back off.";
-        if (tag.content === newContent.join(""))
-            throw "Hey! The new content can't equal the old content.";
-        const content = this.client.clean(message, newContent.join(""));
+        if (tag.content === newContent)
+            throw "Hey! The new content can't be equal the old content.";
+        const content = this.client.clean(message, newContent);
         const newTag = { ...tag, content };
         // Replace old tag index
         tags[tags.indexOf(tag)] = newTag;
