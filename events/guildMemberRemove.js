@@ -1,16 +1,16 @@
-const { Event } = require("klasa");
+const Event = require("../framework/Event.js");
 
 class GuildMemberRemoveEvent extends Event {
 
     async run(member) {
-        if (member.guild.settings.logs.leaves) this.client.emit("logs", member.guild, {
+        if (member.guild.config.logs.leaves) this.client.emit("logs", member.guild, {
             type: "memberLeave",
             member
         });
-        const { settings } = member.guild;
-        if (!settings.welcome.enabled || !settings.welcome.welcomeChannel) return;
-        const formatted = this.format(settings.welcome.leaveMessage, member);
-        const welcomeChannel = member.guild.channels.get(settings.welcome.welcomeChannel);
+        const { config } = member.guild;
+        if (!config.welcome.enabled || !config.welcome.welcomeChannel) return;
+        const formatted = this.format(config.welcome.leaveMessage, member);
+        const welcomeChannel = member.guild.channels.get(config.welcome.welcomeChannel);
         if (!welcomeChannel || !welcomeChannel.postable) return;
         return welcomeChannel.send(formatted).catch(() => null);
     }

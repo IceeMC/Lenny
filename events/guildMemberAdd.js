@@ -1,17 +1,17 @@
-const { Event } = require("klasa");
+const Event = require("../framework/Event.js");
 
 class GuildMemberAddEvent extends Event {
 
     async run(member) {
-        if (member.guild.settings.logs.joins) this.client.emit("logs", member.guild, {
+        if (member.guild.config.logs.joins) this.client.emit("logs", member.guild, {
             type: "memberJoin",
             member
         });
-        const { settings } = member.guild;
-        if (!settings.welcome.enabled || !settings.welcome.welcomeChannel) return;
+        const { config } = member.guild;
+        if (!config.welcome.enabled || !config.welcome.welcomeChannel) return;
         this.autoRole(member); // Add role if available
-        const formatted = this.format(settings.welcome.welcomeMessage, member);
-        const welcomeChannel = member.guild.channels.get(settings.welcome.welcomeChannel);
+        const formatted = this.format(config.welcome.welcomeMessage, member);
+        const welcomeChannel = member.guild.channels.get(config.welcome.welcomeChannel);
         if (!welcomeChannel || !welcomeChannel.postable) return;
         return welcomeChannel.send(formatted).catch(() => null);
     }
@@ -28,10 +28,10 @@ class GuildMemberAddEvent extends Event {
     }
 
     autoRole(member) {
-        const { settings } = member.guild;
-        if (!settings.autoRole) return;
+        const { config } = member.guild;
+        if (!config.autoRole) return;
         if (!member.guild.me.permissions.has("MANAGE_ROLES")) return;
-        return member.roles.add(settings.autoRole, "RemixBot Auto Role").catch(() => null);
+        return member.roles.add(config.autoRole, "Chat Noir Auto Role").catch(() => null);
     }
 
 }

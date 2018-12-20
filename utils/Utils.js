@@ -13,6 +13,42 @@ class Utils {
     }
 
     /**
+     * Fetches a spotify token.
+     * @returns {Promise<string>}
+     */
+    async getSpotifyToken() {
+        return post("https://accounts.spotify.com/api/token")
+            .send({ grant_type: "client_credentials" })
+            .set("Authorization", `Basic ${Buffer.from(`${this.client.config.spotify.id}:${this.client.config.spotify.secret}`).toString("base64")}`)
+            .set("Content-Type", "application/x-www-form-urlencoded")
+            .then(res => res.body.access_token)
+            .catch(error => {
+                this.client.console.error(error);
+                return null;
+            });
+    }
+    
+    /**
+     * Formats ms into a human readable time.
+     * @param {number} ms The number of ms to convert.
+     * @returns {string}
+     */
+    formatMS(ms) {
+        let time = "";
+        const seconds = Math.floor((ms / 1000) % 60);
+        const minutes = Math.floor((seconds / 60) % 60);
+        const hrs = Math.floor((minutes / 60) % 24);
+        const days = Math.floor((hrs / 24) % 60);
+
+        time += days > 0 ? `${days > 1 ? `${days} days, ` : `${days} day, `}` : "";
+        time += hrs > 0 ? `${hrs > 1 ? `${hrs} hours, ` : `${hrs} hour, `}` : "";
+        time += minutes > 0 ? `${minutes > 1 ? `${minutes} minutes, ` : `${minutes} minute, `}` : "";
+        time += seconds > 0 ? `${seconds > 1 ? `${seconds} seconds` : `1 second`}` : "";
+
+        return time;
+    }
+
+    /**
      * Gets tracks from the lavalink REST server.
      * @param {string} search The song to search for.
      * @param {string} host The AudioNode's host.
@@ -24,14 +60,19 @@ class Utils {
         return get(`http://${node.host}:2333/loadtracks?identifier=${search}`)
             .set("Authorization", node.password)
             .then(res => {
+                if (Array.isArray(res.body)) return res.body;
                 if (res.body.loadType === "NO_MATCHES" || res.body.loadType === "LOAD_ERROR") return null;
                 if (res.body.loadType === "SEARCH_RESULT" || res.body.loadType === "TRACK_LOADED") return res.body.tracks;
                 if (res.body.loadType === "PLAYLIST_LOADED") return {
                     name: res.body.playlistInfo.name,
                     tracks: res.body.tracks
                 };
+                return null;
             })
-            .catch(error => { this.client.console.error(error); return null; });
+            .catch(error => {
+                this.client.console.error(error);
+                return null;
+            });
     }
 
     /**
@@ -104,32 +145,32 @@ class Utils {
             .catch(() => null);
     }
 
-    // /**
-    //  * Returns an Iterator of the methods in a class/object.
-    //  * @param {Object} object The class/object to get the methods from.
-    //  * @returns {IterableIterator<{name: string, func: Function}>}
-    //  */
-    // *methods (object) {
-    //     if (typeof object !== "object") throw new Error(`methods expects an object not ${typeof object}.`);
-    //     const included = [
-    //         "constructor",
-    //         "__defineGetter__",
-    //         "__defineSetter__",
-    //         "hasOwnProperty",
-    //         "__lookupGetter__",
-    //         "__lookupSetter__",
-    //         "isPrototypeOf",
-    //         "propertyIsEnumerable",
-    //         "valueOf",
-    //         "__proto__"
-    //     ];
-    //     while (object = Reflect.getPrototypeOf(object)) {
-    //         let keys = Reflect.ownKeys(object);
-    //         for (const key of keys)
-    //             if (typeof object[key] === "function" && typeof object[k] !== "undefined" && !included.includes(key))
-    //                 yield { name: key, func: object[key] ? object[key] : null }
-    //     }
-    // }
+    /**
+     * Returns an Iterator of the methods in a class/object.
+     * @param {Object} object The class/object to get the methods from.
+     * @returns {IterableIterator<{name: string, func: Function}>}
+     */
+    *methods (object) {
+        if (typeof object !== "object") throw new Error(`methods expects an object not ${typeof object}.`);
+        const included = [
+            "constructor",
+            "__defineGetter__",
+            "__defineSetter__",
+            "hasOwnProperty",
+            "__lookupGetter__",
+            "__lookupSetter__",
+            "isPrototypeOf",
+            "propertyIsEnumerable",
+            "valueOf",
+            "__proto__"
+        ];
+        while (object = Reflect.getPrototypeOf(object)) {
+            let keys = Reflect.ownKeys(object);
+            for (const key of keys)
+                if (typeof object[key] === "function" && typeof object[k] !== "undefined" && !included.includes(key))
+                    yield { name: key, func: object[key] || null }
+        }
+    }
 
     /**
      * Gets all the property names of the provided object/class;
@@ -209,6 +250,35 @@ class Utils {
     //         await member.settings.update("level", memberDocument.level);
     //     }
     // }
+
+    /**
+     * Wraps the text in a discord code block.
+     * @param {string} text The text to go in the code block.
+     * @param {string} language The language for the code block.
+     * @returns {string}
+     */
+    codeBlock(text, language) {
+        return `\`\`\`${language}\n${text}\`\`\``;
+    }
+
+    /**
+     * Checks if the passed promise is a promise.
+     * @param {Promise} promise The promise to check
+     * @returns {boolean}
+     */
+    isPromise(promise) {
+        return promise instanceof Promise || (promise && typeof promise.then === "function" && typeof promise.catch === "function") || false;
+    }
+
+    /**
+     * GETS AN NSFW PICTURE.
+     * UR EYES MIGHT BREAK
+     * @param {string} path The p0rn path.
+     * @returns {Promise<string>}
+     */
+    async p0rn(path) {
+        return (await get(`https://nekos.life/api/v2/img/${path}`)).body.url;
+    }
 
 }
 

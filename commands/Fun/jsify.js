@@ -1,4 +1,4 @@
-const { Command } = require("klasa");
+const Command = require("../../framework/Command.js");
 
 class JSIfy extends Command {
 
@@ -11,7 +11,7 @@ class JSIfy extends Command {
     }
 
     async run(message, [text]) {
-        const { js } = await this.client.bananapi.jsify({ text });
+        const { js } = await this.client.bananapi.jsify({ text: this.client.clean(message, text) });
         message.send(js);
     }
 

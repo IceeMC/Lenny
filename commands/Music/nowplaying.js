@@ -1,21 +1,20 @@
-const { Command } = require("klasa");
+const Command = require("../../framework/Command.js");
 const { MessageEmbed } = require("discord.js");
 
 class NowPlaying extends Command {
 
     constructor(...args) {
         super(...args, {
-            name: "nowplaying",
             runIn: ["text"],
             description: language => language.get("COMMAND_NOW_PLAYING_DESCRIPTION"),
             aliases: ["np", "nowp", "nplay"],
-            requiredPermissions: ["SEND_MESSAGES"]
         });
     }
 
     async run(message) {
-        const audioPlayer = this.client.audioManager.get(message.guild.id);
+        const audioPlayer = message.guild.audioPlayer;
         if (!audioPlayer) throw message.language.get("COMMAND_MUSIC_NOT_PLAYING");
+        if (!message.member.voice.channelID) throw message.language.get("COMMAND_PLAY_NO_VC");
         const embed = new MessageEmbed();
         embed.setColor(0xFFFFFF);
         embed.addField("Progress", this.getProgress(audioPlayer));
@@ -33,7 +32,7 @@ class NowPlaying extends Command {
     queue(player) {
         if (player.queue.length > 10) {
             const mapped = player.queue.map(t => `**[${t.title}](${t.url})** (${t.length})`);
-            return `${mapped.join("\n")}\n...and ${player.queue.length - mapped.length}`;
+            return `${mapped.join("\n")}\n...and ${player.queue.length - mapped.length} more!`;
         }
         return player.queue.map(t => `**[${t.title}](${t.url})** (${t.length})`).join("\n");
     }

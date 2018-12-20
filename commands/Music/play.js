@@ -1,4 +1,5 @@
-const { Command } = require("klasa");
+const Command = require("../../framework/Command.js");
+const ArgResolver = require("../../framework/ArgResolver.js");
 const AudioTrack = require("../../utils/music/AudioTrack.js");
 const { get } = require("superagent");
 
@@ -6,14 +7,13 @@ class Play extends Command {
 
     constructor(...args) {
         super(...args, {
-            name: "play",
             runIn: ["text"],
             description: language => language.get("COMMAND_PLAY_DESCRIPTION"),
-            usage: "<query:string>",
-            requiredPermissions: ["CONNECT", "SPEAK", "ADD_REACTIONS"],
+            perms: ["CONNECT", "SPEAK", "ADD_REACTIONS"],
+            usage: "<query:string::all>"
         });
         this.regex = {
-            replacer: /(?:\<|\>)/g,
+            stripNoEmbedTags: /(?:\<|\>)/g,
             youtube: {
                 full: /https:\/\/?(?:www\.)?youtube\.com\/watch\?v=(.*)/,
                 short: /https:\/\/?(?:www\.)?youtu\.be\/(.*)/,
@@ -31,12 +31,12 @@ class Play extends Command {
     }
 
     async handle(audioTrack, message, playlist = false) {
-        let audioPlayer = this.client.audioManager.get(message.guild.id);
+        let audioPlayer = message.guild.audioPlayer;
         if (!audioPlayer) {
             audioPlayer = await this.client.audioManager.join({
                 guildId: message.guild.id,
                 channelId: message.member.voice.channelID,
-                host: "localhost"
+                host: this.client.config.nodes[0].host
             });
 
             audioPlayer.enQueue(audioTrack)
@@ -46,7 +46,7 @@ class Play extends Command {
             await this.client.audioManager.join({
                 guildId: message.guild.id,
                 channelId: message.member.voice.channelID,
-                host: "localhost"
+                host: this.client.config.nodes[0].host
             });
             audioPlayer.enQueue(audioTrack);
             audioPlayer.playing = true;
@@ -61,13 +61,13 @@ class Play extends Command {
 
     play(message, listen = false) {
         if (listen) this._listen(message);
-        const audioPlayer = this.client.audioManager.get(message.guild.id);
+        const audioPlayer = message.guild.audioPlayer;
         audioPlayer.play(audioPlayer.queue[0].track);
         return message.channel.send(message.language.get("COMMAND_MUSIC_PLAYING", audioPlayer));
     }
 
     _listen(message) {
-        const audioPlayer = this.client.audioManager.get(message.guild.id);
+        const audioPlayer = message.guild.audioPlayer;
         audioPlayer.on("end", event => {
             if (event.reason === "REPLACED") return;
             if (event.reason === "FINISHED") {
@@ -98,28 +98,29 @@ class Play extends Command {
     }
 
     async run(message, [query]) {
-        query = query.replace(this.regex.escaper, "");
+        query = this.client.clean(message, query.replace(this.regex.stripNoEmbedTags, ""));
 
         if (!message.member.voice.channelID) throw message.language.get("COMMAND_PLAY_NO_VC");
+        if (!message.guild.me.permissions.has(["CONNECT", "SPEAK"])) throw message.language.get("COMMAND_PLAY_NO_PERMS");
 
         if (await this.fromLink(message, query)) return;
-        const tracks = await this.client.utils.getTracks(`ytsearch:${query}`, "localhost");
-        if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS");
+        const tracks = await this.client.utils.getTracks(`ytsearch:${query}`, this.client.config.nodes[0].host);
+        if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS", [query]);
         const converted = this.convert(tracks.slice(0, 10), message.author);
         const prompt = await message.prompt(`
-**Song selection**
+**Song select:**
 
-${converted.map((t, i) => `📻(${i+1}) ➡ **${t.title}** (${t.length})`).join("\n")}
+${converted.map((t, i) => `📻(${i+1}) ➡ **${this.client.clean(message, t.title)}** (${t.length})`).join("\n")}
 
 Please provide a number between 1 and 10.
-If you wish to cancel this selection type \`cancel\` or \`quit\`
-**This will automatically cancel in 1 minute!**
-        `, 60000);
+If you wish to cancel this selection type \`cancel\`.
+**This automatically cancels in 1 minute!**
+        `);
         const index = parseInt(prompt.content);
         const invalidNumber = (isNaN(index) == true) ? NaN : (index < 0 && 11 > index) ? NaN : index;
-        if (prompt.content.search("cancel") !== -1 || invalidNumber != index)
+        if (prompt.content.search("cancel") !== -1 || invalidNumber !== index)
             return message.send(`Song selection canceled.${isNaN(invalidNumber) ? " You didn't provide a number between 1 and 10." : ""}`);
-        else return await this.handle(converted[index - 1], message);
+        return await this.handle(converted[index - 1], message);
     }
 
     async fromLink(message, query) {
@@ -135,58 +136,59 @@ If you wish to cancel this selection type \`cancel\` or \`quit\`
 
         // Test matches
         if (youtubeFullMatch) {
-            const tracks = await this.client.utils.getTracks(youtubeFullMatch[1], "localhost");
+            const tracks = await this.client.utils.getTracks(youtubeFullMatch[1], this.client.config.nodes[0].host);
             if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS");
             await this.handle(this.convert(tracks, message.author)[0], message);
             return true;
         } else if (youtubeShortMatch) {
-            const tracks = await this.client.utils.getTracks(youtubeShortMatch[1], "localhost");
+            const tracks = await this.client.utils.getTracks(youtubeShortMatch[1], this.client.config.nodes[0].host);
             if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS");
             await this.handle(this.convert(tracks, message.author)[0], message);
             return true;
         } else if (youtubePlaylistMatch) {
-            const { name, tracks } = await this.client.utils.getTracks(youtubePlaylistMatch[1], "localhost");
+            const { name, tracks } = await this.client.utils.getTracks(youtubePlaylistMatch[1], this.client.config.nodes[0].host);
             if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS");
             for (let i = 0; i < 50; i++) {
                 if (!tracks[i]) continue;
                 await this.handle(new AudioTrack(tracks[i], message.author), message, true);
             }
-            message.sendLocale("COMMAND_PLAYLIST_queueD", [{ name, tracks }]);
+            message.sendLocale("COMMAND_PLAYLIST_ENQUEUED", [{ name, tracks }]);
             return true;
         } else if (soundcloudTrack) {
-            const tracks = await this.client.utils.getTracks(soundcloudTrack[0], "localhost");
+            const tracks = await this.client.utils.getTracks(soundcloudTrack[0], this.client.config.nodes[0].host);
             if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS");
             await this.handle(new AudioTrack(tracks[0], message.author), message);
             return true;
         } else if (soundcloudPlaylist) {
-            const tracks = await this.client.utils.getTracks(soundcloudPlaylist[0], "localhost");
+            const tracks = await this.client.utils.getTracks(soundcloudPlaylist[0], this.client.config.nodes[0].host);
             if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS");
             await this.handle(new AudioTrack(tracks[0], message.author), message);
             return true;
         } else if (spotifyTrackOrAlbum) {
-            const type = spotifyTrackOrAlbum[1];
-            const id = spotifyTrackOrAlbum[2];
-            if (type === "track") {
-                const m = await message.send("Please wait... I am processing your request! (Note that this does not actually play songs from spotify!)");
-                let track = (await get(`https://api.spotify.com/v1/tracks/${id}`).set("Authorization", `Bearer ${this.client.spotifyToken}`)).body;
-                track = await this.client.utils.getTracks(`ytsearch:${track.name}`, "localhost");
-                if (!track) throw message.language.get("COMMAND_PLAY_NO_TRACKS");
-                await m.delete();
-                await this.handle(new AudioTrack(track[0], message.author), message);
-            }
-            if (type === "album") {
-                const m = await message.send("Please wait... I am processing your request! (Note that this does not actually play songs from spotify!)");
-                let album = (await get(`https://api.spotify.com/v1/albums/${id}`).set("Authorization", `Bearer ${this.client.spotifyToken}`)).body;
-                for (let i = 0; i < 50; i++) {
-                    if (!album.tracks.items[i]) continue;
-                    const result = await this.client.utils.getTracks(`ytsearch:${album.tracks.items[i].name}`, "localhost");
-                    if (!result) continue;
-                    await this.handle(new AudioTrack(result[0], message.author), message, true);
-                }
-                await m.delete();
-                message.sendLocale("COMMAND_PLAYLIST_ENQUEUED", [{ name: album.name, tracks: album.tracks.items  }]);
-            }
-            return true;
+            throw "Spotify support has been not added at time.";
+            // const type = spotifyTrackOrAlbum[1];
+            // const id = spotifyTrackOrAlbum[2];
+            // if (type === "track") {
+            //     const m = await message.send("Please wait... I am processing your request! (Note that this does not actually play songs from spotify!)");
+            //     let track = (await get(`https://api.spotify.com/v1/tracks/${id}`).set("Authorization", `Bearer ${this.client.spotifyToken}`)).body;
+            //     track = await this.client.utils.getTracks(`ytsearch:${track.name}`, this.client.config.nodes[0].host);
+            //     if (!track) throw message.language.get("COMMAND_PLAY_NO_TRACKS");
+            //     await m.delete();
+            //     await this.handle(new AudioTrack(track[0], message.author), message);
+            // }
+            // if (type === "album") {
+            //     const m = await message.send("Please wait... I am processing your request! (Note that this does not actually play songs from spotify!)");
+            //     let album = (await get(`https://api.spotify.com/v1/albums/${id}`).set("Authorization", `Bearer ${this.client.spotifyToken}`)).body;
+            //     for (let i = 0; i < 50; i++) {
+            //         if (!album.tracks.items[i]) continue;
+            //         const result = await this.client.utils.getTracks(`ytsearch:${album.tracks.items[i].name}`, this.client.config.nodes[0].host);
+            //         if (!result) continue;
+            //         await this.handle(new AudioTrack(result[0], message.author), message, true);
+            //     }
+            //     await m.delete();
+            //     message.sendLocale("COMMAND_PLAYLIST_ENQUEUED", [{ name: album.name, tracks: album.tracks.items  }]);
+            // }
+            // return true;
         }
 
         return false;

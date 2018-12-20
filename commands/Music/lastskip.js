@@ -1,19 +1,18 @@
-const { Command } = require('klasa');
+const Command = require("../../framework/Command.js");
 
 class LastSkip extends Command {
 
     constructor(...args) {
         super(...args, {
-            name: "lastskip",
             runIn: ["text"],
             description: language => language.get("COMMAND_LASTSKIP_DESCRIPTION"),
-            extendedHelp: "No extended help available.",
         });
     }
 
-    async run(message, [position]) {
-        const audioPlayer = this.client.audioManager.get(message.guild.id);
+    async run(message) {
+        const audioPlayer = message.guild.audioPlayer;
         if (!audioPlayer || !audioPlayer.queue) throw message.language.get("COMMAND_MUSIC_NOT_PLAYING");
+        if (!message.member.voice.channelID) throw message.language.get("COMMAND_PLAY_NO_VC");
         if (audioPlayer.queue[0].requester !== message.author && !message.member.permissions.has("ADMINISTRATOR"))
             throw message.language.get("COMMAND_MUSIC_NOT_REQUESTER");
 

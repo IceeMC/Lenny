@@ -1,4 +1,5 @@
-const { Command, RichDisplay } = require('klasa');
+const Command = require("../../framework/Command.js");
+const Paginator = require("../../framework/Paginator.js");
 const { MessageEmbed } = require("discord.js");
 
 class Queue extends Command {
@@ -14,24 +15,24 @@ class Queue extends Command {
     }
 
     async run(message) {
-        const audioPlayer = this.client.audioManager.get(message.guild.id);
+        const audioPlayer = message.guild.audioPlayer;
         if (!audioPlayer || !audioPlayer.queue) return message.send("Nothing is currently playing.");
+        if (!message.member.voice.channelID) throw message.language.get("COMMAND_PLAY_NO_VC");
 
-        const queueDisplay = new RichDisplay(new MessageEmbed()
-            .setColor(0xFFFFFF)
-            .addField(`Music queue for ${message.guild.name}`, `Use the reactions to switch between pages.`)
+        const queuePaginator = new Paginator(message, new MessageEmbed()
+            .setColor(this.client.utils.color)
+            .addField(`Music queue for ${message.guild.name}`, "Use the reactions to switch between pages.")
         );
 
         for (let i = 0; i < audioPlayer.queue.length; i += 6) {
             const template = new MessageEmbed();
             const tracks = audioPlayer.queue.slice(i, i + 6);
             template.setColor(this.client.utils.color);
-            template.setTitle("Use the reactions to switch between pages.")
             template.setDescription(tracks.map(track => `\`•\` **${track.title}** (${track.length})`));
-            queueDisplay.addPage(template);
+            queuePaginator.addPage(template);
         }
 
-        queueDisplay.run(await message.send("Loading..."), { filter: (reaction, user) => user === message.author });
+        return await queuePaginator.start();
     }
 
 };

@@ -1,4 +1,4 @@
-const { Command } = require("klasa");
+const Command = require("../../framework/Command.js");
 
 class Spongebob extends Command {
 
@@ -12,7 +12,7 @@ class Spongebob extends Command {
     }
 
     async run(message, [text]) {
-        text = text.split("").reduce((v, c, i) => v += c[(i % 2) ? "toLowerCase" : "toUpperCase"]());
+        text = this.client.clean(message, text.split("").reduce((v, c, i) => v += c[(i % 2) ? "toLowerCase" : "toUpperCase"]()));
         message.send(text);
     }
 

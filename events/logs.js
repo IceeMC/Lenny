@@ -1,12 +1,12 @@
-const { Event } = require("klasa");
+const Event = require("../framework/Event.js");
 const { MessageEmbed } = require("discord.js");
 
 class LogsEvent extends Event {
 
     async run(guild, logData) {
-        const { settings } = guild;
-        if (!settings.logs.channel) return;
-        const logChannel = guild.channels.get(settings.logs.channel);
+        const { config } = guild;
+        if (!config.logs.channel) return;
+        const logChannel = guild.channels.get(config.logs.channel);
         if (!logChannel || !logChannel.postable) return;
         switch (logData.type) {
             // Guild
@@ -166,7 +166,7 @@ class LogsEvent extends Event {
             .setColor(this.client.utils.color)
             .addField(data.action, data.text)
             .setTimestamp()
-            .setFooter("RemixBot mod logs");
+            .setFooter("Chat Noir mod logs");
         if (data.user) embed.setAuthor(data.user.username, data.user.displayAvatarURL({ size: 2048 }));
         if (data.thumbnail) embed.setThumbnail(data.thumbnail.image);
         return embed;

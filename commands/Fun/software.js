@@ -1,4 +1,4 @@
-const { Command } = require("klasa");
+const Command = require("../../framework/Command.js");
 const { MessageEmbed } = require("discord.js");
 const { get } = require("superagent");
 

@@ -1,4 +1,4 @@
-const { Command } = require("klasa");
+const Command = require("../../framework/Command.js");
 
 class TicTacToe extends Command {
 
@@ -8,16 +8,10 @@ class TicTacToe extends Command {
             aliases: ["tictactoe"],
             runIn: ["text"],
             description: language => language.get("COMMAND_TTT_DESCRIPTION"),
-            usage: "<create|join|leave|start> [args:string]",
-            usageDelim: " "
+            extendedHelp: language => language.get("COMMAND_TTT_EXTENDED_HELP"),
+            subCommands: ["create", "join", "leave", "start"],
+            usage: "<type>"
         });
-    }
-
-    async run(message, [type, ...params]) {
-        if (type === "create") this.create(message);
-        if (type === "join") this.join(message);
-        if (type === "leave") this.leave(message);
-        if (type === "start") this.start(message);
     }
 
     create(message) {

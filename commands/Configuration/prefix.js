@@ -1,4 +1,4 @@
-const { Command } = require("klasa");
+const Command = require("../../framework/Command.js");
 
 class Prefix extends Command {
     
@@ -7,24 +7,22 @@ class Prefix extends Command {
             name: "prefix",
             runIn: ["text"],
             description: language => language.get('COMMAND_PREFIX_DESCRIPTION'),
-            usage: '<newPrefix:string>',
-            permissionLevel: 7,
+            usage: "[prefix:string]",
+            check: 7,
         });
     }
 
 
-    async run(message, [newPrefix]) {
-        if (newPrefix === "reset" || newPrefix === "default") {
-            this._update(message.guild, "r.");
-            message.sendLocale("COMMAND_PREFIX", ["r."]);
+    async run(message, [prefix]) {
+        if (!prefix) throw message.language.get("COMMAND_PREFIX_NULL");
+        if (prefix.length < 2 && prefix.length > 4) throw message.language.get("COMMAND_PREFIX_LIMIT_TRUE");
+        if (!prefix || prefix === "reset" || prefix === "default") {
+            await message.guild.updateConfig({ prefix: "cn." })
+            message.sendLocale("COMMAND_PREFIX", ["cn."]);
         } else {
-            this._update(message.guild, newPrefix);
-            message.sendLocale("COMMAND_PREFIX", [newPrefix]);
+            await message.guild.updateConfig({ prefix: this.client.clean(message, newPrefix.join(" ")) });
+            message.sendLocale("COMMAND_PREFIX", [this.client.clean(message, newPrefix.join(" "))]);
         }
-    }
-
-    _update(guild, newPrefix) {
-        guild.settings.update([["prefix", newPrefix]]);
     }
 
 }

@@ -1,4 +1,4 @@
-const { Command } = require("klasa");
+const Command = require("../../framework/Command.js");
 
 class Reverse extends Command {
 
@@ -12,7 +12,7 @@ class Reverse extends Command {
 
     async run(message, [text]) {
         if (text.length > 500) throw message.language.get("COMMAND_REVERSE_TEXT_TOO_LONG");
-        return message.send(text.split("").reverse().join(""));
+        return message.send(this.client.clean(message, text).split("").reverse().join(""));
     }
 
 }

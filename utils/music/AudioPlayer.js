@@ -140,6 +140,7 @@ module.exports = class AudioPlayer extends EventEmitter {
         });
         this.playerState.currentVolume = newVolume;
         this.emit("volume", oldVolume, newVolume);
+        return { oldVolume, newVolume };
     }
 
     /**

@@ -1,4 +1,4 @@
-const { Command } = require("klasa");
+const Command = require("../../framework/Command.js");
 const { MessageEmbed } = require("discord.js");
 const { get } = require("superagent");
 
@@ -8,7 +8,7 @@ class Meme extends Command {
         super(...args, {
             name: "meme",
             description: language => language.get("COMMAND_MEME_DESCRIPTION"),
-            aliases: ["m3m3", "memeplox"]
+            aliases: ["m3m3", "memeplox", "maymay"]
         });
     }
 

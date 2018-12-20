@@ -1,9 +1,9 @@
-const { Event } = require('klasa');
+const Event = require("../framework/Event.js");
 
 module.exports = class extends Event {
 
-	run(messages) {
-		if (!messages.first().guild.settings.logs.messages) return;
+	async run(messages) {
+		if (!messages.first().guild.config.logs.messages) return;
 		const first = messages.first();
 		const guild = this.client.guilds.get(first.guild.id);
 		this.client.emit("logs", guild, {
@@ -11,7 +11,7 @@ module.exports = class extends Event {
 			count: messages.size,
 			channel: first.channel
 		});
-		for (const message of messages) if (message.command && message.command.deletable) for (const msg of message.responses) msg.delete();
+		for (const message of messages) if (message.command && message.command.reply) await message.command.reply.delete().catch(() => null);
 	}
 
 };

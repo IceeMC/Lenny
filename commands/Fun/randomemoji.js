@@ -1,12 +1,11 @@
-const { Command } = require("klasa");
+const Command = require("../../framework/Command.js");
 const { MessageEmbed } = require("discord.js");
 
 class RandomEmoji extends Command {
 
     constructor(...args) {
         super(...args, {
-            name: "randomemoji",
-            description: language => language.get("COMMAND_RANDOM_EMOJI_DESCRIPTION"),
+            description: language => language.get("COMMAND_RANDOM_EMOJI_DESCRIPTION")
         });
     }
 
@@ -17,8 +16,8 @@ class RandomEmoji extends Command {
             .setTitle(randomEmoji.name.replace(/_/g, " "))
             .setColor(this.client.utils.color)
             .setImage(randomEmoji.url)
-            .setFooter(`Emoji found in ${randomEmoji.guild.name}`)
-            .setTimestamp();
+            .setTimestamp()
+            .setFooter(`Emoji found in ${randomEmoji.guild.name}`);
         return message.send({ embed });
     };
 

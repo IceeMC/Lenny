@@ -86,10 +86,10 @@ class AudioNode extends EventEmitter {
         case "playerUpdate": {
             const player = this.manager.get(resp.guildId);
             if (!player) return;
-            const { position, timestamp } = resp.state;
-            player.emit("update", { position, timestamp });
-            player.playerState.currentTimestamp = position;
-            player.playerState.currentPosition = timestamp;
+            const { position, time } = resp.state;
+            player.emit("update", { position, time });
+            player.playerState.currentTimestamp = time;
+            player.playerState.currentPosition = position;
             break;
         }
         case "stats": {

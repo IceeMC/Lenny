@@ -1,15 +1,15 @@
-const { Event } = require("klasa");
+const Event = require("../framework/Event.js");
 
 class GuildBanAddEvent extends Event {
 
     async run(guild, user) {
-        if (!guild.settings.logs.bans) return;
+        if (!guild.config.logs.bans) return;
         let reason = await guild.fetchBans()
             .then(bans => {
                 const ban = bans.find(ban => ban.user.id === user.id);
                 return ban ? ban.reason : "No reason provided.";
             })
-            .catch(() => "Could not fetch ban reason.");
+            .catch(() => "Could not fetch ban.");
         this.client.emit("logs", guild, {
             type: "memberBan",
             user,

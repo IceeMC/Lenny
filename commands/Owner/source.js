@@ -1,26 +1,27 @@
-const { Command } = require("klasa");
+const Command = require("../../framework/Command.js");
+const ArgResolver = require("../../framework/ArgResolver");
 
 class Source extends Command {
 
     constructor(...args) {
         super(...args, {
-            name: "source",
-            aliases: ["piecesource", "src"],
-            description: language => language.get("COMMAND_SOURCE_DESCRIPTION"),
-            guarded: true,
-            permissionLevel: 10,
-            usage: "<piece:piece>"
+            aliases: ["src"],
+            runIn: ["text"],
+            description: "Gets the source for an item.",
+            check: 10,
+            noHelp: true,
+            usage: "<item:item>"
         });
     }
 
-    async run(message, [piece]) {
-        const source = piece.constructor.toString();
-        if (source.length > 1999) {
-            const haste = await this.client.utils.haste(source, ".js");
-            return message.send(`The output was too long to send.\nHere is the hastebin: \`${haste}\``);
-        } else {
-            return message.sendCode("js", source);
+    async run(message, [src]) {
+        src = ArgResolver.fromStore(message, src);
+        const constructorCode = src.constructor.toString();
+        if (constructorCode.length > 1999) {
+            const haste = await this.client.utils.haste(constructorCode, ".js");
+            return message.send(`The output was too long... Uploaded to hastebin ${haste}`);
         }
+        return message.send(this.client.utils.codeBlock(constructorCode, "js"));
     }
 
 }

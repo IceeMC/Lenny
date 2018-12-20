@@ -1,82 +1,96 @@
-const { Command, Stopwatch, Type, util } = require('klasa');
-const { inspect } = require('util');
+const Command = require("../../framework/Command.js");
+const ClassType = require("../../framework/ClassType.js");
+const Stopwatch = require("../../framework/Stopwatch.js");
+const { MessageAttachment } = require("discord.js");
+const { inspect } = require("util");
 
-module.exports = class extends Command {
+class EvalCommand extends Command {
 
-	constructor(...args) {
-		super(...args, {
-			aliases: ['ev'],
-			permissionLevel: 10,
-			guarded: true,
-			description: language => language.get('COMMAND_EVAL_DESCRIPTION'),
-			extendedHelp: language => language.get('COMMAND_EVAL_EXTENDEDHELP'),
-			usage: '<expression:str>'
-		});
-	}
+    constructor(...args) {
+        super(...args, {
+            description: "Evaluates code.",
+            runIn: ["text"],
+            aliases: ["ev"],
+            check: 10,
+            noHelp: true,
+            usage: "<code:string::all>"
+        });
+    }
+    
+    async run(message, [code]) {
+        let { res, file, silent, error, evaledType, times } = await this.evaluateCode(message, code);
+        if (file || silent) return;
+        message.send(`
+Evaluation ${error ? "error" : "success"}:
+${this.client.utils.codeBlock(res, "prolog")}
 
-	async run(message, [code]) {
-		const { success, result, time, type } = await this.eval(message, code);
-		const footer = util.codeBlock('ts', type);
-		const output = message.language.get(success ? 'COMMAND_EVAL_OUTPUT' : 'COMMAND_EVAL_ERROR',
-			time, util.codeBlock('js', result), footer);
+Type:
+${this.client.utils.codeBlock(evaledType, "prolog")}
 
-		if ('silent' in message.flags) return null;
+Time:
+${this.formatTime(...times)}`, { split: true });
+    }
 
-		// Handle too-long-messages
-		if (output.length > 2000) {
-			if (message.guild && message.channel.attachable) {
-				return message.channel.sendFile(Buffer.from(result), 'output.txt', message.language.get('COMMAND_EVAL_SENDFILE', time, footer));
-			}
-			this.client.emit('log', result);
-			return message.sendLocale('COMMAND_EVAL_SENDCONSOLE', [time, footer]);
-		}
+    async evaluateCode(message, code) {
+        if (message.flags.async) code = `(async () => {\n${code}\n})();`;
+        const stopwatch = (new Stopwatch(2)).start();
+        let res, error, file = false, evaledType, asyncEvalTime, syncEvalTime;
+        try {
+            res = eval(code);
+            res = typeof res === "string" ? this.client.clean(message, res) : res;
+            syncEvalTime = stopwatch.stop();
+            evaledType = new ClassType(res).toString();
+            if (this.client.utils.isPromise(res)) {
+                stopwatch.restart();
+                res = await res;
+                res = typeof res === "string" ? this.client.clean(message, res) : res;
+                asyncEvalTime = stopwatch.stop();
+            }
+        } catch (err) {
+            evaledType = new ClassType(err).toString();
+            res = this.client.clean(message, err.stack || err.toString());
+            error = true;
+            syncEvalTime = stopwatch.stop();
+        }
+        switch (message.flags.output) {
+            case "haste":
+            case "hastebin": {
+                res = await this.client.utils.haste(this.client.clean(message, inspect(res, {
+                    depth: message.flags.depth || 0,
+                    showHidden: message.flags.hidden || false
+                }))).catch(() => "https://hastebin.com/hastebinisfuckingdownreee");
+                break;
+            }
+            case "file": {
+                res = await message.channel.send(
+                    new MessageAttachment(Buffer.from(this.client.clean(message, inspect(res, {
+                        depth: message.flags.depth || 0,
+                        showHidden: message.flags.hidden || false
+                    }))), "eval.txt")
+                );
+                file = true;
+                break;
+            }
+        }
+        if (typeof res !== "string")
+            res = this.client.clean(message, inspect(res, {
+                depth: message.flags.depth || 0,
+                showHidden: message.flags.hidden || false
+            }));
+        return {
+            res,
+            silent: "silent" in message.flags,
+            file,
+            error,
+            evaledType,
+            times: [asyncEvalTime, syncEvalTime]
+        };
+    }
 
-		// If it's a message that can be sent correctly, send it
-		return message.sendMessage(output);
-	}
+    formatTime(asyncEvalTime, syncEvalTime) {
+        return asyncEvalTime ? `:alarm_clock: ${syncEvalTime}[${asyncEvalTime}]`: `:alarm_clock: ${syncEvalTime}`;
+    }
 
-	// Eval the input
-	async eval(message, code) {
-		// eslint-disable-next-line no-unused-vars
-		const msg = message;
-		const { flags } = message;
-		const stopwatch = new Stopwatch();
-		let success, syncTime, asyncTime, result;
-		let thenable = false;
-		let type;
-		try {
-			if (flags.async) code = `(async () => {\n${code}\n})();`;
-			result = eval(code);
-			syncTime = stopwatch.toString();
-			type = new Type(result);
-			if (util.isThenable(result)) {
-				thenable = true;
-				stopwatch.restart();
-				result = await result;
-				asyncTime = stopwatch.toString();
-			}
-			success = true;
-		} catch (error) {
-			if (!syncTime) syncTime = stopwatch.toString();
-			if (!type) type = new Type(error);
-			if (thenable && !asyncTime) asyncTime = stopwatch.toString();
-			if (error && error.stack) this.client.emit('error', error.stack);
-			result = error;
-			success = false;
-		}
+}
 
-		stopwatch.stop();
-		if (typeof result !== 'string') {
-			result = inspect(result, {
-				depth: flags.depth ? parseInt(flags.depth) || 0 : 0,
-				showHidden: Boolean(flags.showHidden)
-			});
-		}
-		return { success, type, time: this.formatTime(syncTime, asyncTime), result: util.clean(result) };
-	}
-
-	formatTime(syncTime, asyncTime) {
-		return asyncTime ? `⏱ ${asyncTime}<${syncTime}>` : `⏱ ${syncTime}`;
-	}
-
-};
+module.exports = EvalCommand;

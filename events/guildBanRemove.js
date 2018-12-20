@@ -1,9 +1,9 @@
-const { Event } = require("klasa");
+const Event = require("../framework/Event.js");
 
 class GuildBanRemoveEvent extends Event {
 
     async run(guild, user) {
-        if (!guild.settings.logs.bans) return;
+        if (!guild.config.logs.bans) return;
         this.client.emit("logs", guild, {
             type: "memberUnban",
             user

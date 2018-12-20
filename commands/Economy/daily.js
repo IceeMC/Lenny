@@ -1,10 +1,9 @@
-const { Command, Duration } = require("klasa");
+const Command = require("../../framework/Command.js");
 
 class Daily extends Command {
 
     constructor(...args) {
         super(...args, {
-            name: "daily",
             runIn: ["text"],
             description: language => language.get("COMMAND_DAILY_DESCRIPTION"),
             aliases: ["dailycoins", "dcoins", "coindaily", "coinbonus"]
@@ -12,15 +11,11 @@ class Daily extends Command {
     }
 
     async run(message) {
-        if (Date.now() < message.member.settings.lastDaily)
-            throw message.language.get("COMMAND_DAILY_ALREADY_CLAIMED", Duration.toNow(message.member.settings.lastDaily));
+        if (Date.now() < message.member.config.lastDaily)
+            throw message.language.get("COMMAND_DAILY_ALREADY_CLAIMED", this.client.utils.formatMS(message.member.config.lastDaily));
         await message.member.setCoins(2500);
-        await this.cooldown(message.member);
+        await message.member.updateConfig({ lastDaily: Date.now() + 864e5 })
         return message.sendLocale("COMMAND_DAILY_CLAIMED", [2500]);
-    }
-
-    async cooldown(member) {
-        return await member.settings.update("lastDaily", Date.now() + 864e5);
     }
 
 }

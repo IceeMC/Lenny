@@ -1,10 +1,10 @@
-const { Event } = require("klasa");
+const Event = require("../framework/Event.js");
 
 class MemberWarn extends Event {
 
 
     async run(guild, reason, member) {
-        if (!guild.settings.logs.warns) return;
+        if (!guild.config.logs.warns) return;
         this.client.emit("logs", guild, {
             type: "memberWarn",
             reason,

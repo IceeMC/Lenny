@@ -1,6 +1,6 @@
 const UnoPlayer = require("./UnoPlayer.js");
 const UnoCard = require("./UnoCard.js");
-const { Duration, KlasaMessage } = require("klasa");
+const moment = require("moment");
 const colors = ["R", "G", "B", "Y"];
 
 function repeat(arr = [], elem, times = 1) {
@@ -112,7 +112,7 @@ You own ${player.cards.length} cards now.`);
     static async save(game) {
         const save = {};
         const { settings } = game;
-        save.players = [this.current, ...game.players.map(p => p.toJSON())];
+        save.players = [this.current.toJSON(), ...game.players.map(p => p.toJSON())];
         save.cards = game.cards.map(c => c.toJSON());
         save.deadCards = game.deadCards.map(c => c.toJSON());
         save.rankings = game.rankings.map(r => r.toJSON());
@@ -139,8 +139,10 @@ You own ${player.cards.length} cards now.`);
 
     drawCards(cards = 1) {
         const drawn = [];
-        for (let i = 0; i < cards; i++) for (const p of this.players) {
-            !drawn[p.user.id] ? drawn[p.user.id] = [p.drawCard()] : drawn[p.user.id].push(p.drawCard());
+        for (let i = 0; i < cards; i++) {
+            for (const p of this.players) {
+                !drawn[p.user.id] ? drawn[p.user.id] = [p.drawCard()] : drawn[p.user.id].push(p.drawCard());
+            }
         }
         this.drawnCards += cards * this.players.length;
         this.players.map(p =>
@@ -152,6 +154,10 @@ ${drawn[p.user.id].map(c => `\`${c}\``).join(", ")}
 You own ${player.cards.length} cards now.
 `)
         );
+    }
+
+    drawCard(player, cards = 1) {
+
     }
 
     send(id, content) {
@@ -170,7 +176,7 @@ Game over. Thanks for playing.
 Here are the rankings:
 ${this.rankings.map((r, i) => `${i+1} -> \`${r.user.tag}\``).join("\n")}
 
-The game took **${Duration.toNow(Date.now() - this.startedAt)}** to complete.
+The game took **${moment(Date.now() - this.startedAt)}** to complete.
 
 **Game Statistics:**
 ${this.drawnCards.toLocaleString()} cards were drawn.

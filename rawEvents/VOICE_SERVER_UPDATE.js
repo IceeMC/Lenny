@@ -1,11 +1,11 @@
-const RawEvent = require("../utils/RawEvent.js");
+const Event = require("../framework/Event.js");
 
-class VoiceServerUpdate extends RawEvent {
+class VoiceServerUpdate extends Event {
 
-    async run(packet) {
-        const player = this.client.audioManager.get(packet.guild_id);
+    async run({ d }) {
+        const player = this.client.audioManager.get(d.guild_id);
         if (!player) return;
-        player.provideVoiceUpdate(packet);
+        player.provideVoiceUpdate(d);
     }
 
 }

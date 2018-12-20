@@ -8,8 +8,8 @@ import Design from "../reactComponents/Design.jsx";
 
 class MusicPlayer extends Component {
 
-    static async getInitialProps({ query }) {
-        return query;
+    static async getInitialProps({ query: { authorized, stats, usr, owner } }) {
+        return { authorized, stats, usr, owner };
     }
 
     render() {

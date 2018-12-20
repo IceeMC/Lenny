@@ -70,15 +70,15 @@ class Website {
             if (req.headers["authorization"] !== this.client.config.upvoteKey) return res.status(400).json({ message: "Invalid auth header." });
             const user = this.client.users.get(req.body.user) || await this.client.users.fetch(req.body.user);
             const type = req.body.type;
-            const weekend = req.body.isWeekend ? "double " : " ";
+            const weekend = req.body.isWeekend ? "double the" : "";
             if (type === "upvote") {
                 const channel = this.client.channels.get(upvoteChannel);
                 channel.send(new MessageEmbed()
                     .setTitle("New Upvote")
                     .setColor(this.client.utils.color)
                     .setAuthor(user.tag, user.displayAvatarURL({ format: "png" }))
-                    .setDescription(`${user} upvoted Chat Noir. Thanks for showing ${weekend}the support!`)
-                ).catch(e => this.client.emit("wtf", `[UPVOTES] Failed to send:\n${error.stack || error}`));
+                    .setDescription(`${user} upvoted Chat Noir. Thanks for showing ${weekend} support!`)
+                ).catch(e => this.client.emit("wtf", `[UPVOTES] Failed to send:\n${e.stack || e}`));
             }
         });
     }
@@ -92,7 +92,7 @@ class Website {
         return res.redirect("/login");
     }
 
-    async start() {
+    async build() {
         this.client.console.log("Starting build! This could take a while...");
         const start = Date.now();
         // Try and delete the old next.js build
@@ -100,8 +100,14 @@ class Website {
         // Execute 'npx next build' to build app.
         await exec("npx next build", { cwd: __dirname });
         this.client.console.log(`Finished building in ${(Date.now() - start).toFixed(2)}ms.`);
+        return true;
+    }
+
+    async start() {
         // Prepare next.js after building the files
         await this.app.prepare();
+        // Build
+        await this.build();
         // Passport and helmet
         this.express.use(helmet({
             frameguard: false

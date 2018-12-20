@@ -1,4 +1,4 @@
-const { Command, util: { codeBlock } } = require("klasa");
+const Command = require("../../framework/Command.js");
 const range = num => Array.from(Array(num).keys());
 
 class Star extends Command {
@@ -7,13 +7,13 @@ class Star extends Command {
         super(...args, {
             name: "star",
             runIn: ["text", "dm"],
-            description: message => message.language.get("COMMAND_STAR_DESCRIPTION"),
-            usage: "<text:string{2,26}>"
+            description: language => language.get("COMMAND_STAR_DESCRIPTION"),
+            usage: "<text:string::all[2,26]>"
         });
     }
 
     run(message, [text]) {
-        const star = codeBlock("", this.generateStar(text));
+        const star = this.client.utils.codeBlock("", this.generateStar(this.client.clean(message, text)));
         return message[message.channel.type === "dm" ? "author" : "channel"].send(star);
     }
 

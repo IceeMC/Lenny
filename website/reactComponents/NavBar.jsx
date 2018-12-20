@@ -1,7 +1,7 @@
 import { Navbar, NavbarToggler, NavbarBrand, Collapse, Nav, NavItem, NavLink } from "reactstrap";
 import React, { Component } from "react";
 
-const avatar = "https://cdn.discordapp.com/avatars/459153545917235200/95295dfb8efc3e70d6395ffa26d54162.png";
+const avatar = "https://cdn.discordapp.com/avatars/459153545917235200/c588678a9c60e11dcca4c728ebf4ccfe.png?size=2048";
 const allPages = [{
     href: "/",
     name: "Home",
@@ -43,24 +43,19 @@ class NavBar extends Component {
                 <Collapse isOpen={this.state.isOpen} navbar>
                     <Nav className="ml-auto" navbar>
                         {pages.map(pg => <NavItem key={pg.name}><NavLink active={this.props.activePage === pg.name} href={pg.href}>{pg.name}</NavLink></NavItem>)}
-                        {this.listPages()}
+                        {(() => {
+                            if (this.props.authorized && this.props.usr) {
+                                let base;
+                                if (this.props.owner) base += ownerPages.map(pg => <NavItem key={pg.name}><NavLink active={this.props.activePage === pg.name} href={pg.href}>{pg.name}</NavLink></NavItem>);
+                                base += <NavItem><NavLink href="/logout">Logout</NavLink></NavItem>;
+                                return base;
+                            }
+                            return <NavItem key="login"><NavLink href="/login">Login</NavLink></NavItem>;
+                        })()}
                     </Nav>
                 </Collapse>
             </Navbar>
         );
-    }
-
-    listPages() {
-        if (this.props.authorized) {
-            let base = <div>
-                <NavItem><NavLink>{this.props.usr.username}</NavLink></NavItem>
-                <div>{authPages.map(pg => <NavItem key={pg.name}><NavLink active={this.props.activePage === pg.name} href={pg.href}>{pg.name}</NavLink></NavItem>)}</div>
-            </div>;
-            if (this.props.owner) base += ownerPages.map(pg => <NavItem key={pg.name}><NavLink active={this.props.activePage === pg.name} href={pg.href}>{pg.name}</NavLink></NavItem>);
-            base += <NavItem key="logout"><NavLink href="/logout">Logout</NavLink></NavItem>;
-            return base;
-        }
-        return <NavItem key="login"><NavLink href="/login">Login</NavLink></NavItem>;
     }
 
 }

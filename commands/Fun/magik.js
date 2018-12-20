@@ -1,4 +1,4 @@
-const { Command } = require("klasa");
+const Command = require("../../framework/Command.js");
 const superagent = require("superagent");
 const { MessageAttachment } = require("discord.js");
 
@@ -9,7 +9,7 @@ class Magik extends Command {
             name: "magik",
             runIn: ["text"],
             description: language => language.get("COMMAND_MAGIK_DESCRIPTION"),
-            usage: "[member:membername]",
+            usage: "[member:member::all]",
             usageDelim: " "
         });
     }

@@ -1,5 +1,5 @@
 const { MessageAttachment } = require("discord.js");
-const { Command } = require("klasa");
+const Command = require("../../framework/Command.js");
 
 class HumansGood extends Command {
 
@@ -13,7 +13,7 @@ class HumansGood extends Command {
     }
 
     async run(message, [text]) {
-        const file = await this.client.bananapi.humansgood(text).catch(() => null);
+        const file = await this.client.bananapi.humansgood(this.client.clean(message, text)).catch(() => null);
         if (!file) throw message.language.get("BANANAPI_ERROR", "Please shorten the text to 32 characters or less!");
         return message.send(new MessageAttachment(file, "humansgood.png"));
     }

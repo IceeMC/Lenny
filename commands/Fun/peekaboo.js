@@ -1,5 +1,5 @@
 const { MessageAttachment } = require("discord.js");
-const { Command } = require("klasa");
+const Command = require("../../framework/Command.js");
 
 class Peekaboo extends Command {
 
@@ -7,7 +7,7 @@ class Peekaboo extends Command {
         super(...args, {
             name: "peekaboo",
             description: language => language.get("COMMAND_PEEKABOO_DESCRIPTION"),
-            usage: "[member:membername]",
+            usage: "[member:membername::all]",
             aliases: ["peek"]
         });
     }

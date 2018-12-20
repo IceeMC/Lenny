@@ -1,37 +1,24 @@
-const { Command } = require("klasa");
+const Command = require("../../framework/Command.js");
 
 class Emojify extends Command {
 
     constructor(...args) {
         super(...args, {
-            name: "emojify",
             description: language => language.get("COMMAND_EMOJIFY_DESCRIPTION"),
-            usage: "<text:string>"
+            usage: "<text:string::all[1,50]>",
         });
-        this.numbers = {
-            0: "zero",
-            1: "one",
-            2: "two",
-            3: "three",
-            4: "four",
-            5: "five",
-            6: "six",
-            7: "seven",
-            8: "eight",
-            9: "nine"
-        };
+        this.emojis = ["1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣", "8⃣", "9⃣"];
     }
 
     async run(message, [text]) {
-        return message.send(text
-            .replace(/([A-Za-z])/g, (match, char) => {
+        return message.send(this.client.clean(message, text)
+            .replace(/([A-Za-z])/g, (_, char) => {
                 if (char.match(/(:|<|>)/)) return " ";
                 return `:regional_indicator_${char.toLowerCase()}: `;
             })
-            .replace(/[0-9]/g, (match, num) => { return `:${this.numbers[parseInt(num)]}: `; })
-        ).catch(() => {
-            throw "Message content to long. Please make it shorter!";
-        })
+            .replace(/0/g, ":zero: ")
+            .replace(/([1-9])/g, (_, num) => `${this.emojis[parseInt(num)]} `)
+        );
     }
 
 }

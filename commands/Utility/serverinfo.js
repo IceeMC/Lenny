@@ -1,15 +1,13 @@
-const { Command } = require("klasa");
+const Command = require("../../framework/Command.js");
 const { MessageEmbed } = require("discord.js");
 
 class ServerInfo extends Command {
 
     constructor(...args) {
         super(...args, {
-            name: "serverinfo",
             runIn: ["text"],
             description: language => language.get("COMMAND_SERVERINFO_DESCRIPTION"),
             aliases: ["si", "sinfo"],
-            extendedHelp: "No extended help available."
         });
     }
 
@@ -20,7 +18,9 @@ class ServerInfo extends Command {
         embed.setDescription("Server info");
         embed.setThumbnail(message.guild.iconURL());
         embed.addField("ID", message.guild.id, true);
-        embed.addField(`Members`, message.guild.members.size, true);
+        const users = message.guild.members.filter(m => !m.user.bot).size;
+        const bots = message.guild.members.filter(m => m.user.bot).size;
+        embed.addField("Members", `${users} users | ${bots} bots`, true);
         const verificationLevels = {
             0: "**None:** Unrestricted.",
             1: "**Low:** Must have a verified email on their Discord account.",
@@ -33,14 +33,14 @@ class ServerInfo extends Command {
             1: "**Moderate** Moderate Scanning enabled. (Scan messages from members without a role.)",
             2: "**High** High Scanning enabled. (Scans every message.)"
         }
-        if (message.guild.owner.user) embed.addField("Owner", `${message.guild.owner.user.tag} (${message.guild.owner.id})`);
-        embed.addField("Roles", message.guild.roles.size, true);
-        embed.addField("Channels", message.guild.channels.size, true);
-        embed.addField("Content Filter", contentFilters[message.guild.explicitContentFilter], true)
-        embed.addField("Verification Level", verificationLevels[message.guild.verificationLevel], true);
+        embed.addField("Owner", `${message.guild.owner.user.tag} (${message.guild.owner.id})`);
+        embed.addField("Roles:", message.guild.roles.size, true);
+        embed.addField("Channels:", message.guild.channels.size, true);
+        embed.addField("Content Filter:", contentFilters[message.guild.explicitContentFilter], true)
+        embed.addField("Verification Level:", verificationLevels[message.guild.verificationLevel], true);
         const bans = await message.guild.fetchBans().then(bans => bans.size).catch(() => "Could not fetch bans! (Missing Permissions)");
-        embed.addField("Bans", bans, true);
-        return message.sendEmbed(embed);
+        embed.addField("Bans:", bans, true);
+        return message.send(embed);
     }
 
 }

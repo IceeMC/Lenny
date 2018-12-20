@@ -4,7 +4,7 @@ class Starboard {
 
     constructor(guild) {
         this.guild = guild;
-        this._starboard = guild.settings.starboard;
+        this._starboard = guild.config.starboard;
         this.regex = /Stars: (.*) \| ID: (.*)/;
     }
 
@@ -44,7 +44,7 @@ class Starboard {
 
     removeStar(starred, message) {
         const regexMatch = this.regex.exec(starred.embeds[0].footer.text);
-        const attachment = message.embeds[0] ? message.embeds[0].image ? this._check(message.embeds[0].image.url) : null : null;
+        const attachment = message.embeds[0] && message.embeds[0].image ? this._check(message.embeds[0].image.url) : null;
         if (parseInt(regexMatch[1]) - 1 > this.limit) {
             const em = new MessageEmbed()
                 .setAuthor(message.author.tag, message.author.displayAvatarURL({ format: "png" }))
@@ -61,7 +61,7 @@ class Starboard {
 
     _check(url) {
         const urlSplit = url.split(".");
-        const validUrl = /(?:(png|jpeg|jpg|gif))/gi.test(urlSplit[urlSplit.length - 1]);
+        const validUrl = /(?:(png|jpe?g|gif))/gi.test(urlSplit[urlSplit.length - 1]);
         if (validUrl) return url;
         return null;
     }

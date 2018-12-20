@@ -1,25 +1,25 @@
-const { Command, util: { exec, codeBlock } } = require("klasa");
+const Command = require("../../framework/Command.js");
+const exec = require("util").promisify(require("child_process").exec);
 
 class Execute extends Command {
 
 	constructor(...args) {
 		super(...args, {
-			name: "exec",
 			aliases: ["execute"],
 			description: "Executes terminal commands.",
-			usage: "<cmd:string>",
-			guarded: true,
-			permissionLevel: 10
+			noHelp: true,
+			check: 10,
+			usage: "<cmd:string::all>"
 		});
 	}
 
-	async run(msg, [cmd]) {
-		const result = await exec(cmd, { timeout: "timeout" in msg.flags ? Number(msg.flags.timeout) : 60000 })
+	async run(message, [cmd]) {
+		const result = await exec(cmd, { timeout: "timeout" in message.flags ? Number(message.flags.timeout) : 15000 })
 			.catch(error => ({ stdout: null, stderr: error }));
-		const output = result.stdout ? `**\`OUTPUT\`**${codeBlock("prolog", result.stdout)}` : "";
-		const outerr = result.stderr ? `**\`ERROR\`**${codeBlock("prolog", result.stderr)}` : "";
+		const output = result.stdout ? `**\`OUTPUT\`**${this.client.utils.codeBlock(result.stdout, "prolog")}` : "";
+		const err = result.stderr ? `**\`ERROR\`**${this.client.utils.codeBlock(result.stderr, "prolog")}` : "";
 
-		return msg.sendMessage([output, outerr].join("\n"));
+		return message.send([output, err].join("\n"));
 	}
 
 };

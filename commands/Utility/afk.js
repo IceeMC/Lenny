@@ -1,4 +1,4 @@
-const { Command, util: { clean } } = require("klasa");
+const Command = require("../../framework/Command.js");
 
 class AFK extends Command {
 
@@ -7,31 +7,25 @@ class AFK extends Command {
             name: "afk",
             aliases: ["setafk", "afkstatus"],
             runIn: ["text"],
+            subCommands: ["set", "remove"],
+            usage: "<type> [afkMessage:string::all]",
             description: language => language.get("COMMAND_AFK_DESCRIPTION"),
-            usage: "<set|remove> [args:string]",
-            usageDelim: " ",
-            extendedHelp: "No extended help available",
         });
     }
 
-    run(message, [type, ...params]) {
-        if (type === "set") return this.set(message, params);
-        if (type === "remove") return this.set(message, params);
-    }
-
-    async set(message, [...afkMessage]) {
+    async set(message, [afkMessage]) {
         if (!afkMessage) throw message.language.get("COMMAND_AFK_NO_MESSAGE");
-        const { isAfk } = message.author.settings;
-        if (isAfk) throw message.language.get("COMMAND_AFK_ALREADY_AFK");
-        await message.author.settings.update([["afk.isAfk", true], ["afk.afkMessage", clean(afkMessage.join(" "))]]);
-        return message.sendLocale("COMMAND_ADK_SET", afkMessage.join(" "));
+        const { afk: { isAfk } } = message.author.config;
+        if (isAfk) throw message.language.get("COMMAND_AFK_ALREADY_AFK", [message.guild.config.prefix]);
+        await message.author.updateConfig({ afk: { isAfk: true, message: this.client.clean(message, afkMessage) } });
+        return message.sendLocale("COMMAND_AFK_SET", [this.client.clean(message, afkMessage)]);
     }
 
     async remove(message) {
-        const { isAfk } = message.author.settings;
-        if (!isAfk) throw message.language.get("COMMAND_AFK_NOT_AFK");
-        await message.author.settings.update("afk", null);
-        return message.sendLocale("COMMAND_AFK_REMOVE", afkMessage.join(" "));
+        const { afk: { isAfk } } = message.author.config;
+        if (!isAfk) throw message.language.get("COMMAND_AFK_NOT_AFK", [message.guild.config.prefix]);
+        await message.author.updateConfig({ afk: { isAfk: false, message: null } });
+        return message.sendLocale("COMMAND_AFK_REMOVE");
     }
 
 }

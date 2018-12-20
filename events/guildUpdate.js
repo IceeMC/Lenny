@@ -1,9 +1,9 @@
-const { Event } = require("klasa");
+const Event = require("../framework/Event.js");
 
 class GuildUpdateEvent extends Event {
 
     async run(oldGuild, newGuild) {
-        if (!oldGuild.settings.logs.guild) return;
+        if (!oldGuild.config.logs.guild) return;
         const updates = [];
         if (newGuild.name !== oldGuild.name) updates.push({ text: "Name Change", old: oldGuild.name, new: newGuild.name });
         if (newGuild.iconURL() !== oldGuild.iconURL()) updates.push({ text: "Icon Change", old: oldGuild.iconURL(), new: newGuild.iconURL() });

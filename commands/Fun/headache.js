@@ -1,5 +1,5 @@
 const { MessageAttachment } = require("discord.js");
-const { Command } = require("klasa");
+const Command = require("../../framework/Command.js");
 
 class Headache extends Command {
 
@@ -12,7 +12,7 @@ class Headache extends Command {
     }
 
     async run(message, [text]) {
-        const file = await this.client.bananapi.disabled(text).catch(() => null);
+        const file = await this.client.bananapi.headache(this.client.clean(message, text)).catch(() => null);
         if (!file) throw message.language.get("BANANAPI_ERROR", "Please shorten the text to 25 characters or less!");
         return message.send(new MessageAttachment(file, "headache.png"));
     }

@@ -3,8 +3,8 @@ import React from "react";
 const MetaData = ({
     title = "Chat Noir",
     description = "A simple to use discord bot with a TON of features.",
-    image = "https://cdn.discordapp.com/avatars/459153545917235200/95295dfb8efc3e70d6395ffa26d54162.png?size=2048",
-    url = "https://chatnoir.ml",
+    image = "https://cdn.discordapp.com/avatars/459153545917235200/c588678a9c60e11dcca4c728ebf4ccfe.png?size=2048",
+    url = "https://remixbot.ml",
     color = "#1A1210"
 }) => (
     <div>

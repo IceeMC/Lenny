@@ -1,23 +1,23 @@
-const { Command } = require("klasa");
+const Command = require("../../framework/Command.js");
 
 class Starboard extends Command {
 
     constructor(...args) {
         super(...args, {
-            name: "starboard",
-            subcommands: true,
             description: language => language.get("COMMAND_STARBOARD_DESCRIPTION"),
-            permissionLevel: 7,
-            usage: "<limit|channel> [args:string] [channel:textchannel]",
-            usageDelim: " ",
+            check: 7,
             runIn: ["text"],
+            subCommands: ["limit", "channel"],
+            usage: "<type> [params:string::all]",
             aliases: ["sboard"]
         });
     }
 
-    async run(message, [type, ...params, channel]) {
+    async run(message, [type, ...params]) {
+        if (!type) throw message.language.get("BAD_SUB_CMD_TYPE", ["limit", "channel"]);
         if (type === "limit") return this.limit(message, params);
         if (type === "channel") return this.channel(message, params);
+        throw message.language.get("BAD_SUB_CMD_TYPE", ["limit", "channel"]);
     }
 
     async limit(message, [limit]) {
@@ -25,18 +25,15 @@ class Starboard extends Command {
         const { starboard } = message.guild;
         if (parseInt(limit) < 1) throw message.language.get("COMMAND_STARBOARD_LIMIT_ZERO");
         if (starboard.limit === parseInt(limit)) throw message.language.get("COMMAND_STARBOARD_LIMIT_SAME");
-        await message.guild.settings.update([
-            ["starboard.limit", parseInt(limit)]
-        ]);
+        await message.guild.updateConfig({ "starboard.limit": limit });
         return message.sendLocale("COMMAND_STARBOARD_LIMIT_CHANGED", [starboard.limit, parseInt(limit)]);
     }
 
     async channel(message) {
         if (message.mentions.channels.size) {
             if (!message.mentions.channels.first().postable) throw message.language.get("COMMAND_STARBOARD_CANT_SPEAK");
-            await message.guild.settings.update([
-                ["starboard.channel", message.mentions.channels.first().id]
-            ], message.guild);
+            const { starboard } = message.guild.config;
+            await message.guild.updateConfig({ "starboard.channel": message.mentions.channels.first().id });
             return message.sendLocale("COMMAND_STARBOARD_CHANNEL_UPDATE", [message.mentions.channels.first()]);
         } else throw message.language.get("COMMAND_STARBOARD_NO_MENTION");
     }

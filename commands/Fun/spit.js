@@ -1,13 +1,13 @@
 const { MessageAttachment } = require("discord.js");
-const { Command } = require("klasa");
+const Command = require("../../framework/Command.js");
 
-class Split extends Command {
+class Spit extends Command {
 
     constructor(...args) {
         super(...args, {
             name: "splits",
             description: language => language.get("COMMAND_SPLIT_DESCRIPTION"),
-            usage: "<member:membername>",
+            usage: "[member:member::all]",
             aliases: ["split"]
         });
     }
@@ -22,4 +22,4 @@ class Split extends Command {
 
 }
 
-module.exports = Split;
+module.exports = Spit;

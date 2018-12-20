@@ -27,7 +27,7 @@ class WebSocketServer {
                 volume: null
             };
             socket.on("message", packet => {
-                try { JSON.parse(packet); } catch { return socket.close(1009, "Invalid JSON payload."); }
+                try { JSON.parse(packet); } catch (_) { return socket.close(1009, "Invalid JSON payload."); }
                 const { id, alive } = JSON.parse(packet);
                 const player = this.client.audioManager.get(id);
                 if (alive) return this.socketSend(socket, { alive: true, now: Date.now() });
@@ -118,11 +118,7 @@ class WebSocketServer {
                 data: { oldVolume, newVolume }
             });
         }
-        player.on("start", socket.playerListeners.start.bind(this));
-        player.on("pause", socket.playerListeners.pause.bind(this));
-        player.on("end", socket.playerListeners.end.bind(this));
-        player.on("stuck", socket.playerListeners.stuck.bind(this));
-        player.on("volume", socket.playerListeners.volume.bind(this));
+        for (const [name, func] of Object.entries(socket.playerListeners)) player.on(name, func.bind(this));
     }
 
 }

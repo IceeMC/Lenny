@@ -1,11 +1,12 @@
-const { Event } = require("klasa");
+const Event = require("../framework/Event.js");
 
 class MessageUpdateEvent extends Event {
 
     async run(oldMessage, newMessage) {
+        if (!newMessage._parsed) newMessage._prepare();
         if(oldMessage.content === newMessage.content) return;
-        if (this.client.ready) this.client.monitors.run(newMessage);
-        if (!oldMessage.guild.settings.logs.messages) return;
+        this.client.emit("message", newMessage);
+        if (!oldMessage.guild.config.logs.messages) return;
         this.client.emit("logs", newMessage.guild, {
             type: "messageUpdate",
             oldContent: oldMessage.content,

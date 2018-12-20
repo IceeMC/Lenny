@@ -1,7 +1,5 @@
-const { Command } = require("klasa");
-const { Canvas } = require("canvas-constructor");
-const fs = require("fs");
-const { get } = require("superagent");
+const Command = require("../../framework/Command.js");
+const ArgResolver = require("../../framework/ArgResolver.js");
 const { MessageAttachment } = require("discord.js");
 
 class Profile extends Command {
@@ -11,7 +9,7 @@ class Profile extends Command {
             name: "profile",
             runIn: ["text"],
             description: language => language.get("COMMAND_DAILY_DESCRIPTION"),
-            usage: "[member:membername]",
+            member: "[member:member::all]",
             aliases: ["myprofile"]
         });
     }
@@ -23,7 +21,7 @@ class Profile extends Command {
     }
 
     async generateProfile(member) {
-        const { settings: { coins, level }, user: { settings: { theme } } } = member; // Deconstruct the members coins, level, and theme
+        const { config: { coins, level }, user: { config: { theme = "blurple" } } } = member; // Deconstruct the members coins, level, and theme
         // Thanks York#0001
         const previousLevel = Math.floor((level / 0.1) ** 2);
         const nextLevel = Math.floor(((level + 1) / 0.1) ** 2);

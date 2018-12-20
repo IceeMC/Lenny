@@ -1,10 +1,8 @@
 const { nodes } = require("../../config.json");
-const { Client } = require("klasa"); // eslint-disable-line
 const { Collection } = require("discord.js");
 const NodeStore = require("./NodeStore.js");
 const AudioPlayer = require("./AudioPlayer.js"); // eslint-disable-line
 const AudioNode = require("./AudioNode.js"); // eslint-disable-line
-const { get } = require("snekfetch");
 
 /**
  * A custom LavaLink implementation for the bot.
@@ -14,14 +12,19 @@ class AudioManager extends Collection {
 
     constructor(client) {
         super();
-
-        /**
-         * The KlasaClient Used
-         * @type {Client}
-         */
-        Object.defineProperty(this, "client", { value: client, writable: false });
-
+        Object.defineProperty(this, "client", { value: client });
         this.nodes = new NodeStore();
+        for (let node of nodes) {
+            // Create the node
+            node = new AudioNode(this, node);
+            this.nodes.set(node.host, node);
+        }
+    }
+
+    /**
+     * Relaunches each node.
+     */
+    relaunch() {
         for (let node of nodes) {
             // Create the node
             node = new AudioNode(this, node);
@@ -40,7 +43,7 @@ class AudioManager extends Collection {
      * @returns {AudioPlayer} The new AudioPlayer
      */
     join(data) {
-        this.client.ws.send({
+        this.client.ws.shards.get(0).send({
             op: 4,
             d: {
                 guild_id: data.guildId,
@@ -64,7 +67,7 @@ class AudioManager extends Collection {
      * @param {string} id - The guild id to leave the channel.
      */
     leave(id) {
-        this.client.ws.send({
+        this.client.ws.shards.get(0).send({
             op: 4,
             d: {
                 guild_id: id,
