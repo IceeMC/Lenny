@@ -1,6 +1,4 @@
 const UsageTag = require("./UsageTag.js");
-const quotedString = /(["'‘“"`]).*?(["'’”"`])((?:\\\1|.)*?)(\1)/g; // Modified | Credit: https://github.com/regexhq/quoted-string-regex
-const noQuotedString = /\w+/g;
 
 class CommandUsage {
 
@@ -49,7 +47,7 @@ class CommandUsage {
                 argArray.push(undefined);
                 break;
             } else {
-                const arg = this.usageTags.length < 2 && usageTag.all ?
+                const arg = usageTag.all ?
                     copied.args.slice(i).join(" ") :
                     copied.args[i];
                 const result = await usageTag.run(message, arg);
