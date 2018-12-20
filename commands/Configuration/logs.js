@@ -9,7 +9,7 @@ class Logs extends Command {
             aliases: ["mlogs", "modlogs"],
             check: 7,
             subCommands: ["enable", "disable", "channel"],
-            usage: "<type> [key:string]",
+            usage: "[t:string] [key:string]",
             description: language => language.get("COMMAND_LOGS_DESCRIPTION")
         });
         this.validKeys = ["guild", "channels", "roles", "nicknames", "bans", /*"kicks",*/ "joins", "leaves", "warns", "messages"];
