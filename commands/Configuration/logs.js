@@ -8,19 +8,20 @@ class Logs extends Command {
             runIn: ["text"],
             aliases: ["mlogs", "modlogs"],
             check: 7,
+            subCommands: ["enable", "disable", "channel"],
             usage: "<type> [key:string]",
             description: language => language.get("COMMAND_LOGS_DESCRIPTION")
         });
         this.validKeys = ["guild", "channels", "roles", "nicknames", "bans", /*"kicks",*/ "joins", "leaves", "warns", "messages"];
     }
 
-    async run(message, [type, key]) {
-        if (!type) throw message.language.get("SUB_COMMAND_INVALID", ["enable", "disable", "channel"]);
-        if (type === "enable") return this.enableSetting(message, [key]);
-        if (type === "disable") return this.disableSetting(message, [key]);
-        if (type === "channel") return this.changeChannel(message);
-        if (!type) throw message.language.get("SUB_COMMAND_INVALID", ["enable", "disable", "channel"]);
-    }
+    // async run(message, [type, key]) {
+    //     if (!type) throw message.language.get("SUB_COMMAND_INVALID", ["enable", "disable", "channel"]);
+    //     if (type === "enable") return this.enableSetting(message, [key]);
+    //     if (type === "disable") return this.disableSetting(message, [key]);
+    //     if (type === "channel") return this.changeChannel(message);
+    //     throw message.language.get("SUB_COMMAND_INVALID", ["enable", "disable", "channel"]);
+    // }
 
     async enableSetting(message, [key]) {
         if (!key) throw message.language.get("COMMAND_LOGS_NO_KEY", this.validKeys);
