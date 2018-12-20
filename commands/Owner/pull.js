@@ -13,8 +13,10 @@ class Pull extends Command {
 	}
 
 	async run(message) {
-		const result = await exec("git pull");
-        await message.send(`Updated:\n${this.client.utils.codeBlock(result, "xl")}`);
+        const { stdout, stderr } = await exec("git pull").catch(err => ({ stdout: null, stderr: err }));
+        const output = stdout ? `**\`Updated\`**${this.client.utils.codeBlock(stdout, "prolog")}` : "";
+		const err = stderr ? `**\`Error while updating\`**${this.client.utils.codeBlock(stderr, "prolog")}` : "";
+        await message.send([output, err].join("\n"));
         process.exit();
 	}
 
