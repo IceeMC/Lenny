@@ -7,7 +7,7 @@ class Prefix extends Command {
             name: "prefix",
             runIn: ["text"],
             description: language => language.get('COMMAND_PREFIX_DESCRIPTION'),
-            usage: "[prefix:string]",
+            usage: "[prefix:string[1,8]]",
             check: 7,
         });
     }
@@ -15,7 +15,6 @@ class Prefix extends Command {
 
     async run(message, [prefix]) {
         if (!prefix) throw message.language.get("COMMAND_PREFIX_NULL");
-        if (prefix.length < 2 && prefix.length > 4) throw message.language.get("COMMAND_PREFIX_LIMIT_TRUE");
         if (!prefix || prefix === "reset" || prefix === "default") {
             await message.guild.updateConfig({ prefix: "cn." })
             message.sendLocale("COMMAND_PREFIX", ["cn."]);

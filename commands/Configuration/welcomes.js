@@ -14,8 +14,8 @@ class Welcomes extends Command {
 
     async run(message, [type]) {
         if (type === "enable") return this.enableWelcomes(message);
-        if (type === "disable") return this.enableWelcomes(message);
-        if (type === "channel") return this.enableWelcomes(message);
+        if (type === "disable") return this.disableWelcomes(message);
+        if (type === "channel") return this.channel(message);
     }
 
     async enableWelcomes(message) {

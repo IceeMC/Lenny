@@ -8,7 +8,7 @@ class LevelUps extends Command {
             runIn: ["text"],
             description: language => language.get("COMMAND_LEVELUPS_DESCRIPTION"),
             subCommands: ["enable", "disable"],
-            usage: "<type> <name:string>",
+            usage: "<type>",
             check: 7
         });
     }
