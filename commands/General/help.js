@@ -76,18 +76,18 @@ class Help extends Command {
 		const help = {};
 		const commands = this.client.storeManager.getStore("commands");
 		const { prefix } = message.guild.config;
-		const commandNames = [...commands.keys()];
+		const commandNames = commands.keys();
 		const longest = commandNames.reduce((long, str) => Math.max(long, str.length), 0);
 
-		await Promise.all(commands.map(async command => {
+		for (const command of commands) {
 			if (!help[command.category]) help[command.category] = [];
 			const description = typeof command.description === "function" ? command.description(message.language) : command.description;
-			if (command.noHelp && !(await this.client.permChecks.runCheck(command.check, message))) help[command.category].push();
-			else help[command.category].push({
+			if (command.noHelp && !(await this.client.permChecks.runCheck(command.check, message).value)) continue;
+			help[command.category].push({
 				nodm: `${prefix}**${command.name}** - \`${description}\``,
 				dm: `= ${prefix}${command.name.padEnd(longest)} = :: ${description}`
 			});
-		}));
+		};
 
 		return help;
 	}

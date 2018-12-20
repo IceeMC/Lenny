@@ -20,4 +20,4 @@ class Pull extends Command {
 
 };
 
-module.exports = Execute;
+module.exports = Pull;
