@@ -19,9 +19,10 @@ class Tag extends Command {
         customtags.map(Parser.loadTag.bind(this));
     }
 
-    run(message, [type, name, content]) {
+    async run(message, [type, name, content]) {
         const types = ["add", "create", "all", "list", "edit", "delete", "get", "tagName"];
         if (!type) throw message.language.get("SUB_COMMAND_INVALID", types);
+        console.log(type);
         if (type === "add" || type === "create")  return this.add(message, [name, content]);
         if (type === "all" || type === "list") return this.all(message);
         if (type === "edit") return this.edit(message, [name, content]);
