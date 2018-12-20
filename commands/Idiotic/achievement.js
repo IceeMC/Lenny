@@ -14,7 +14,7 @@ class Achievement extends Command {
     }
 
     async run(message, [text]) {
-        const text = this.client.clean(message, text);
+        text = this.client.clean(message, text);
         const body = await this.client.utils.idiotic("generators/achievement", `?avatar=${message.member.user.displayAvatarURL({ format: "png", size: 1024 })}&text=${text}`);
         await message.channel.send(new MessageAttachment(Buffer.from(body.data)));
     }

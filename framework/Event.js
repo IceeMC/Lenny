@@ -7,8 +7,6 @@ class Event {
         this.path = null;
     }
 
-    async run() {}
-
 }
 
 module.exports = Event;

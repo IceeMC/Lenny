@@ -139,9 +139,9 @@ class Utils {
      * @param {string} [extension] The hastebin extension
      */
     haste(text, extension = "") {
-        return post("https://hastebin.com/documents")
+        return post("https://hasteb.in/documents")
             .send(text)
-            .then(res => `https://hastebin.com/${res.body.key}${extension ? extension : ""}`)
+            .then(res => `https://hasteb.in/${res.body.key}${extension ? extension : ""}`)
             .catch(() => null);
     }
 

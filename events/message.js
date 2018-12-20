@@ -88,7 +88,7 @@ class MessageEvent extends Event {
             }
             const argParams = await cmd.usage.run(message);
             const valid = argParams[0] && typeof argParams[0] === "string" && argParams[0] === args[0];
-            const noRunMethod = await cmd.run().then(() => false).catch(e => e === `${cmd.name} has no run method.`);
+            const noRunMethod = typeof command.run === "function";
             if (valid && cmd[argParams[0]] && noRunMethod) {
                 await cmd[argParams[0]](message, (await cmd.usage.run(message, 1)));
             } else if (valid && !cmd[argParams[0]] && !noRunMethod) {

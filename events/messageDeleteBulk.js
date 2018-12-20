@@ -11,7 +11,7 @@ module.exports = class extends Event {
 			count: messages.size,
 			channel: first.channel
 		});
-		for (const message of messages) if (message.command && message.command.reply) await message.command.reply.delete().catch(() => null);
+		for (const message of messages) if (message.reply) await message.reply.delete().catch(() => null);
 	}
 
 };
