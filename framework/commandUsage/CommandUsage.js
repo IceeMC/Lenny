@@ -43,16 +43,14 @@ class CommandUsage {
         const argArray = [];
         const copied = this.client.utils.copyObject(message);
         copied.args = this.parseArgs(copied.args.join(" "));
-        console.log(copied.args);
         for (let i = (index || 0); i < this.usageTags.length; i++) {
             const usageTag = this.usageTags[i];
             if (!usageTag.required && !usageTag.all && !copied.args[i]) {
                 argArray.push(undefined);
                 break;
             } else {
-                const arg = this.usageTags.length < 2 ?
-                    message.args.join(" ") :
-                    usageTag.all ? copied.args.slice(i).join(" ") :
+                const arg = this.usageTags.length < 2 && usageTag.all ?
+                    copied.args.slice(i).join(" ") :
                     copied.args[i];
                 const result = await usageTag.run(message, arg);
                 argArray.push(result);
