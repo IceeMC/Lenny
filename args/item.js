@@ -7,8 +7,8 @@ class ItemArg extends Arg {
     }
 
     run(_, arg) {
-        const stores = this.client.storeManager.stores;
-        const found = stores.map(s => s.find(i => i.name === found));
+        const stores = this.client.storeManager.values();
+        const found = stores.map(s => s.get(arg));
         console.log(found);
         if (!found) throw `Item: \`${arg}\` does not exist!`;
         return found;

@@ -105,7 +105,7 @@ class Play extends Command {
 
         if (await this.fromLink(message, query)) return;
         const tracks = await this.client.utils.getTracks(`ytsearch:${query}`, this.client.config.nodes[0].host);
-        if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS", [query]);
+        if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS", query);
         const converted = this.convert(tracks.slice(0, 10), message.author);
         const prompt = await message.prompt(`
 **Song select:**
@@ -113,12 +113,12 @@ class Play extends Command {
 ${converted.map((t, i) => `📻(${i+1}) ➡ **${this.client.clean(message, t.title)}** (${t.length})`).join("\n")}
 
 Please provide a number between 1 and 10.
-If you wish to cancel this selection type \`cancel\`.
+If you wish to cancel this selection type \`cancel\`, or \`stop\`.
 **This automatically cancels in 1 minute!**
         `);
         const index = parseInt(prompt.content);
         const invalidNumber = (isNaN(index) == true) ? NaN : (index < 0 && 11 > index) ? NaN : index;
-        if (prompt.content.search("cancel") !== -1 || invalidNumber !== index)
+        if (prompt.content.search(/(?:cancel|quit)/) > -1 || invalidNumber !== index)
             return message.send(`Song selection canceled.${isNaN(invalidNumber) ? " You didn't provide a number between 1 and 10." : ""}`);
         return await this.handle(converted[index - 1], message);
     }
@@ -137,17 +137,17 @@ If you wish to cancel this selection type \`cancel\`.
         // Test matches
         if (youtubeFullMatch) {
             const tracks = await this.client.utils.getTracks(youtubeFullMatch[1], this.client.config.nodes[0].host);
-            if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS");
+            if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS", query);
             await this.handle(this.convert(tracks, message.author)[0], message);
             return true;
         } else if (youtubeShortMatch) {
             const tracks = await this.client.utils.getTracks(youtubeShortMatch[1], this.client.config.nodes[0].host);
-            if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS");
+            if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS", query);
             await this.handle(this.convert(tracks, message.author)[0], message);
             return true;
         } else if (youtubePlaylistMatch) {
             const { name, tracks } = await this.client.utils.getTracks(youtubePlaylistMatch[1], this.client.config.nodes[0].host);
-            if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS");
+            if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS", query);
             for (let i = 0; i < 50; i++) {
                 if (!tracks[i]) continue;
                 await this.handle(new AudioTrack(tracks[i], message.author), message, true);
@@ -156,12 +156,12 @@ If you wish to cancel this selection type \`cancel\`.
             return true;
         } else if (soundcloudTrack) {
             const tracks = await this.client.utils.getTracks(soundcloudTrack[0], this.client.config.nodes[0].host);
-            if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS");
+            if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS", query);
             await this.handle(new AudioTrack(tracks[0], message.author), message);
             return true;
         } else if (soundcloudPlaylist) {
             const tracks = await this.client.utils.getTracks(soundcloudPlaylist[0], this.client.config.nodes[0].host);
-            if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS");
+            if (!tracks) throw message.language.get("COMMAND_PLAY_NO_TRACKS", query);
             await this.handle(new AudioTrack(tracks[0], message.author), message);
             return true;
         } else if (spotifyTrackOrAlbum) {
@@ -172,7 +172,7 @@ If you wish to cancel this selection type \`cancel\`.
             //     const m = await message.send("Please wait... I am processing your request! (Note that this does not actually play songs from spotify!)");
             //     let track = (await get(`https://api.spotify.com/v1/tracks/${id}`).set("Authorization", `Bearer ${this.client.spotifyToken}`)).body;
             //     track = await this.client.utils.getTracks(`ytsearch:${track.name}`, this.client.config.nodes[0].host);
-            //     if (!track) throw message.language.get("COMMAND_PLAY_NO_TRACKS");
+            //     if (!track) throw message.language.get("COMMAND_PLAY_NO_TRACKS", query);
             //     await m.delete();
             //     await this.handle(new AudioTrack(track[0], message.author), message);
             // }

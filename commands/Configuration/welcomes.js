@@ -12,6 +12,12 @@ class Welcomes extends Command {
         });
     }
 
+    async run(message, [type]) {
+        if (type === "enable") return this.enableWelcomes(message);
+        if (type === "disable") return this.enableWelcomes(message);
+        if (type === "channel") return this.enableWelcomes(message);
+    }
+
     async enableWelcomes(message) {
         await message.guild.updateConfig({ "welcomes.enabled": true });
         return message.sendLocale("COMMAND_WELCOMES_ENABLED");

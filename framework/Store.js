@@ -33,7 +33,13 @@ class Store {
     }
 
     get(name) {
-        
+        if (this.hasOwnProperty("aliases") && this.aliases instanceof Map) {
+            const found = this.files.get(name) || this.aliases.get(name);
+            return found;
+        } else {
+            const found = this.files.get(name);
+            return found;
+        }
     }
 
     keys() {
@@ -65,7 +71,7 @@ class Store {
         delete require.cache[file.path];
         this.files.delete(f);
         let reloaded;
-        try { reloaded = this.addFileNoCatch(f.path); } catch (e) { reloaded = e; }
+        try { reloaded = this.addFileNoCatch(file.path); } catch (e) { reloaded = e; }
         return reloaded;
     }
 

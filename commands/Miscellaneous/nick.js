@@ -25,7 +25,9 @@ class Nick extends Command {
     async run(message, [member, nick]) {
         member = validate(message, member);
         if (nick.length >= 32) throw message.language.get("COMMAND_NICK_LIMIT");
-        if (member.roles.highest.position >= message.guild.me.roles.highest.position) throw message.language.get("ROLE_HIERARCHY");
+        if (member !== message.guild.me) {
+            if (member.roles.highest.position >= message.guild.me.roles.highest.position) throw message.language.get("ROLE_HIERARCHY");
+        }
         await member.edit({ nick });
         return message.sendLocale("COMMAND_NICK_SUCCESS", [message, member, this.client.clean(message, nick)]);
     }

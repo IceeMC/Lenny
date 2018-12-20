@@ -18,11 +18,11 @@ class Poll extends Command {
         if (chan.match(/<#[0-9]{16,18}>/) && !question.length) {
             const channel = message.mentions.channels.size > 0 && !chan ?
                 message.mentions.channels.first() :
-                chan ? message.guild.channels.get(chan.match(/<#([0-9]{16,18})>/)[1]) : message.channel;
+                chan ? message.guild.channels.get(chan.match(/^[0-9]{16,18}/)[0]) : message.channel;
             if (!channel) throw "Sorry, but I could not find the specified channel. Make sure the channel is a valid id, or mention.";
             if (!channel.permissionsFor(message.member).has("SEND_MESSAGES")) throw "You can't create polls in that channel.";
             if (!channel.postable) throw "I can't post polls in the channel. Missing permission: \`Send Messages\`";
-            let question = (await message.prompt("What would you like the poll to be about?")).content;
+            let q = (await message.prompt("What would you like the poll to be about?")).content;
             let curIndex = 0;
             let choices = [];
             let lastContent;
@@ -39,8 +39,8 @@ class Poll extends Command {
             pollEmbed.setThumbnail(message.author.displayAvatarURL({ size: 2048 }));
             pollEmbed.setColor("RANDOM");
             pollEmbed.addField(
-                question.endsWith("?") ? question : `${question}?`,
-                choices.map((c, i) => `\`${++i}\`: ${this.client.clean(messaage, c.content)}`).join("\n")
+                q.endsWith("?") ? q : `${q}?`,
+                choices.map((c, i) => `\`${++i}\`: ${this.client.clean(message, c.content)}`).join("\n")
             );
             pollEmbed.setTimestamp();
             pollEmbed.setFooter(`Asker: ${message.author.tag} (${message.author.id})`);
@@ -51,7 +51,7 @@ class Poll extends Command {
             const temp = [chan, ...question]; // Chan isn't a channel its just the first arg
             const channel = message.mentions.channels.size > 0 && !chan ?
                 message.mentions.channels.first() :
-                chan ? message.guild.channels.get(chan.match(/<#([0-9]{16,18})>/)[1]) : message.channel;
+                chan ? message.guild.channels.get(chan.match(/^[0-9]{16,18}/)[0]) : message.channel;
             if (channel) temp.shift();
             if (!channel.permissionsFor(message.member).has("SEND_MESSAGES")) throw "You can't create polls in that channel.";
             if (!channel.postable) throw "I can't post polls in the channel. Missing permission: \`Send Messages\`";

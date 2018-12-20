@@ -14,8 +14,10 @@ class ManageCmds extends Command {
     }
 
     async run(message, [type, name]) {
+        if (!type) throw message.language.get("SUB_COMMAND_INVALID", ["enable", "disable"]);
         if (type === "enable") return this.enableCmd(message, name);
         if (type === "disable") return this.disableCmd(message, name);
+        if (!type) throw message.language.get("SUB_COMMAND_INVALID", ["enable", "disable"]);
     }
 
     async enableCmd(message, name) {

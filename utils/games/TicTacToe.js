@@ -41,7 +41,7 @@ class TicTacToe {
         if (this.started) return this.msg.channel.send(":x: **This game is already in-progress**.");
         if (!this.players.get(user.id)) {
             this.players.set(user.id, user);
-            this.msg.channel.send(`${user}, **Has joined the game. ${this.players.size === 2 ? `\n${this.host}, You can start the game now. \`${this.msg.guild.settings.prefix}ttt start\`**` : "**"}`);
+            this.msg.channel.send(`${user}, **Has joined the game. ${this.players.size === 2 ? `\n${this.host}, You can start the game now. \`${this.msg.guild.config.prefix}ttt start\`**` : "**"}`);
         } else {
             this.msg.send(":x: **You are already in the game!**");
         }

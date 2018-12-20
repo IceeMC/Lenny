@@ -12,7 +12,7 @@ class Ping extends Command {
 		const msg = await message.send(message.language.get("COMMAND_PING"));
 		return message.send(message.language.get("COMMAND_PINGPONG",
 			(msg.editedTimestamp || msg.createdTimestamp) - (message.editedTimestamp || message.createdTimestamp),
-			Math.round(this.client.ping)
+			Math.round(this.client.ws.ping)
 		));
 	}
 

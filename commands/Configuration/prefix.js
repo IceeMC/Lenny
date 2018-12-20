@@ -20,8 +20,8 @@ class Prefix extends Command {
             await message.guild.updateConfig({ prefix: "cn." })
             message.sendLocale("COMMAND_PREFIX", ["cn."]);
         } else {
-            await message.guild.updateConfig({ prefix: this.client.clean(message, newPrefix.join(" ")) });
-            message.sendLocale("COMMAND_PREFIX", [this.client.clean(message, newPrefix.join(" "))]);
+            await message.guild.updateConfig({ prefix: this.client.clean(message, prefix) });
+            message.sendLocale("COMMAND_PREFIX", [this.client.clean(message, prefix)]);
         }
     }
 

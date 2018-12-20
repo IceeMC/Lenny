@@ -129,7 +129,7 @@ Free - ${freeMem} GB
                 "3a. This changes Ice#1234's nickname to <nickname>"
             ],
             COMMAND_NICK_LIMIT: "Sorry! But nicknames can't be over/equal to 32 characters.",
-            COMMAND_NICK_SUCCESS: ({ member, guild: { me } }, nicked, nick) => `Success! I've changed ${member === nicked ? "your nickname" : member === me ? "my nickname" : `${nicked.user.tag}'s nickname`} to ${nick}}`,
+            COMMAND_NICK_SUCCESS: ({ member, guild: { me } }, nicked, nick) => `Success! I've changed ${member === nicked ? "your nickname" : member === me ? "my nickname" : `${nicked.user.tag}'s nickname`} to \`${nick}\``,
             COMMAND_PERM_LEVEL_DESCRIPTION: "Gets your highest permission level.",
             COMMAND_PERM_LEVEL: level => `Your current permission level is: \`${level} (${checks[level]})\``,
 
@@ -145,21 +145,19 @@ Free - ${freeMem} GB
             COMMAND_UNO_DESCRIPTION: "Play a game of uno with your friends (WIP).",
 
             // Configuration
+            COMMAND_LEVELUPS_DESCRIPTION: "Allows you to enable/disable level up messages.",
+            COMMAND_LEVELUPS_ENABLED: v => `Success! Level ups are now ${v ? "enabled" : "disabled"}`,
             COMMAND_MANAGE_CMDS_DESCRIPTION: "Allows you to enable/disable commands for the server.",
             COMMAND_MANAGE_CMDS_DISABLED_CMD: ({ name }) => `Success! Disabled command \`${name}\`.`,
             COMMAND_MANAGE_CMDS_ENABLED_CMD: ({ name }) => `Success! Enabled command \`${name}\`.`,
             COMMAND_LOGS_DESCRIPTION: "Allows you to control various mod-log settings.",
             COMMAND_LOGS_CHANNEL_KEY: (prefix) => `This setting can be configured with \`${prefix}logs channel #channel\`.`,
-            COMMAND_LOGS_NO_KEY: (keys) => `Please provide key. Select from the following: ${keys.map(key => `\`${key}\``).join(", ")}`,
-            COMMAND_LOGS_INVALID_KEY: "That is not a valid setting.",
-            COMMAND_LOGS_ALREADY_ENABLED: (prefix, key) => `
-This setting is already enabled.
-To disable it run \`${prefix}logs disable ${key}\``,
+            COMMAND_LOGS_NO_KEY: (keys) => `Please provide a key. Select from the following: ${keys.map(key => `\`${key}\``).join(", ")}`,
+            COMMAND_LOGS_INVALID_KEY: "That's not a setting.",
+            COMMAND_LOGS_ALREADY_ENABLED: (prefix, key) => `That setting is enabled; however, to disable it run \`${prefix}logs enable ${key}\``,
             COMMAND_LOGS_ALREADY_ENABLED_ALL: "Sorry, but all mod-log actions are enabled.",
             COMMAND_LOGS_ALREADY_DISABLED_ALL: "Sorry, but all the mod-log actions are disabled.",
-            COMMAND_LOGS_ALREADY_DISABLED: (prefix, key) => `
-This setting is already disabled.
-To enable it run \`${prefix}logs disable ${key}\``,
+            COMMAND_LOGS_ALREADY_DISABLED: (prefix, key) => `That setting is disabled; however, to enable it run \`${prefix}logs enable ${key}\``,
             COMMAND_LOGS_ENABLE_ALL: "All the modlog settings have been enabled.",
             COMMAND_LOGS_ENABLED: (key) => `Enabled the **${key}** setting.`,
             COMMAND_LOGS_DISABLE_ALL: "All the modlog settings have been disabled.",
@@ -190,7 +188,7 @@ To enable it run \`${prefix}logs disable ${key}\``,
             // Economy
             COMMAND_DAILY_DESCRIPTION: "Claim your daily bonus!",
             COMMAND_DAILY_ALREADY_CLAIMED: duration => `You have already claimed your daily bonus. You can claim again in \`${duration}\`.`,
-            COMMAND_DAILY_CLAIMED: (amount, voted) => `You were given \`${voted ? `${amount} (I've added an extra thousand for upvoting)` : amount}\` coins as your daily bonus. Check back tomorrow!`,
+            COMMAND_DAILY_CLAIMED: (amount, voted) => `You were given \`${voted ? `${amount} (An extra thousand were added because you upvoted)` : amount}\` coins as your daily bonus. Check back tomorrow!`,
 
             // Music
             COMMAND_PLAY_DESCRIPTION: "Plays a song in a voice channel.",

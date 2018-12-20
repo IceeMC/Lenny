@@ -36,9 +36,9 @@ class UserInfo extends Command {
         embed.addField("Highest role:", member.roles.highest.name, true);
         embed.addField("Hoist role:", member.roles.hoist.name, true);
         embed.addField("Role count:", member.roles.size, true);
-        embed.addField("Roles:", member.roles.array()
-            .splice(member.roles.array().indexOf(message.guild.roles.get(message.guild.id)), 1)
-            .sort((a, b) => b.position > a.position ? 1 : -1).join(", "), true);
+        let roles = member.roles.array();
+        roles.splice(member.roles.array().indexOf(message.guild.roles.get(message.guild.id)));
+        embed.addField("Roles:", roles.sort((a, b) => b.position > a.position ? 1 : -1).join(", "));
         embed.addField("Status:", this.isStreaming(member) ? this.statuses.streaming : this.statuses[member.presence.status], true);
         if (member.presence.activity) embed.addField("Presence:", `${this.presenceType(member.presence.activity.type)} **${member.presence.activity.name}**`, true);
         return message.send(embed);

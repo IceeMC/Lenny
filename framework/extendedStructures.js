@@ -49,6 +49,10 @@ Structures.extend("GuildMember", _GuildMember => {
             return this.client.db.getMemberSync(this.guild.id, this.user.id);
         }
 
+        async updateConfig(update = {}) {
+            return await this.client.db.updateMember(this.id, update);
+        }
+
         async setCoins(coins, { deduct, overwrite } = {}) {
             if (!overwrite) overwrite = false;
             if (!deduct) deduct = false;

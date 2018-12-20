@@ -9,7 +9,8 @@ class Database {
 		this._cache = {
 			configs: {},
 			members: {},
-			users: {}
+			users: {},
+			storage: {}
 		};
 		this._docs = {
 			config: {
@@ -189,18 +190,15 @@ class Database {
 	}
 
 	async cacheConfigs() {
-		const configs = await this.db.collection("configs").find().toArray();
-		configs.map(c => this._cache.configs[c._id] = c);
+		return await this.cacheCollection("configs");
 	}
 
 	async cacheMembers() {
-		const members = await this.db.collection("members").find().toArray();
-		members.map(m => this._cache.members[m._id] = m);
+		return await this.cacheCollection("members");
 	}
 
 	async cacheUsers() {
-		const users = await this.db.collection("users").find().toArray();
-		users.map(u => this._cache.users[u._id] = u);
+		return await this.cacheCollection("users");
 	}
 
 	async cacheCollection(collection) {

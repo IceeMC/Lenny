@@ -22,7 +22,7 @@ class UserArg extends Arg {
             if (!user) throw message.language.get("ARG_BAD_USER");
             return user;
         }
-        if (message.mentions.users.size > 0) return message.members.users.first();
+        if (message.mentions.users.size > 0) return message.mentions.users.first();
         const user = this.client.users.find(user => user.username.toLowerCase() === arg.toLowerCase());
         if (!user) throw message.language.get("ARG_BAD_USER");
         return user;

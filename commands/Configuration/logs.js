@@ -8,17 +8,18 @@ class Logs extends Command {
             runIn: ["text"],
             aliases: ["mlogs", "modlogs"],
             check: 7,
+            usage: "<type> [key:string]",
             description: language => language.get("COMMAND_LOGS_DESCRIPTION")
         });
         this.validKeys = ["guild", "channels", "roles", "nicknames", "bans", /*"kicks",*/ "joins", "leaves", "warns", "messages"];
     }
 
-    async run(message, [type, ...params]) {
-        if (!type) throw message.language.get("BAD_SUB_CMD_TYPE", ["enable", "disable", "channel"]);
-        if (type === "enable") return this.enableSetting(message, params);
-        if (type === "disable") return this.disableSetting(message, params);
+    async run(message, [type, key]) {
+        if (!type) throw message.language.get("SUB_COMMAND_INVALID", ["enable", "disable", "channel"]);
+        if (type === "enable") return this.enableSetting(message, [key]);
+        if (type === "disable") return this.disableSetting(message, [key]);
         if (type === "channel") return this.changeChannel(message);
-        throw message.language.get("BAD_SUB_CMD_TYPE", ["enable", "disable", "channel"]);
+        if (!type) throw message.language.get("SUB_COMMAND_INVALID", ["enable", "disable", "channel"]);
     }
 
     async enableSetting(message, [key]) {
