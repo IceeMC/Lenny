@@ -23,7 +23,7 @@ class Help extends Command {
 				.setTitle(command.name)
 				.setColor(this.client.utils.color)
 				.setDescription(`\`${typeof command.description === "function" ? command.description(message.language) : command.description}\``)
-				.addField("Usage:", `\`${message.prefix}${command.name} ${command.usage.helpString}\``)
+				.addField("Usage:", `\`${message.prefix} ${command.usage.helpString}\``)
 				.addField("Extra Help:", this.client.utils.codeBlock(typeof command.extendedHelp === "function" ? command.extendedHelp(message.language) : command.extendedHelp, "xl"))
 				.setTimestamp()
 				.setFooter(`Help requested by ${message.author.tag}`);
