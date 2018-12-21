@@ -69,7 +69,8 @@ class Utils {
     }
 
     toNow(ms) {
-        return this.formatMS(Math.abs((Date.now() - (new Date(ms)) / 1000)));
+        const time = Math.abs((new Date()) - (new Date(ms))) / 1000;
+        return this.formatMS(time);
     }
 
     async getTracks(search, host) {
