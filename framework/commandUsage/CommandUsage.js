@@ -85,8 +85,11 @@ class CommandUsage {
 
     get helpString() {
         let str = this.command.aliases.length > 0 ? `❰${[this.command.name, ...this.command.aliases].join("|")}❱` : this.command.name;
-        str += this.command.subCommands.length > 1 ? `<${this.command.subCommands.join("|")}>` : "";
-        str += this.usageTags.map(t => !["type", "subCmd"].includes(t.name) ? t.helpFmt : "").join(" ");
+        str += this.command.subCommands.length > 1 ? ` <${this.command.subCommands.join("|")}>` : "";
+        for (const tag of this.usageTags) {
+            if (["type", "subCmd"].inlcudes(tag.name)) continue;
+            str += ` ${tag.opening}${tag.name}${tag.closing}`;
+        }
         return str;
     }
 
