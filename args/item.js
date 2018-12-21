@@ -8,10 +8,9 @@ class ItemArg extends Arg {
 
     run(_, arg) {
         const stores = this.client.storeManager.values();
-        const found = stores.map(s => s.get(arg));
-        console.log(found);
-        if (!found) throw `Item: \`${arg}\` does not exist!`;
-        return found;
+        const store = stores.filter(s => s.files.has(arg))[0];
+        if (!store) throw `Item: \`${arg}\` does not exist!`;
+        return store.get(arg);
     }
 
 }

@@ -50,7 +50,7 @@ Structures.extend("GuildMember", _GuildMember => {
         }
 
         async updateConfig(update = {}) {
-            return await this.client.db.updateMember(this.id, update);
+            return await this.client.db.updateMember(this.guild.id, this.user.id, update);
         }
 
         async setCoins(coins, { deduct, overwrite } = {}) {

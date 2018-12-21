@@ -1,7 +1,6 @@
 const { Canvas } = require("canvas-constructor");
 const { get } = require("superagent");
-const fs = require("fs");
-const { join } = require("path");
+const { tttBoard } = require("../Constants.js");
 const { MessageAttachment } = require("discord.js");
 
 class TicTacToe {
@@ -13,17 +12,7 @@ class TicTacToe {
         this.host = msg.author;
         this.last = 0;
         this.started = false;
-        this.board = [
-            { userId: null, taken: false, taker: null },
-            { userId: null, taken: false, taker: null },
-            { userId: null, taken: false, taker: null },
-            { userId: null, taken: false, taker: null },
-            { userId: null, taken: false, taker: null },
-            { userId: null, taken: false, taker: null },
-            { userId: null, taken: false, taker: null },
-            { userId: null, taken: false, taker: null },
-            { userId: null, taken: false, taker: null }
-        ];
+        this.board = this.getBoard();
         this.tttGames = msg.client.tttGames;
         this.winner = false;
         this.tie = false;
@@ -37,11 +26,23 @@ class TicTacToe {
         this.fillSlot(this.board[parseInt(res.first().content) - 1], player);
     }
 
+    stop() {
+        this.started = false;
+        this.players.clear();
+        this.players.clear();
+        this.last = 0;
+        this.board = this.getBoard();
+        this.winner = false;
+        this.tie = false;
+        this.tttGames.delete(this.msg.channel.id);
+        return true;
+    }
+
     addPlayer(user) {
-        if (this.started) return this.msg.channel.send(":x: **This game is already in-progress**.");
+        if (this.started) return this.msg.channel.send("Sorry! The game is already in-progress.");
         if (!this.players.get(user.id)) {
             this.players.set(user.id, user);
-            this.msg.channel.send(`${user}, **Has joined the game. ${this.players.size === 2 ? `\n${this.host}, You can start the game now. \`${this.msg.guild.config.prefix}ttt start\`**` : "**"}`);
+            this.msg.channel.send(`${user}, **Has joined the game. ${this.players.size === 2 ? `\n${this.host}, You can start the game now. Run: \`${this.msg.guild.config.prefix}ttt start\`**` : "**"}`);
         } else {
             this.msg.send(":x: **You are already in the game!**");
         }
@@ -92,7 +93,7 @@ class TicTacToe {
     }
 
     async checkForWinner(player) {
-        if (this.board.filter(s => s.taken === true).length === 9) this.tie = true;
+        if (this.board.filter(s => s.taken).length === 9) this.tie = true;
         if (this.board[0].taker === player.displayAvatarURL() && this.board[1].taker === player.displayAvatarURL() && this.board[2].taker === player.displayAvatarURL()) this.winner = true;
         if (this.board[3].taker === player.displayAvatarURL() && this.board[4].taker === player.displayAvatarURL() && this.board[5].taker === player.displayAvatarURL()) this.winner = true;
         if (this.board[6].taker === player.displayAvatarURL() && this.board[7].taker === player.displayAvatarURL() && this.board[8].taker === player.displayAvatarURL()) this.winner = true;
@@ -120,11 +121,10 @@ class TicTacToe {
     async drawBoard() {
         try {
             const slotBuffers = this.board.reduce((b, v) => [...b, this._getTaker(v)], []);
-            const mainBoard = await fs.readFileSync(join(__dirname, "..", "assets", "ttt.png"));
             const blankSlot = Buffer.alloc(0);
 
             const board = new Canvas(500, 500)
-                .addImage(mainBoard, 0, 0, 500, 500)
+                .addImage(tttBoard, 0, 0, 500, 500)
                 .addImage(slotBuffers[0] || blankSlot, 0, 0, 164, 164)
                 .addImage(slotBuffers[1] || blankSlot, 169, 0, 164, 164)
                 .addImage(slotBuffers[2] || blankSlot, 169 * 2, 0, 164, 164)
@@ -143,6 +143,20 @@ class TicTacToe {
         if (!slot.taker) return null;
         const cached = this.iconCache.get(slot.userId);
         return cached;
+    }
+
+    getBoard() {
+        return [
+            { userId: null, taken: false, taker: null },
+            { userId: null, taken: false, taker: null },
+            { userId: null, taken: false, taker: null },
+            { userId: null, taken: false, taker: null },
+            { userId: null, taken: false, taker: null },
+            { userId: null, taken: false, taker: null },
+            { userId: null, taken: false, taker: null },
+            { userId: null, taken: false, taker: null },
+            { userId: null, taken: false, taker: null }
+        ];
     }
 
 };

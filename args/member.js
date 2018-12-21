@@ -12,6 +12,7 @@ class MemberArg extends Arg {
         console.log(arg);
         const [id] = idRgx.test(arg) ? idRgx.exec(arg) : [null];
         const [tag] = tagRgx.test(arg) ? tagRgx.exec(arg) : [null];
+        const [mention] = mentionRgx.test(arg) ? mentionRgx.exec(arg) : [null];
         if (id) {
             const member = message.guild.members.get(id);
             if (!member) throw message.language.get("ARG_BAD_MEMBER");
@@ -20,8 +21,9 @@ class MemberArg extends Arg {
             const member = message.guild.members.find(m => m.user.tag.toLowerCase() === tag.toLowerCase());
             if (!member) throw message.language.get("ARG_BAD_MEMBER");
             return member;
+        } else if (mention) {
+            return message.mentions.members.get(mention);
         }
-        if (message.mentions.members.size > 0) return message.mentions.members.first();
         const member = message.guild.members.find(m => m.user.username.toLowerCase() === arg.toLowerCase());
         if (!member) throw message.language.get("ARG_BAD_MEMBER");
         return member;

@@ -1,6 +1,7 @@
 const { get, post } = require("superagent");
 const TicTacToe = require("./games/TicTacToe.js");
 const Uno = require("./games/uno/Uno.js");
+const basic = (id, secret) => `Basic ${Buffer.from(`${id}:${secret}`).toString("base64")}`;
 
 class Utils {
 
@@ -19,7 +20,7 @@ class Utils {
     async getSpotifyToken() {
         return post("https://accounts.spotify.com/api/token")
             .send({ grant_type: "client_credentials" })
-            .set("Authorization", `Basic ${Buffer.from(`${this.client.config.spotify.id}:${this.client.config.spotify.secret}`).toString("base64")}`)
+            .set("Authorization", basic(this.client.config.spotify.id, this.client.config.spotify.secret))
             .set("Content-Type", "application/x-www-form-urlencoded")
             .then(res => res.body.access_token)
             .catch(error => {

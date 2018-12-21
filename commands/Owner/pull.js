@@ -17,7 +17,7 @@ class Pull extends Command {
         const output = stdout ? `**\`Updated\`**${this.client.utils.codeBlock(stdout, "prolog")}` : "";
 		const err = stderr ? `**\`Error while updating\`**${this.client.utils.codeBlock(stderr, "prolog")}` : "";
         await message.send([output, err].join("\n"));
-        if (stdout.search(/up-to-date/) < -1) process.exit();
+        if (stdout !== "Already up-to-date.") process.exit();
 	}
 
 };

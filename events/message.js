@@ -73,8 +73,8 @@ class MessageEvent extends Event {
             if (!message.guild._checkPerms(cmd.perms) || !message.channel._checkPerms(cmd.perms))
                 throw message.language.get("MISSING_BOT_PERMS", perms);
             const { check: { sendError }, value } = await this.client.permChecks.runCheck(cmd.check, message);
-            if (!value && !sendError) return message.channel.stopTyping(true);
             if (!value && sendError) throw message.language.get("CHECK_NO_PERMISSION", check);
+            if (!value && !sendError) return message.channel.stopTyping(true);
             // Cooldown the command
             try {
                 this.cmdCooldowns.create(cmd.name, {
