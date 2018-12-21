@@ -13,7 +13,8 @@ class EvalCommand extends Command {
             aliases: ["ev"],
             check: 10,
             noHelp: true,
-            usage: "<code:string::all>"
+            usage: "<code:string::all>",
+            quotes: false // Disable quoted strings
         });
     }
     
