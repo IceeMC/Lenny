@@ -41,6 +41,16 @@ class Store {
             return found;
         }
     }
+    
+    has(name) {
+        if (this.hasOwnProperty("aliases") && this.aliases instanceof Map) {
+            const hasFile = this.files.has(name) || this.aliases.has(name);
+            return hasFile;
+        } else {
+            const hasFile = this.files.has(name);
+            return hasFile;
+        }
+    }
 
     keys() {
         return [...this.files.keys()];
