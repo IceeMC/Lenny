@@ -14,14 +14,13 @@ class Source extends Command {
         });
     }
 
-    async run(message, [src]) {
-        src = ArgResolver.fromStore(message, src);
-        const constructorCode = src.constructor.toString();
-        if (constructorCode.length > 1999) {
-            const haste = await this.client.utils.haste(constructorCode, ".js");
+    async run(message, [item]) {
+        const code = item.constructor ? item.constructor.toString() : item.toString();
+        if (code.length > 1999) {
+            const haste = await this.client.utils.haste(code, ".js");
             return message.send(`The output was too long... Uploaded to hastebin ${haste}`);
         }
-        return message.send(this.client.utils.codeBlock(constructorCode, "js"));
+        return message.send(this.client.utils.codeBlock(code, "js"));
     }
 
 }
