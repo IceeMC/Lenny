@@ -14,7 +14,8 @@ class Command {
         noHelp = false,
         disabled = false,
         extendedHelp = "No extra help.",
-        subCommands = []
+        subCommands = [],
+        quotes = true
     }) {
         this.client = client;
         this.store = this.client.storeManager.getStore(storeName);
@@ -33,6 +34,7 @@ class Command {
         this._category = null;
         this.usage = new CommandUsage(this, usage);
         this.subCommands = subCommands;
+        this.quotes = quotes;
     }
 
     get category() {
