@@ -28,7 +28,7 @@ ${this.client.utils.codeBlock(res, "prolog")}
 Type:
 ${this.client.utils.codeBlock(evaledType, "prolog")}
 
-Time:
+Time taken:
 ${this.formatTime(...times)}`, { split: true });
     }
 
