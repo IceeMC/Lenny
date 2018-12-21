@@ -36,16 +36,44 @@ class Utils {
      */
     formatMS(ms) {
         let time = "";
-        const seconds = Math.floor((ms / 1000) % 60);
-        const minutes = Math.floor((seconds / 60) % 60);
-        const hrs = Math.floor((minutes / 60) % 24);
-        const days = Math.floor((hrs / 24) % 60);
-
-        time += days > 0 ? `${days > 1 ? `${days} days, ` : `${days} day, `}` : "";
-        time += hrs > 0 ? `${hrs > 1 ? `${hrs} hours, ` : `${hrs} hour, `}` : "";
-        time += minutes > 0 ? `${minutes > 1 ? `${minutes} minutes, ` : `${minutes} minute, `}` : "";
-        time += seconds > 0 ? `${seconds > 1 ? `${seconds} seconds` : `1 second`}` : "";
-
+        let seconds = Math.floor(ms);
+        const days = Math.floor(seconds / (3600 * 24));
+        seconds -= days * 3600 * 24;
+        const hrs = Math.floor(seconds / 3600);
+        seconds -= hrs * 3600;
+        const minutes = Math.floor(seconds / 60);
+        seconds -= minutes * 60;
+    
+        if (days > 0) {
+            if (days > 1) {
+                time += `${days} days, `;
+            } else {
+                time += `${days} day, `;
+            }
+        } else { time += ""; }
+    
+        if (hrs > 0) {
+            if (hrs > 1) {
+                time += `${hrs} hours, `;
+            } else {
+                time += `${hrs} hour, `;
+            }
+        } else { time += ""; }
+    
+        if (minutes > 0) {
+            if (minutes > 1) {
+                time += `${minutes} minutes, and `;
+            } else {
+                time += `${minutes} minute, and `;
+            }
+        } else { time += ""; }
+    
+        if (seconds > 1) {
+            time += `${seconds} seconds`;
+        } else {
+            time += `${seconds} second`;
+        }
+    
         return time;
     }
 
