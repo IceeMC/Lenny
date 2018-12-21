@@ -87,7 +87,7 @@ class CommandUsage {
         let str = this.command.aliases.length > 0 ? `❰${[this.command.name, ...this.command.aliases].join("|")}❱` : this.command.name;
         str += this.command.subCommands.length > 1 ? ` <${this.command.subCommands.join("|")}>` : "";
         for (const tag of this.usageTags) {
-            if (["type", "subCmd"].inlcudes(tag.name)) continue;
+            if (["type", "subCmd"].includes(tag.name)) continue;
             str += ` ${tag.opening}${tag.name}${tag.closing}`;
         }
         return str;
