@@ -13,10 +13,6 @@ class Utils {
         return 0x1A1210;
     }
 
-    /**
-     * Fetches a spotify token.
-     * @returns {Promise<string>}
-     */
     async getSpotifyToken() {
         return post("https://accounts.spotify.com/api/token")
             .send({ grant_type: "client_credentials" })
@@ -28,12 +24,7 @@ class Utils {
                 return null;
             });
     }
-    
-    /**
-     * Formats ms into a human readable time.
-     * @param {number} ms The number of ms to convert.
-     * @returns {string}
-     */
+
     formatMS(ms) {
         let time = "";
         let seconds = Math.floor(ms);
@@ -77,12 +68,10 @@ class Utils {
         return time;
     }
 
-    /**
-     * Gets tracks from the lavalink REST server.
-     * @param {string} search The song to search for.
-     * @param {string} host The AudioNode's host.
-     * @returns {Promise<Object>}
-     */
+    toNow(ms) {
+        return this.formatMS(Math.abs((Date.now() - (new Date(ms)) / 1000)));
+    }
+
     async getTracks(search, host) {
         const node = this.client.audioManager.nodes.get(host);
         if (!node) throw new Error(`The requested node with host ${host} was not found.`);
@@ -104,12 +93,6 @@ class Utils {
             });
     }
 
-    /**
-     * Gets a endpoint from the idiotic api.
-     * @param {string} endpoint The endpoint to request from.
-     * @param {string} params The params for the request.
-     * @returns {any}
-     */
     idiotic(endpoint, params) {
         return get(`https://dev.anidiots.guide/${endpoint}${params}`)
             .set("Authorization", this.client.config.idiotic)
@@ -120,53 +103,28 @@ class Utils {
             })
     }
 
-    /**
-     * Checks if a user has voted for the bot on DBL.
-     * @param {string} id The id to check.
-     * @returns {Boolean}
-     */
     isVoter(id) {
         return get(`https://discordbots.org/api/bots/${this.client.user.id}/check?userId=${id}`)
             .set("Authorization", this.client.config.dbl)
             .then(res => Boolean(res.body.voter));
     }
 
-    /**
-     * Creates a TicTacToe instance.
-     * @param {KlasaMessage} message The message.
-     * @returns {TicTacToe}
-     */
     newTTTGame(message) {
         const game = new TicTacToe(message);
         this.client.tttGames.set(message.channel.id, game);
         return game;
     }
 
-    /**
-     * Creates a Uno instance.
-     * @param {KlasaMessage} message The message.
-     * @returns {TicTacToe}
-     */
     newUnoGame(message) {
         const game = new Uno(message);
         this.client.unoGames.set(message.channel.id, game);
         return game;
     }
 
-    /**
-     * Returns a perfect copy of the provided object.
-     * @param {any} object The object to copy.
-     * @returns {any}
-     */
     copyObject(object) {
         return Object.assign(Object.create(object), object);
     }
 
-    /**
-     * Hastes the provided text to hastebin.
-     * @param {string} text The text to haste
-     * @param {string} [extension] The hastebin extension
-     */
     haste(text, extension = "") {
         return post("https://hasteb.in/documents")
             .send(text)
@@ -174,11 +132,6 @@ class Utils {
             .catch(() => null);
     }
 
-    /**
-     * Returns an Iterator of the methods in a class/object.
-     * @param {Object} object The class/object to get the methods from.
-     * @returns {IterableIterator<{name: string, func: Function}>}
-     */
     *methods (object) {
         if (typeof object !== "object") throw new Error(`methods expects an object not ${typeof object}.`);
         const included = [
@@ -201,10 +154,6 @@ class Utils {
         }
     }
 
-    /**
-     * Gets all the property names of the provided object/class;
-     * @returns {Array<string>}
-     */
     dir(obj) {
         if (typeof obj !== "object") throw new Error(`dir expects an object not ${typeof obj}.`);
         const x = Object.getOwnPropertyNames(obj);
@@ -280,31 +229,14 @@ class Utils {
     //     }
     // }
 
-    /**
-     * Wraps the text in a discord code block.
-     * @param {string} text The text to go in the code block.
-     * @param {string} language The language for the code block.
-     * @returns {string}
-     */
     codeBlock(text, language) {
         return `\`\`\`${language}\n${text}\`\`\``;
     }
 
-    /**
-     * Checks if the passed promise is a promise.
-     * @param {Promise} promise The promise to check
-     * @returns {boolean}
-     */
     isPromise(promise) {
         return promise instanceof Promise || (promise && typeof promise.then === "function" && typeof promise.catch === "function") || false;
     }
 
-    /**
-     * GETS AN NSFW PICTURE.
-     * UR EYES MIGHT BREAK
-     * @param {string} path The p0rn path.
-     * @returns {Promise<string>}
-     */
     async p0rn(path) {
         return (await get(`https://nekos.life/api/v2/img/${path}`)).body.url;
     }
