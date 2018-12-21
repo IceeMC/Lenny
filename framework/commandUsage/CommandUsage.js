@@ -39,17 +39,18 @@ class CommandUsage {
 
     async run(message, index = 0) {
         const argArray = [];
+        // Since, I Don't want to modify the actual message object, Ill clone it.
         const copied = this.client.utils.copyObject(message);
         copied.args = this.parseArgs(copied.args.join(" "));
         for (let i = (index || 0); i < this.usageTags.length; i++) {
             const usageTag = this.usageTags[i];
-            if (!usageTag.required && !usageTag.all && !copied.args[i]) {
+            const arg = this.command.quotes ?
+                usageTag.all ? copied.args.slice(i).join(" ") : copied.args[i] :
+                usageTag.all ? message.args.slice(i).join(" ") : message.args[i];
+            if (!usageTag.required && !arg) {
                 argArray.push(undefined);
                 break;
             } else {
-                const arg = usageTag.all ?
-                    message.args.slice(i).join(" ") :
-                    copied.args[i];
                 const result = await usageTag.run(message, arg);
                 argArray.push(result);
                 continue;
