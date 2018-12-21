@@ -84,7 +84,7 @@ class CommandUsage {
     }
 
     get helpString() {
-        let str = this.command.aliases.length > 0 ? `❰${[this.command.name, ...this.command.aliases].join("|")}❱` : "";
+        let str = this.command.aliases.length > 0 ? `❰${[this.command.name, ...this.command.aliases].join("|")}❱` : this.command.name;
         str += this.command.subCommands.length > 1 ? `<${this.command.subCommands.join("|")}>` : "";
         str += this.usageTags.map(t => !["type", "subCmd"].includes(t.name) ? t.helpFmt : "").join(" ");
         return str;
