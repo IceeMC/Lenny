@@ -1,6 +1,6 @@
 const Command = require("../../framework/Command.js");
 const { MessageEmbed } = require("discord.js");
-const channelRgx = /^(<#[0-9]{16,18}>)$/;
+const channelRgx = /^(<#[0-9]{17,20}>)$/;
 
 class Poll extends Command {
 
@@ -19,8 +19,8 @@ class Poll extends Command {
         if ((!chan || channelRgx.test(chan)) && !question.length) {
             const channel = message.mentions.channels.size > 0 && !chan ?
                 message.mentions.channels.first() :
-                chan ? message.guild.channels.get(channelRgx.exec(chan)[1]) : message.channel;
-            if (!channel) throw "Sorry, but I could not find the specified channel. Make sure the channel is a valid id, or mention.";
+                chan && channelRgx.test(chan) ? message.guild.channels.get(channelRgx.exec(chan)[1]) : message.channel;
+            if (!channel) throw "Sorry, but I could not find the specified channel. Make sure to mention the channel.";
             if (!channel.permissionsFor(message.member).has("SEND_MESSAGES")) throw "You can't create polls in that channel.";
             if (!channel.postable) throw "I can't post polls in the channel. Missing permission: \`Send Messages\`";
             let q = (await message.prompt("What would you like the poll to be about?")).content;
@@ -36,7 +36,7 @@ class Poll extends Command {
             if (choices.filter(c => ["post", "send", "publish"].includes(c.content)).length > 0) choices.pop();
             if (choices.length < 2) throw "You must provide two or more poll choices.";
             const pollEmbed = new MessageEmbed();
-            pollEmbed.setTitle("Chat Noir Polls");
+            pollEmbed.setTitle("Polls");
             pollEmbed.setThumbnail(message.author.displayAvatarURL({ size: 2048 }));
             pollEmbed.setColor("RANDOM");
             pollEmbed.addField(
@@ -49,24 +49,25 @@ class Poll extends Command {
             await Promise.all(choices.map(async (_, i) => await pollMsg.react(this.getEmoji(i))));
             if (channel.id !== message.channel.id) await message.channel.send(`Success! I've posted the poll in ${channel}.`);
         } else {
-            const temp = [chan, ...question]; // Chan isn't a channel its just the first arg
+            const temp = [chan, question]; // Chan isn't a channel its just the first arg
             const channel = message.mentions.channels.size > 0 && !chan ?
                 message.mentions.channels.first() :
-                chan ? message.guild.channels.get(chan.match(/^[0-9]{16,18}/)[0]) : message.channel;
-            if (channel) temp.shift();
+                chan && channelRgx.test(chan) ? message.guild.channels.get(channelRgx.exec(chan)[1]) : message.channel;
+            if (!channel) throw "Sorry, but I could not find the specified channel. Make sure to mention the channel.";
             if (!channel.permissionsFor(message.member).has("SEND_MESSAGES")) throw "You can't create polls in that channel.";
             if (!channel.postable) throw "I can't post polls in the channel. Missing permission: \`Send Messages\`";
-            const [q, ...choices] = temp.join(" ").split("/");
+            temp.shift();
+            const [q, ...choices] = temp[0].split("/");
             if (!q)
                 throw "Invalid usage. The correct usage is \`cn.poll [#channel] question/choice1/choice2/...\`, note that channel is optional.";
             if (choices.length < 2) throw "You must provide two or more poll choices.";
             if (choices.length > 10) throw "Maximum of 10 poll choices reached.";
             const pollEmbed = new MessageEmbed();
-            pollEmbed.setTitle("Chat Noir Polls");
+            pollEmbed.setTitle("Polls");
             pollEmbed.setThumbnail(message.author.displayAvatarURL({ size: 2048 }));
             pollEmbed.setColor("RANDOM");
             pollEmbed.addField(
-                q.endsWith("?") ? q : `${q}?`,
+                q.endsWith("?") ? this.client.clean(message, q) : `${this.client.clean(message, q)}?`,
                 choices.map((c, i) => `\`${++i}\`: ${this.client.clean(message, c)}`).join("\n")
             );
             pollEmbed.setTimestamp();
