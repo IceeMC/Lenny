@@ -1,5 +1,5 @@
 const Command = require("../../framework/Command.js");
-const { MessageEmbed, TextChannel } = require("discord.js");
+const { MessageEmbed } = require("discord.js");
 
 class Poll extends Command {
 
@@ -14,7 +14,7 @@ class Poll extends Command {
         });
     }
 
-    async run(message, [chan = "", question]) {
+    async run(message, [chan = "", question = ""]) {
         if (chan.match(/<#[0-9]{16,18}>/) && !question.length) {
             const channel = message.mentions.channels.size > 0 && !chan ?
                 message.mentions.channels.first() :
@@ -31,7 +31,7 @@ class Poll extends Command {
                 choices.push(prompted);
                 lastContent = prompted.content;
                 curIndex++;
-            } while (!["post", "send", "publish"].includes(lastContent) && curIndex !== 10);
+            } while (!["post", "send", "publish"].includes(lastContent) && curIndex <= 10);
             if (choices.filter(c => ["post", "send", "publish"].includes(c.content)).length > 0) choices.pop();
             if (choices.length < 2) throw "You must provide two or more poll choices.";
             const pollEmbed = new MessageEmbed();
@@ -55,8 +55,8 @@ class Poll extends Command {
             if (channel) temp.shift();
             if (!channel.permissionsFor(message.member).has("SEND_MESSAGES")) throw "You can't create polls in that channel.";
             if (!channel.postable) throw "I can't post polls in the channel. Missing permission: \`Send Messages\`";
-            const [question, ...choices] = temp.join(" ").split("/");
-            if (!question)
+            const [q, ...choices] = temp.join(" ").split("/");
+            if (!q)
                 throw "Invalid usage. The correct usage is \`cn.poll [#channel] question/choice1/choice2/...\`, note that channel is optional.";
             if (choices.length < 2) throw "You must provide two or more poll choices.";
             if (choices.length > 10) throw "Maximum of 10 poll choices reached.";
@@ -65,7 +65,7 @@ class Poll extends Command {
             pollEmbed.setThumbnail(message.author.displayAvatarURL({ size: 2048 }));
             pollEmbed.setColor("RANDOM");
             pollEmbed.addField(
-                question.endsWith("?") ? question : `${question}?`,
+                q.endsWith("?") ? q : `${q}?`,
                 choices.map((c, i) => `\`${++i}\`: ${this.client.clean(message, c)}`).join("\n")
             );
             pollEmbed.setTimestamp();

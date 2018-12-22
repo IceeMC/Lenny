@@ -35,12 +35,12 @@ class UserInfo extends Command {
         embed.addField("Joined guild:", moment(member.joinedAt).format("MM/DD/YYYY hh:mm:ss"), true);
         embed.addField("Highest role:", member.roles.highest.name, true);
         embed.addField("Hoist role:", member.roles.hoist.name, true);
-        embed.addField("Role count:", member.roles.size, true);
         let roles = member.roles.array();
         roles.splice(member.roles.array().indexOf(message.guild.roles.get(message.guild.id)));
         embed.addField("Roles:", roles.sort((a, b) => b.position > a.position ? 1 : -1).join(", "));
+        embed.addField("Role count:", roles.length, true);
         embed.addField("Status:", this.isStreaming(member) ? this.statuses.streaming : this.statuses[member.presence.status], true);
-        if (member.presence.activity) embed.addField("Presence:", `${this.presenceType(member.presence.activity.type)} **${member.presence.activity.name}**`, true);
+        if (member.presence.activity) embed.addField("Presence:", this.formatPresence(member), true);
         return message.send(embed);
     }
 
@@ -48,8 +48,8 @@ class UserInfo extends Command {
         return member.presence.activity ? member.presence.activity.type === "STREAMING" : false;
     }
 
-    presenceType(type) {
-        return type === "PLAYING" ? "Playing" : type === "STREAMING" ? "Streaming" : type === "LISTENING" ? "Listening" : "Watching";
+    formatPresence({ presence: { activity: { type, name } } }) {
+        return `${type.slice(0, 1)}${type.slice(1, type.length).toLowerCase()} **${name}**`;
     }
 
 }
