@@ -1,6 +1,6 @@
 const Command = require("../../framework/Command.js");
 const { MessageEmbed } = require("discord.js");
-const channelRgx = /^(<#[0-9]{17,20}>)$/;
+const channelRgx = /^<#([0-9]{17,20})>$/;
 
 class Poll extends Command {
 
