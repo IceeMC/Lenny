@@ -49,15 +49,16 @@ class Poll extends Command {
             await Promise.all(choices.map(async (_, i) => await pollMsg.react(this.getEmoji(i))));
             if (channel.id !== message.channel.id) await message.channel.send(`Success! I've posted the poll in ${channel}.`);
         } else {
-            const temp = [chan, question]; // Chan isn't a channel its just the first arg
             const channel = message.mentions.channels.size > 0 && !chan ?
                 message.mentions.channels.first() :
                 chan && channelRgx.test(chan) ? message.guild.channels.get(channelRgx.exec(chan)[1]) : message.channel;
             if (!channel) throw "Sorry, but I could not find the specified channel. Make sure to mention the channel.";
             if (!channel.permissionsFor(message.member).has("SEND_MESSAGES")) throw "You can't create polls in that channel.";
             if (!channel.postable) throw "I can't post polls in the channel. Missing permission: \`Send Messages\`";
-            temp.shift();
-            const [q, ...choices] = temp[0].split("/");
+            const [q, ...choices] = [
+                chan && channelRgx.test(chan) ? question.split("/")[0] : `${chan} ${question.split("/")[0]}`,
+                question.split("/").slice(1)
+            ];
             if (!q)
                 throw "Invalid usage. The correct usage is \`cn.poll [#channel] question/choice1/choice2/...\`, note that channel is optional.";
             if (choices.length < 2) throw "You must provide two or more poll choices.";
