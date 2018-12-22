@@ -1,5 +1,6 @@
 const Command = require("../../framework/Command.js");
 const { MessageEmbed } = require("discord.js");
+const channelRgx = /^(<#[0-9]{16,18}>)$/;
 
 class Poll extends Command {
 
@@ -15,10 +16,10 @@ class Poll extends Command {
     }
 
     async run(message, [chan = "", question = ""]) {
-        if (chan.match(/<#[0-9]{16,18}>/) && !question.length) {
+        if ((!chan || channelRgx.test(chan)) && !question.length) {
             const channel = message.mentions.channels.size > 0 && !chan ?
                 message.mentions.channels.first() :
-                chan ? message.guild.channels.get(chan.match(/^[0-9]{16,18}/)[0]) : message.channel;
+                chan ? message.guild.channels.get(channelRgx.exec(chan)[1]) : message.channel;
             if (!channel) throw "Sorry, but I could not find the specified channel. Make sure the channel is a valid id, or mention.";
             if (!channel.permissionsFor(message.member).has("SEND_MESSAGES")) throw "You can't create polls in that channel.";
             if (!channel.postable) throw "I can't post polls in the channel. Missing permission: \`Send Messages\`";
