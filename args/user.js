@@ -1,7 +1,7 @@
 const Arg = require("../framework/commandUsage/Arg.js");
 const idRgx = /^[0-9]{16,18}/;
 const tagRgx = /^.*#[0-9]{4}/;
-const mentionRgx = /^<@!?([0-9]{16,18})>$/;
+const mentionRgx = /^<@!?([0-9]{16,18})>/;
 
 class UserArg extends Arg {
 
@@ -25,10 +25,11 @@ class UserArg extends Arg {
             return user;
         } else if (mention) {
             return message.mentions.users.get(mention);
-        }
-        const user = this.client.users.find(user => user.username.toLowerCase() === arg.toLowerCase());
-        if (!user) throw message.language.get("ARG_BAD_USER");
-        return user;
+        } else {
+            const user = this.client.users.find(user => user.username.toLowerCase() === arg.toLowerCase());
+            if (!user) throw message.language.get("ARG_BAD_USER");
+            return user;
+        };
     }
 
 }
