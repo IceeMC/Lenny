@@ -12,7 +12,7 @@ class UserArg extends Arg {
     async run(message, arg) {
         const [id] = idRgx.test(arg) ? idRgx.exec(arg) : [null];
         const [tag] = tagRgx.test(arg) ? tagRgx.exec(arg) : [null];
-        const [mention] = mentionRgx.test(arg) ? mentionRgx.exec(arg) : [null];
+        const [, mention] = mentionRgx.test(arg) ? mentionRgx.exec(arg) : [null, null];
         if (id) {
             const user = this.client.users.has(id) ? this.client.users.get(id) : await this.client.users.fetch(id);
             if (!user) throw message.language.get("ARG_BAD_USER");
