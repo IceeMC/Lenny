@@ -1,6 +1,6 @@
 const Arg = require("../framework/commandUsage/Arg.js");
-const idRgx = /^[0-9]{16,18}/;
-const tagRgx = /.*#[0-9]{4}/;
+const idRgx = /^[0-9]{16,18}$/;
+const tagRgx = /^.*#[0-9]{4}$/;
 const mentionRgx = /^<@!?([0-9]{16,18})>$/;
 
 class MemberArg extends Arg {
