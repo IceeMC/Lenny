@@ -1,4 +1,6 @@
 const { MessageEmbed } = require("discord.js");
+const attachmentRgx = /(?:(png|jpe?g|gif))/gi;
+const urlRegex = /https?:\/\/[A-Za-z0-9-]+(?:(png|jpe?g|gif))/; // Not the best, but it works
 
 class Starboard {
 
@@ -17,6 +19,7 @@ class Starboard {
     }
 
     editStar(starred, message) {
+        if (message.reactions.get("⭐").array().some(r => r.id === message.author.id)) return;
         const regexMatch = this.regex.exec(starred.embeds[0].footer.text);
         const attachment = message.embeds[0] && message.embeds[0].image ? this._check(message.embeds[0].image.url) : null;
         const em = new MessageEmbed()
@@ -31,7 +34,9 @@ class Starboard {
 
     star(channel, message) {
         if (message.reactions.get("⭐").count < this.limit) return;
-        const attachment = message.attachments.size > 0 ? this._check(message.attachments.array()[0].url) : null;
+        if (message.reactions.get("⭐").array().some(r => r.id === message.author.id)) return;
+        const ua = this._userAttachment(message.content);
+        const attachment = message.attachments.size > 0 ? this._check(message.attachments.array()[0].url) : ua;
         const em = new MessageEmbed()
             .setAuthor(message.author.tag, message.author.displayAvatarURL({ format: "png" }))
             .setFooter(`Stars: ${this.guild.config.starboard.limit} | ID: ${message.id}`)
@@ -44,6 +49,7 @@ class Starboard {
 
     removeStar(starred, message) {
         const regexMatch = this.regex.exec(starred.embeds[0].footer.text);
+        if (message.reactions.get("⭐").array().some(r => r.id === message.author.id)) return;
         const attachment = message.embeds[0] && message.embeds[0].image ? this._check(message.embeds[0].image.url) : null;
         if (parseInt(regexMatch[1]) - 1 > this.limit) {
             const em = new MessageEmbed()
@@ -58,10 +64,14 @@ class Starboard {
             starred.delete().catch(() => null);
         }
     }
+    
+    _userAttachment(content) {
+        const urlRgx = 
+    }
 
     _check(url) {
         const urlSplit = url.split(".");
-        const validUrl = /(?:(png|jpe?g|gif))/gi.test(urlSplit[urlSplit.length - 1]);
+        const validUrl = attachmentRgx.test(urlSplit[urlSplit.length - 1]);
         if (validUrl) return url;
         return null;
     }
