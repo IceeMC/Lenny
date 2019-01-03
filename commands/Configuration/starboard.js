@@ -8,7 +8,7 @@ class Starboard extends Command {
             check: 7,
             runIn: ["text"],
             subCommands: ["limit", "channel"],
-            usage: "<type> [limit:int[1,50]]",
+            usage: "<type> [limit:string]",
             aliases: ["sboard"]
         });
     }
@@ -21,12 +21,13 @@ class Starboard extends Command {
     }
 
     async limit(message, [limit]) {
+        limit = parseInt(limit);
         if (!limit) throw message.language.get("COMMAND_STARBOARD_NOLIMIT");
         const { starboard } = message.guild;
-        if (parseInt(limit) < 1) throw message.language.get("COMMAND_STARBOARD_LIMIT_ZERO");
-        if (starboard.limit === parseInt(limit)) throw message.language.get("COMMAND_STARBOARD_LIMIT_SAME");
+        if (limit < 1) throw message.language.get("COMMAND_STARBOARD_LIMIT_ZERO");
+        if (starboard.limit === limit) throw message.language.get("COMMAND_STARBOARD_LIMIT_SAME");
         await message.guild.updateConfig({ "starboard.limit": limit });
-        return message.sendLocale("COMMAND_STARBOARD_LIMIT_CHANGED", [starboard.limit, parseInt(limit)]);
+        return message.sendLocale("COMMAND_STARBOARD_LIMIT_CHANGED", [starboard.limit, limit]);
     }
 
     async channel(message) {
