@@ -34,7 +34,7 @@ class Starboard {
         const attachment = message.attachments.size > 0 ? this._check(message.attachments.array()[0].url) : null;
         const em = new MessageEmbed()
             .setAuthor(message.author.tag, message.author.displayAvatarURL({ format: "png" }))
-            .setFooter(`Stars: ${this.guild.settings.starboard.limit} | ID: ${message.id}`)
+            .setFooter(`Stars: ${this.guild.config.starboard.limit} | ID: ${message.id}`)
             .setTimestamp()
             .setColor(this.guild.client.utils.color)
             .setImage(attachment)
