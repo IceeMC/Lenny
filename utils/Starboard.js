@@ -65,8 +65,8 @@ class Starboard {
         }
     }
     
-    _userAttachment(content) {
-        const urlRgx = 
+    _userAttachment() {
+        // TODO: Later
     }
 
     _check(url) {
