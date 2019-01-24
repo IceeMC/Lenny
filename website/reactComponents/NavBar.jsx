@@ -45,10 +45,10 @@ class NavBar extends Component {
                         {pages.map(pg => <NavItem key={pg.name}><NavLink active={this.props.activePage === pg.name} href={pg.href}>{pg.name}</NavLink></NavItem>)}
                         {(() => {
                             if (this.props.authorized && this.props.usr) {
-                                let base;
+                                let base = <NavItem><NavLink>Welcome, {this.props.usr.username}!</NavLink></NavItem>;
                                 if (this.props.owner) base += ownerPages.map(pg => <NavItem key={pg.name}><NavLink active={this.props.activePage === pg.name} href={pg.href}>{pg.name}</NavLink></NavItem>);
-                                base += <NavItem><NavLink href="/logout">Logout</NavLink></NavItem>;
-                                return base;
+                                base += (<NavItem><NavLink href="/logout">Logout</NavLink></NavItem>);
+                                return <div>{base}</div>;
                             }
                             return <NavItem key="login"><NavLink href="/login">Login</NavLink></NavItem>;
                         })()}
