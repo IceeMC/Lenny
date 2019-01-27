@@ -59,7 +59,7 @@ class WebSocketServer {
 
     playerListener(socket, player) {
         const id = socket.guildId;
-        const guild = this.client.guilds.get(soket.guildId);
+        const guild = this.client.guilds.get(socket.guildId);
         this.socketSend(socket, {
             type: "PLAYER_INFO",
             id,
