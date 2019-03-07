@@ -20,7 +20,7 @@ class MessageEvent extends Event {
 
     async run(message) {
         // Prepare flags
-        if (!message._parsed) message._prepare();
+        message._prepare();
         // Start checking
         if (message.guild && !message.guild.config) await this.client.db.addConfig(message.guild.id);
         if (message.guild && this.prefixReminderRgx.test(message.content))
