@@ -56,8 +56,8 @@ class MessageEvent extends Event {
         if (message.author.bot || !message.content.startsWith(prefix)) return;
         const commands = this.client.storeManager.getStore("commands");
         const aliases = commands.aliases;
-        const split = message.content.split(/\s+/g);
-        const command = split[0].toLowerCase().slice(prefix.length);
+        const split = message.content.slice(prefix.length).split(/\s+/g);
+        const command = split[0].toLowerCase();
         const args = split.slice(1);
         const cmd = commands.files.get(command) || aliases.get(command);
         if (!cmd) {
