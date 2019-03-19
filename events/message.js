@@ -6,7 +6,7 @@ class MessageEvent extends Event {
     constructor(...args) {
         super(...args);
         this.ratelimitedUsers = new Set();
-        this.prefixRgx = /^((hey|hey )(!|!,|, | )?(chat noir|chatnoir)(!|!,|, | )|(cn\.|cn\. ))/i;
+        this.prefixRgx = /^((hey|hey )(!|!,|, | )?(chat noir|chatnoir)(!|!,|, | )?|(cn\.|cn\. ))/i;
         this.prefixReminderRgx = null;
         this.mentionPrefixRgx = null;
         this.cmdCooldowns = new CooldownManager();
