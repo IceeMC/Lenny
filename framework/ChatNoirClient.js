@@ -1,7 +1,6 @@
 const { Client, Permissions } = require("discord.js");
 const config = require("../config.json");
 const captureConsole = require("capture-console");
-const BananAPI = require("bananapi");
 const StoreManager = require("../framework/StoreManager.js");
 const stores = require("fs").readdirSync(`${process.cwd()}/framework/stores`);
 const permChecks = require("../utils/permChecks");
@@ -29,14 +28,9 @@ class ChatNoirClient extends Client {
         Object.defineProperty(this, "config", { value: config });
         this.utils = new (require("../utils/Utils.js"))(this);
         this.audioManager = null;
-        this.logger = new Logger(this, "log.txt");
         this.website = null;
         this.tttGames = new Map();
         this.unoGames = new Map();
-        // Console
-        captureConsole.startCapture(process.stdout, stdout => this.logger.write(stdout));
-        captureConsole.startCapture(process.stderr, stderr => this.logger.write(stderr));
-        this.bananapi = new BananAPI.Client({ token: config.bananapi });
         // Custom stuff
         this.storeManager = new StoreManager(this);
         // Perm checks
