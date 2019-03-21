@@ -1,10 +1,8 @@
 const { Client, Permissions } = require("discord.js");
 const config = require("../config.json");
-const captureConsole = require("capture-console");
 const StoreManager = require("../framework/StoreManager.js");
 const stores = require("fs").readdirSync(`${process.cwd()}/framework/stores`);
 const permChecks = require("../utils/permChecks");
-const Logger = require("../utils/Logger.js");
 const CatLoggr = require("cat-loggr");
 const Stopwatch = require("./Stopwatch.js");
 const Database = require("./Database.js");
