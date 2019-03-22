@@ -76,7 +76,7 @@ class Utils {
     async getTracks(search, host) {
         const node = this.client.audioManager.nodes.get(host);
         if (!node) throw new Error(`The requested node with host ${host} was not found.`);
-        return get(`http://${node.host}:2333/loadtracks?identifier=${search}`)
+        return get(`http://${node.host}:${node.port}/loadtracks?identifier=${search}`)
             .set("Authorization", node.password)
             .then(res => {
                 if (Array.isArray(res.body)) return res.body;
