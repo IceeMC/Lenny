@@ -26,7 +26,7 @@ class MDNDocsCommand extends Command {
         embed.setDescription(`**[${res.name}](${res.url})**\n\n${res.description}`);
         const params = res.params ? res.params.map(p => `${p[0]} - ${p[1]}`).join("\n") : null;
         const methods = res.methods ? res.methods.map(m => `${m[0]} - ${m[1]}`).join("\n") : null;
-        if (res.syntax) embed.addField("Syntax:", codeBlock("js", res.syntax));
+        if (res.syntax) embed.addField("Syntax:", this.client.utils.codeBlock(res.syntax, "js"));
         if (params) embed.addField("Parameters:", params.length > 1021 ? `${params.slice(0, 1017)}\n\`...\`` : params);
         if (methods) embed.addField("Methods:", methods.length > 1021 ? `${methods.slice(0, 1017)}\n\`...\`` : methods);
         if (res.returnValue) embed.addField("Return Value:", res.returnValue);
