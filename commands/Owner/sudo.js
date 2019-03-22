@@ -14,12 +14,11 @@ class Sudo extends Command {
     }
 
     async run(message, [member, cmd, args]) {
-        console.log([member.displayName, cmd, args]);
         const msg = cloneObject(message);
         Object.defineProperty(msg, "member", { value: member });
+        Object.defineProperty(msg, "author", { value: member.user });
         // No need to check args just set the "new" message content
         msg.content = `${message.prefix}${cmd.name} ${args || ""}`;
-        console.log(msg.content);
         this.client.emit("message", msg);
     }
 
