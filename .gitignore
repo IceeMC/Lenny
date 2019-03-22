@@ -4,3 +4,5 @@ node_modules/*
 package-lock.json
 website/bootstrap
 website/.next
+.idea/*
+.vs/*
