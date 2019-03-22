@@ -23,16 +23,14 @@ class EnUS extends Language {
             // Tags
             TAG_ARG_REQUIRED: ({ name }) => `Hey! You seem to have forgotten the argument: \`${name}\`.`,
             SUB_COMMAND_INVALID: (t) => `Hey! Your option did not match any of the following: ${t.map(t => `\`${t}\``).join(", ")}`,
-            TAG_BAD_LENGTH: ({ name, min, max }) =>
-                `Hey! Keep the length of \`${name}\` less than ${max} character${max>0?"s":""}, and greater than ${min} character${min>0?"s":""}`,
+            TAG_BAD_LENGTH: ({ name, min, max }) => `Hey! Keep the length of \`${name}\` less than ${max} character${max>0?"s":""}, and greater than ${min} character${min>0?"s":""}`,
             // Args
             ARG_BAD_MEMBER: "Hey! You provided an invalid member, make sure you provide a valid id, username, username#discriminator, or mention.",
             ARG_BAD_USER: "Hey! You provided an invalid user, make sure you provide a valid id, username, username#discriminator, or mention.",
-            ARG_BAD_BOOLEAN: "Hey! You provided an invalid boolean, make sure you provide true, or false",
+            ARG_BAD_BOOLEAN: arg =>  `Hey! \`${arg}\` isn't a valid boolean, make sure you provide a valid option.`,
             ARG_BAD_INT: "Hey! You provided an invalid integer, make sure that its a number of course.",
-            BANANAPI_ERROR: text => text,
             NSFW_CHANNEL_NO_NSFW: "Hey! This command can only be used in NSFW channels, so back off.",
-            USER_AFK: (user) => `<a:PepeHmm:473938687290245121> \`${user.username}\` has gone AFK for: \`${user.config.afk.message}\``,
+            USER_AFK: (user) => `${user.username}\` has gone AFK for: \`${user.config.afk.message}\``,
             SERVER_CMD_DISABLED: ({ member: { user }, command: { name } }) =>
                 `Hey ${user}! \`${name}\` has been disabled from being used server-wide.`,
             CMD_DISABLED: ({ member: { user }, command: { name } }) => `${user}, \`${name}\` has been disabled from being used globally.`,
@@ -51,7 +49,7 @@ class EnUS extends Language {
 Round trip - ${diff}ms
 API Ping - ${ping}ms
                 `).setColor(this.client.utils.color),
-            COMMAND_STATS: (memUsage, uptime, users, guilds, channels, discordVersion, processVersion, message, players, totalMem, usedMem, freeMem, hostUptime, systemUptime, cpuLoad) => {
+            COMMAND_STATS: (memUsage, uptime, users, guilds, channels, discordVersion, processVersion, message, players, totalMem, usedMem, freeMem, systemUptime, cpuLoad) => {
                 const statsEmbed = new MessageEmbed();
                 statsEmbed.setTitle("Bot Statistics!");
                 statsEmbed.setColor(this.client.utils.color);
@@ -72,7 +70,6 @@ Node.JS - ${processVersion}
                 statsEmbed.addField("Uptime", `
 Bot - ${uptime}
 System - ${systemUptime}
-Host - ${hostUptime}
                 `);
                 statsEmbed.addField("Memory (System wide)", `
 Process - ${memUsage} MB
@@ -103,7 +100,6 @@ Free - ${freeMem} GB
             COMMAND_INVERT_DESCRIPTION: "Inverts a user or yourself.",
             COMMAND_SEPIA_DESCRIPTION: "Gives someone or yourself a tinge of red.",
             COMMAND_SLAP_DESCRIPTION: "Slaps a user *ouch*.",
-            COMMAND_TWEET_DESCRIPTION: "Tweet something as trump.",
             COMMAND_DISABLED_DESCRIPTION:  "This seat is reserved for disabled people!",
             COMMAND_EMOJIFY_DESCRIPTION: "Converts the text into emojis.",
             COMMAND_HASH_DESCRIPTION: "Hashes the text you provide.",

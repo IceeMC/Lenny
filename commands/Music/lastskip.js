@@ -17,7 +17,7 @@ class LastSkip extends Command {
             throw message.language.get("COMMAND_MUSIC_NOT_REQUESTER");
 
         if (audioPlayer.queue.length === 0) {
-            message.sendLocale("COMMAND_MUSIC_END");
+            await message.sendLocale("COMMAND_MUSIC_END");
             this.client.audioManager.leave(message.guild.id);
             // Discord bug fix
             this.client.audioManager.forEach(aPlayer => {

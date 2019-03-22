@@ -152,7 +152,7 @@ If you wish to cancel this selection type \`cancel\`, or \`stop\`.
                 if (!tracks[i]) continue;
                 await this.handle(new AudioTrack(tracks[i], message.author), message, true);
             }
-            message.sendLocale("COMMAND_PLAYLIST_ENQUEUED", [{ name, tracks }]);
+            await message.sendLocale("COMMAND_PLAYLIST_ENQUEUED", [{ name, tracks }]);
             return true;
         } else if (soundcloudTrack) {
             const tracks = await this.client.utils.getTracks(soundcloudTrack[0], this.client.config.nodes[0].host);

@@ -9,8 +9,8 @@ class BooleanArg extends Arg {
     run(message, arg) {
         const trueArray = ["true", "+", "yes", "y", "yeah", "yep"];
         const falseArray = ["false", "-", "no", "n", "nope", "nah"];
-        if (trueArray.includes(arg)) return true;
-        if (falseArray.includes(arg)) return false;
+        const included = trueArray.includes(arg) || falseArray.includes(arg);
+        if (included) return included;
         throw message.language.get("ARG_BAD_BOOLEAN");
     }
 

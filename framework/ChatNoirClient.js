@@ -7,6 +7,7 @@ const CatLoggr = require("cat-loggr");
 const Stopwatch = require("./Stopwatch.js");
 const Database = require("./Database.js");
 const { sep } = require("path");
+const Utils =  require("../utils/Utils.js");
 
 class ChatNoirClient extends Client {
 
@@ -24,7 +25,7 @@ class ChatNoirClient extends Client {
         // More defining
         // Define config secretly
         Object.defineProperty(this, "config", { value: config });
-        this.utils = new (require("../utils/Utils.js"))(this);
+        this.utils = new Utils(this);
         this.audioManager = null;
         this.website = null;
         this.tttGames = new Map();

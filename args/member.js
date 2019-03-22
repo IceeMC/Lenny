@@ -11,9 +11,9 @@ class MemberArg extends Arg {
 
     run(message, arg) {
         console.log(arg);
-        const [id] = idRgx.test(arg) ? idRgx.exec(arg) : [null];
-        const [tag] = tagRgx.test(arg) ? tagRgx.exec(arg) : [null];
-        const [, mention] = mentionRgx.test(arg) ? mentionRgx.exec(arg) : [null, null];
+        const [id] = idRgx.exec(arg) || [];
+        const [tag] = tagRgx.exec(arg) || [];
+        const [, mention] = mentionRgx.exec(arg) || [];
         if (id) {
             const member = message.guild.members.get(id);
             if (!member) throw message.language.get("ARG_BAD_MEMBER");
