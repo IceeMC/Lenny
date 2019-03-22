@@ -6,7 +6,7 @@ class ReadyEvent extends Event {
 
     async run() {
         this.client.console.log(`${this.client.user.tag} ready in ${this.client.guilds.size} guilds!`);
-        this.client.user.setActivity("cn.help | v2", { type: "PLAYING" });
+        this.client.user.setActivity(`cn.help | ${this.client.guilds.size}`, { type: "PLAYING" });
         this.client.audioManager = new AudioManager(this.client);
         for (const node of [...this.client.audioManager.nodes.values()]) {
             node.on("ready", () => this.client.console.log(`AudioNode connected with host: ${node.host}`));
