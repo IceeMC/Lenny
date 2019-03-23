@@ -3,10 +3,11 @@ const { inspect } = require("util");
 
 class Hi extends Task {
 
-    constructor(...args,) {
+    constructor(...args) {
         super(...args, {
             name: "hi",
-            interval: 3000
+            runAfterSetup: true,
+            interval: 0
         })
     }
 
