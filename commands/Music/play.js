@@ -165,32 +165,30 @@ If you wish to cancel this selection type \`cancel\`, or \`stop\`.
             await this.handle(new AudioTrack(tracks[0], message.author), message);
             return true;
         } else if (spotifyTrackOrAlbum) {
-            throw "Spotify support has been not added at time.";
-            // const type = spotifyTrackOrAlbum[1];
-            // const id = spotifyTrackOrAlbum[2];
-            // if (type === "track") {
-            //     const m = await message.send("Please wait... I am processing your request! (Note that this does not actually play songs from spotify!)");
-            //     let track = (await get(`https://api.spotify.com/v1/tracks/${id}`).set("Authorization", `Bearer ${this.client.spotifyToken}`)).body;
-            //     track = await this.client.utils.getTracks(`ytsearch:${track.name}`, this.client.config.nodes[0].host);
-            //     if (!track) throw message.language.get("COMMAND_PLAY_NO_TRACKS", query);
-            //     await m.delete();
-            //     await this.handle(new AudioTrack(track[0], message.author), message);
-            // }
-            // if (type === "album") {
-            //     const m = await message.send("Please wait... I am processing your request! (Note that this does not actually play songs from spotify!)");
-            //     let album = (await get(`https://api.spotify.com/v1/albums/${id}`).set("Authorization", `Bearer ${this.client.spotifyToken}`)).body;
-            //     for (let i = 0; i < 50; i++) {
-            //         if (!album.tracks.items[i]) continue;
-            //         const result = await this.client.utils.getTracks(`ytsearch:${album.tracks.items[i].name}`, this.client.config.nodes[0].host);
-            //         if (!result) continue;
-            //         await this.handle(new AudioTrack(result[0], message.author), message, true);
-            //     }
-            //     await m.delete();
-            //     message.sendLocale("COMMAND_PLAYLIST_ENQUEUED", [{ name: album.name, tracks: album.tracks.items  }]);
-            // }
-            // return true;
+            const type = spotifyTrackOrAlbum[1];
+            const id = spotifyTrackOrAlbum[2];
+            if (type === "track") {
+                const m = await message.send("Please wait... I am processing your request!");
+                let track = (await get(`https://api.spotify.com/v1/tracks/${id}`).set("Authorization", `Bearer ${this.client.spotifyToken}`)).body;
+                track = await this.client.utils.getTracks(`ytsearch:${track.name}`, this.client.config.nodes[0].host);
+                if (!track) throw message.language.get("COMMAND_PLAY_NO_TRACKS", query);
+                await m.delete();
+                await this.handle(new AudioTrack(track[0], message.author), message);
+            }
+            if (type === "album") {
+                const m = await message.send("Please wait... I am processing your request!");
+                let album = (await get(`https://api.spotify.com/v1/albums/${id}`).set("Authorization", `Bearer ${this.client.spotifyToken}`)).body;
+                for (let i = 0; i < 50; i++) {
+                    if (!album.tracks.items[i]) continue;
+                    const result = await this.client.utils.getTracks(`ytsearch:${album.tracks.items[i].name}`, this.client.config.nodes[0].host);
+                    if (!result) continue;
+                    await this.handle(new AudioTrack(result[0], message.author), message, true);
+                }
+                await m.delete();
+                await message.sendLocale("COMMAND_PLAYLIST_ENQUEUED", [{ name: album.name, tracks: album.tracks.items  }]);
+            }
+            return true;
         }
-
         return false;
     }
 

@@ -18,11 +18,8 @@ class Utils {
             .send({ grant_type: "client_credentials" })
             .set("Authorization", basic(this.client.config.spotify.id, this.client.config.spotify.secret))
             .set("Content-Type", "application/x-www-form-urlencoded")
-            .then(res => res.body.access_token)
-            .catch(error => {
-                this.client.console.error(error);
-                return null;
-            });
+            .then(res => ({ error: null, token: res.body.access_token }))
+            .catch(error => ({ error, token: null }));
     }
 
     formatMS(ms) {

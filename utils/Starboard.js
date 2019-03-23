@@ -26,7 +26,7 @@ class Starboard {
             .setAuthor(message.author.tag, message.author.displayAvatarURL({ format: "png" }))
             .setFooter(`Stars: ${parseInt(regexMatch[1])+1} | ID: ${message.id}`)
             .setTimestamp()
-            .setColor(this.guild.client.utils.color)
+            .setColor(this.client.utils.color)
             .setImage(attachment)
             .setDescription(message.content);
         return starred.edit({ embed: em }).catch(() => null);
@@ -41,7 +41,7 @@ class Starboard {
             .setAuthor(message.author.tag, message.author.displayAvatarURL({ format: "png" }))
             .setFooter(`Stars: ${this.guild.config.starboard.limit} | ID: ${message.id}`)
             .setTimestamp()
-            .setColor(this.guild.client.utils.color)
+            .setColor(this.client.utils.color)
             .setImage(attachment)
             .setDescription(message.content);
         return channel.send({ embed: em }).catch(() => null);
@@ -56,7 +56,7 @@ class Starboard {
                 .setAuthor(message.author.tag, message.author.displayAvatarURL({ format: "png" }))
                 .setFooter(`Stars: ${parseInt(regexMatch[1])-1} | ID: ${message.id}`)
                 .setTimestamp()
-                .setColor(this.guild.client.utils.color)
+                .setColor(this.client.utils.color)
                 .setImage(attachment)
                 .setDescription(message.content);
             starred.edit({ embed: em }).catch(() => null);
