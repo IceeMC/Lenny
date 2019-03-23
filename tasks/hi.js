@@ -6,15 +6,12 @@ class Hi extends Task {
     constructor(...args) {
         super(...args, {
             name: "hi",
-            runAfterSetup: true,
-            interval: 0
+            interval: 1500
         })
     }
 
     async run() {
-        console.log(inspect(this, { depth: 0 }));
-        const obj = { yes: undefined };
-        return obj.yes.hi;
+        console.log(inspect(task, { depth: 0 }), "hi");
     }
 
 }
