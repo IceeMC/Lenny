@@ -13,7 +13,6 @@ class Task {
         this.interval = interval;
         this.once = once;
         this.runAfterSetup = runAfterSetup;
-        this._boundRun = null;
         this.runCount = 0;
     }
 
@@ -21,16 +20,10 @@ class Task {
         throw `Task: ${this.constructor.name} does not have a run function.`;
     }
 
-    get boundRun() {
-        if (this._boundRun) return this._boundRun;
-        this._boundRun = this.run.bind(this);
-        return this._boundRun;
-    }
-
     async _run() {
         this.runCount++;
         if (this.runCount === 1 && this.once) return this.store.files.delete(this.name);
-        await this.boundRun().catch(e => {
+        await this.run().catch(e => {
             e.name = `TaskError [at ${this.name}]`;
             e.task = this;
             this.client.emit("error", e);
