@@ -39,4 +39,4 @@ class Task {
 
 }
 
-module.exports = Language;
+module.exports = Task;
