@@ -12,9 +12,9 @@ class ReadyEvent extends Event {
             node.on("ready", () => this.client.console.log(`AudioNode connected with host: ${node.host}`));
             node.on("error", () => this.client.console.error(`AudioNode failed to connect with host: ${node.host}.`));
         }
-        this.client.console.log("[INFO] Starting tasks...");
+        this.client.console.log("Starting tasks...");
         await this.client.storeManager.getStore("tasks").setupAfterReady();
-        this.client.console.log("[INFO] Done!");
+        this.client.console.log("Done!");
         // this.client.website = new Website(this.client);
         // this.client.website.start();
     }
