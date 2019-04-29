@@ -17,14 +17,14 @@ class AFK extends Command {
         if (!afkMessage) throw message.language.get("COMMAND_AFK_NO_MESSAGE");
         const { afk: { isAfk } } = message.author.config;
         if (isAfk) throw message.language.get("COMMAND_AFK_ALREADY_AFK", [message.guild.config.prefix]);
-        await message.author.updateConfig({ afk: { isAfk: true, message: this.client.clean(message, afkMessage) } });
+        await message.author.updateConfig({ "afk.isAfk": true, "afk.afkMessage": this.client.clean(message, afkMessage) });
         return message.sendLocale("COMMAND_AFK_SET", [this.client.clean(message, afkMessage)]);
     }
 
     async remove(message) {
         const { afk: { isAfk } } = message.author.config;
         if (!isAfk) throw message.language.get("COMMAND_AFK_NOT_AFK", [message.guild.config.prefix]);
-        await message.author.updateConfig({ afk: { isAfk: false, message: null } });
+        await message.author.updateConfig({ "afk.isAfk": false, "afk.afkMessage": null });
         return message.sendLocale("COMMAND_AFK_REMOVE");
     }
 
