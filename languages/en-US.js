@@ -30,7 +30,7 @@ class EnUS extends Language {
             ARG_BAD_BOOLEAN: arg =>  `Hey! \`${arg}\` isn't a valid boolean, make sure you provide a valid option.`,
             ARG_BAD_INT: "Hey! You provided an invalid integer, make sure that its a number of course.",
             NSFW_CHANNEL_NO_NSFW: "Hey! This command can only be used in NSFW channels, so back off.",
-            USER_AFK: (user) => `${user.username}\` has gone AFK for: \`${user.config.afk.message}\``,
+            USER_AFK: (user) => `${user.username}\` has gone AFK for: \`${user.config.afk.afkMessage}\``,
             SERVER_CMD_DISABLED: ({ member: { user }, command: { name } }) =>
                 `Hey ${user}! \`${name}\` has been disabled from being used server-wide.`,
             CMD_DISABLED: ({ member: { user }, command: { name } }) => `${user}, \`${name}\` has been disabled from being used globally.`,
