@@ -25,7 +25,7 @@ class Yiff extends Command {
     }
 
     async getRandomPost() {
-        const request = await get("https://api.reddit.com/r/yiff/top/.json?sort=top&t=day&limit=250");
+        const request = await get("https://api.reddit.com/r/yiff/top/.json?sort=hot&t=day&limit=250");
         const children = request.body.data.children;
         const randomPost =  children[Math.floor(Math.random() * children.length)].data;
         return {
