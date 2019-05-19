@@ -18,7 +18,7 @@ class Yiff extends Command {
         const embed = new MessageEmbed();
         embed.setAuthor(result.title, message.author.displayAvatarURL({ format: "png" }));
         embed.setColor(this.client.utils.color);
-        embed.setImage(url);
+        embed.setImage(result.url);
         embed.setTimestamp();
         embed.setFooter(`Author: ${result.author} | 👍 ${result.ups} | 👎 ${result.downs}`);
         return message.send(embed);
