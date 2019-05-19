@@ -241,6 +241,7 @@ Free - ${freeMem} GB
             COMMAND_PORNPFP_DESCRIPTION: "Gets an porn profile picture. !! NSFW !!",
             COMMAND_NEKO_DESCRIPTION: "Gets a avatar that is porn related. !! NSFW !!",
             COMMAND_LESBIAN_DESCRIPTION: "Gets a picture of lesbians. !! NSFW !!",
+            COMMAND_YIFF_DESCRIPTION: "Gets a picture of hot fuwwy yiff. !! NSFW !!",
 
             // Utility
             COMMAND_AFK_ALREADY_AFK: (prefix) => `Sorry, but you can't go AFK again, you can clear it with \`${prefix}afk remove\`.`,

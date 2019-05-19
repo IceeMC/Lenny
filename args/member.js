@@ -19,13 +19,13 @@ class MemberArg extends Arg {
             if (!member) throw message.language.get("ARG_BAD_MEMBER");
             return member;
         } else if (tag) {
-            const member = message.guild.members.find(m => m.user.tag.toLowerCase() === tag.toLowerCase());
+            const member = message.guild.members.find(m => m.user.tag.toLowerCase().indexOf(tag.toLowerCase()) >= 1);
             if (!member) throw message.language.get("ARG_BAD_MEMBER");
             return member;
         } else if (mention) {
             return message.mentions.members.get(mention);
         } else {
-            const member = message.guild.members.find(m => m.user.username.toLowerCase() === arg.toLowerCase());
+            const member = message.guild.members.find(m => m.user.username.toLowerCase().indexOf(tag.toLowerCase()) >= 1);
             if (!member) throw message.language.get("ARG_BAD_MEMBER");
             return member;
         }

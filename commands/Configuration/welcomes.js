@@ -13,22 +13,22 @@ class Welcomes extends Command {
     }
 
     async run(message, [type]) {
-        if (type === "enable") return this.enableWelcomes(message);
-        if (type === "disable") return this.disableWelcomes(message);
-        if (type === "channel") return this.channel(message);
+        if (type === "enable") return Welcomes.enableWelcomes(message);
+        if (type === "disable") return Welcomes.disableWelcomes(message);
+        if (type === "channel") return Welcomes.channel(message);
     }
 
-    async enableWelcomes(message) {
-        await message.guild.updateConfig({ "welcomes.enabled": true });
+    static async enableWelcomes(message) {
+        await message.guild.updateConfig({ "welcome.enabled": true });
         return message.sendLocale("COMMAND_WELCOMES_ENABLED");
     }
 
-    async disableWelcomes(message) {
-        await message.guild.updateConfig({ "welcomes.enabled": false });
+    static async disableWelcomes(message) {
+        await message.guild.updateConfig({ "welcome.enabled": false });
         return message.sendLocale("COMMAND_WELCOMES_DISABLED");
     }
 
-    async channel(message) {
+    static async channel(message) {
         if (message.mentions.channels.size) {
             if (!message.mentions.channels.first().postable) throw message.language.get("COMMAND_WELCOMES_CANT_SPEAK");
             await message.guild.updateConfig({ "welcome.channel": message.mentions.channels.first().id });

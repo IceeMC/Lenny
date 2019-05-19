@@ -21,11 +21,11 @@ class Meme extends Command {
             .setImage(result.url)
             .setTimestamp()
             .setFooter(`👍 ${result.ups} | 👎 ${result.downs}`);
-        return message.sendEmbed(embed);
+        return message.send({ embed });
     }
 
     async getRandomPost() {
-        const request = await get("https://api.reddit.com/user/kerdaloo/m/dankmemer/top/.json?sort=top&t=day&limit=500")
+        const request = await get("https://api.reddit.com/user/kerdaloo/m/dankmemer/top/.json?sort=top&t=day&limit=250");
         const children = request.body.data.children;
         const randomPost =  children[Math.floor(Math.random() * children.length)].data;
         return {

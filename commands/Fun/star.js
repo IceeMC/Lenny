@@ -13,11 +13,11 @@ class Star extends Command {
     }
 
     run(message, [text]) {
-        const star = this.client.utils.codeBlock("", this.generateStar(this.client.clean(message, text)));
+        const star = this.client.utils.codeBlock("", Star.generateStar(this.client.clean(message, text)));
         return message[message.channel.type === "dm" ? "author" : "channel"].send(star);
     }
 
-    generateStar(text) {
+    static generateStar(text) {
         let star = "";
         const middle = text.length - 1;
         for (const i of range(text.length * 2 - 1)) {

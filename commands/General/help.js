@@ -17,8 +17,7 @@ class Help extends Command {
 
 	async run(message, [command]) {
 		if (command) {
-			if (command.noHelp && !(await this.client.permChecks.runCheck(command.check, message)).value)
-				throw message.language.get("COMMAND_HELP_CMD_CANT_BE_VIEWED", command);
+			if (command.noHelp && !(await this.client.permChecks.runCheck(command.check, message)).value) throw message.language.get("COMMAND_HELP_CMD_CANT_BE_VIEWED", command);
 			const embed = new MessageEmbed()
 				.setTitle(command.name)
 				.setColor(this.client.utils.color)
@@ -38,6 +37,7 @@ class Help extends Command {
 				.setDescription("Use the buttons to switch between pages.")
 			);
 			for (let cat = 0; cat < categories.length; cat++) {
+				if (categories[cat] === "NSFW" && !message.channel.nsfw) continue;
 				let helpPageValue = "";
 				helpPageValue += `${help[categories[cat]].map(c => c.nodm).join("\n")}\n`;
 				helpMenu.addPage(new MessageEmbed().addField(`${categories[cat]} Commands`, helpPageValue));
@@ -64,6 +64,7 @@ class Help extends Command {
 		const categories = Object.keys(help).filter(c => help[c].length > 1);
 		let helpStr = "";
 		for (let cat = 0; cat < categories.length; cat++) {
+			if (categories[cat] === "NSFW" && !message.channel.nsfw) continue;
 			let helpPageValue = "\`\`\`ascii\n";
 			helpPageValue += `${help[categories[cat]].map(c => c.dm).join('\n')}`;
 			helpPageValue += "\`\`\`\u200b";

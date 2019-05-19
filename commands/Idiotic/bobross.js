@@ -8,7 +8,7 @@ class Bobross extends Command {
             runIn: ["text"],
             perms: ["ATTACH_FILES"],
             description: language => language.get("COMMAND_BOBROSS_DESCRIPTION"),
-            usage: "[member:string::all]",
+            usage: "[member:member::all]",
             cooldown: 5
         });
     }
