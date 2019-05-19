@@ -29,7 +29,6 @@ class Yiff extends Command {
         const children = request.body.data.children;
         const randomPost =  children[Math.floor(Math.random() * children.length)].data;
         return {
-            nsfw: randomPost.over_18,
             author: randomPost.author_fullname,
             url: randomPost.url,
             title: randomPost.title,
