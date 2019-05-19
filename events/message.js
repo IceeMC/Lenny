@@ -27,7 +27,7 @@ class MessageEvent extends Event {
             return message.send(message.language.get("PREFIX_REMINDER", message.guild.config.prefix));
         // AFK check
         if (message.mentions.users.size > 0 && message.guild && message.channel.postable) {
-            const foundAFKUsers = message.mentions.users.map(u => !u.bot && u.config.afk && u.config.afk.isAfk && u.id !== message.author.id);
+            const foundAFKUsers = message.mentions.users.filter(u => u.config && u.config.afk.isAfk && u.id !== message.author.id);
             if (!foundAFKUsers.size) {} // Using return would fuck up mentions REE
             else return message.send(foundAFKUsers.map(u => message.language.get("USER_AFK", u)).join("\n"));
         }
